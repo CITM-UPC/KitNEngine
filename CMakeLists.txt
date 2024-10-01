@@ -23,7 +23,7 @@ find_package(sdl2_image CONFIG REQUIRED)
 find_package(sdl2_mixer CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-#find_package(DevIL CONFIG REQUIRED)
+find_package(DevIL REQUIRED)
 #find_package(assimp CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -33,4 +33,16 @@ find_package(Bullet CONFIG REQUIRED)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
-#target_link_libraries(main PRIVATE ${BULLET_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        ${BULLET_LIBRARIES}
+        GLEW::GLEW
+        glm::glm 
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        imgui::imgui
+        SDL2::SDL2_gfx
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+        $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
+        $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
+        yaml-cpp::yaml-cpp
+)
