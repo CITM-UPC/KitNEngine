@@ -5,31 +5,36 @@
 #ifndef MODEL3D_H
 #define MODEL3D_H
 
+#include "GL/glew.h"
+#include <vector>
+
+#include "assimp/mesh.h"
+#include "glm/fwd.hpp"
+
 struct MyMesh
 {
-    public:
-    explicit MyMesh(const aiMesh* mesh)
-    {
-        vertices.reserve(mesh->mNumVertices*3);
-        for (unsigned int i = 0; i < mesh->mNumVertices;i++)
-        {
-            vertices.push_back(mesh->mVertices[i].x);
-            vertices.push_back(mesh->mVertices[i].y);
-            vertices.push_back(mesh->mVertices[i].z);
-        }
-        
-        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-        {
-            const aiFace& face = mesh->mFaces[i];
-            for (unsigned int j = 0; j < face.mNumIndices; j++)
-            {
-                indices.push_back(face.mIndices[j]);
-            }
-        }
-    }
+public:
+
+    static glm::uint nextBufferId;
+
+    explicit MyMesh(const aiMesh* mesh);
+
+    void StartDraw();
+    
+    void EndDraw();
 
     std::vector<float> vertices;
     std::vector<glm::uint> indices;
+    GLuint vertex_array_id = 0;
+    GLuint vertex_buffer_id = 0;
+    GLuint index_buffer_id = 0;
+
+private:
+
+    void SetUpMesh();
+
+    static void GenerateBuffer(GLenum type, GLuint& bufferID, const void* data, GLsizeiptr dataSize, GLenum usage);
+    
 };
 
 #endif //MODEL3D_H

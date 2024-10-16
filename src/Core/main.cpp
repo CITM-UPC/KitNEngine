@@ -1,16 +1,15 @@
 #include <GL/glew.h>
 #include <chrono>
-#include <imgui_impl_sdl2.h>
 #include <thread>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <SDL2/SDL_events.h>
 
+#include "imgui_impl_sdl2.h"
 #include "MyWindow.h"
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
-#include "draco/mesh/mesh.h"
 #include "Structures/MyMesh.h"
 using namespace std;
 
@@ -19,7 +18,7 @@ using u8vec4 = glm::u8vec4;
 using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
 
-static const ivec2 WINDOW_SIZE(512, 512);
+static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
@@ -30,10 +29,7 @@ static void init_openGL() {
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
-static std::vector<MyMesh> meshes;
-
-glm::uint mesh_buffer_id = 0;
-glm::uint mesh_indices_buffer_id = 0;
+static std::vector<std::unique_ptr<MyMesh>> meshes;
 
 glm::uint vertex_buffer_id = 0;
 
@@ -103,26 +99,32 @@ static void draw_triangle(const u8vec4& color, const vec3& center, double size) 
 	// glEnd();
 }
 
-static void draw_mesh(const MyMesh& mesh)
+static void draw_mesh(MyMesh& mesh)
 {
-	glEnableClientState(GL_VERTEX_ARRAY);
+	mesh.StartDraw();
 	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_id);
-	glBufferData (GL_ARRAY_BUFFER, sizeof(float) * mesh.vertices.size(), mesh.vertices.data(), GL_STATIC_DRAW);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_indices_buffer_id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.indices.size(), mesh.indices.data(), GL_STATIC_DRAW);
+	mesh.EndDraw();
+	//glEnableClientState(GL_VERTEX_ARRAY);
 
-	glRotatef(0.5f,1.0f,1.0f,1.0f);
-	
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, NULL);
-	
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.vertex_buffer_id);
+	//glVertexPointer(3, GL_FLOAT, 0, NULL);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer_id);
+
+	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
+	//glScalef(0.999f, 0.999f, 0.999f);
+
+	//glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, NULL);
 }
 
 static void display_func() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	draw_mesh(meshes[0]);
+	for (auto& mesh : meshes)
+	{
+		draw_mesh(*mesh);
+	}
+	glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
+	glScalef(0.999f, 0.999f, 0.999f);
 }
 
 static bool processEvents() {
@@ -170,25 +172,31 @@ static bool LoadMeshes(const char* filename)
 			printf("\n") ;
 		}
 
-		meshes.emplace_back(mesh);
+		meshes.emplace_back(std::make_unique<MyMesh>(mesh));
 	}
 	
 	aiReleaseImport(scene) ;
 	return true;
 }
 
+void CleanUp()
+{
+}
+
 int main(int argc, char** argv) {
-	//Temp code (the most permanent type of code)
-	const char* path= "../Assets/Models/Cube.fbx";
-	LoadMeshes(path);
-	
-
-	//Temp code end
-	
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
-
 	init_openGL();
 
+	
+	//Temp code (the most permanent type of code)
+	const char* path= "../Assets/Models/masterchiefSmol.fbx";
+	
+	LoadMeshes(path);
+	//Temp code end
+
+	vertex_buffer_id = MyMesh::nextBufferId++;
+	index_buffer_id = MyMesh::nextBufferId++;
+	
 	//Generate vertex buffer
 	glGenBuffers (1, (GLuint*) &(vertex_buffer_id));
 	glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_id);
@@ -198,10 +206,7 @@ int main(int argc, char** argv) {
 	glGenBuffers (1, (GLuint*) &(index_buffer_id));
 	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
 	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*num_indices, triangleIndices, GL_STATIC_DRAW);
-
-	glGenBuffers(1, (GLuint*) &(mesh_buffer_id));
-	glGenBuffers(1, (GLuint*) &(mesh_indices_buffer_id));
-
+	
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
 		display_func();
@@ -211,6 +216,8 @@ int main(int argc, char** argv) {
 		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
 
+	CleanUp();
+	
 	cout << "Bye World!" << endl;
 	return 0;
 }
