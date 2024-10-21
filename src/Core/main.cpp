@@ -11,6 +11,7 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "Structures/MyMesh.h"
+#include "Structures/Texture.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -30,11 +31,14 @@ static void init_openGL() {
 }
 
 static std::vector<std::unique_ptr<MyMesh>> meshes;
+static std::vector<std::unique_ptr<Texture>> textures;
+
+#pragma region MANUAL_MESH
 
 glm::uint vertex_buffer_id = 0;
 
 static const glm::uint num_vertices = 8;
-static float vertices[num_vertices*3] = {
+static glm::float32 vertices[num_vertices*3] = {
 	-0.5f, -0.5f,  0.5f,
 	 0.5f, -0.5f,  0.5f,
 	 0.5f,  0.5f,  0.5f,
@@ -70,6 +74,34 @@ static glm::uint  triangleIndices[num_indices]
 	4,5,1,
 	1,0,4
 };
+
+static glm::float32 uvCoords[] = {
+	0.0f,0.0f,
+	1.0f,0.0f,
+	0.0f,1.0f,
+	1.0f,1.0f
+};
+
+void InitDefaultModel()
+{
+	vertex_buffer_id = MyMesh::nextBufferId++;
+	index_buffer_id = MyMesh::nextBufferId++;
+	
+	// Generate vertex buffer
+	glGenBuffers (1, (GLuint*) &(vertex_buffer_id));
+	glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_id);
+	glBufferData (GL_ARRAY_BUFFER, sizeof(float)*num_vertices*3, vertices, GL_STATIC_DRAW);
+
+	// Generate vertex_index buffer
+	glGenBuffers (1, (GLuint*) &(index_buffer_id));
+	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*num_indices, triangleIndices, GL_STATIC_DRAW);
+
+	// Generate Texture
+	textures.push_back(std::make_unique<Texture>(256,256));
+}
+
+#pragma endregion MANUAL_MESH
 
 static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
 
@@ -194,18 +226,7 @@ int main(int argc, char** argv) {
 	LoadMeshes(path);
 	//Temp code end
 
-	vertex_buffer_id = MyMesh::nextBufferId++;
-	index_buffer_id = MyMesh::nextBufferId++;
 	
-	//Generate vertex buffer
-	glGenBuffers (1, (GLuint*) &(vertex_buffer_id));
-	glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_id);
-	glBufferData (GL_ARRAY_BUFFER, sizeof(float)*num_vertices*3, vertices, GL_STATIC_DRAW);
-
-	//Generate vertex_index buffer
-	glGenBuffers (1, (GLuint*) &(index_buffer_id));
-	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*num_indices, triangleIndices, GL_STATIC_DRAW);
 	
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
