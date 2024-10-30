@@ -7,26 +7,27 @@
 #include <vector>
 
 #include "SDL_opengl.h"
+#include "IL/il.h"
 
 #define COLOR_CHANNELS 4
 
 struct Texture {
-    static GLuint nextID;
+    static ILuint nextID;
     
-    std::vector<GLuint> data;
-    GLuint width;
-    GLuint height;
-    GLuint channels = COLOR_CHANNELS;
+    GLint width = 0;
+    GLint height = 0;
 
-    GLuint textureID = 0;
+    ILuint textureID = 0;
     
-    Texture(GLuint width, GLuint height, bool autogenerate = true);
+    Texture(GLint width, GLint height);
     
-    Texture(std::vector<GLuint> data, GLuint width, GLuint height);
+    Texture(const std::vector<GLubyte>& data, GLint width, GLint height);
 
-    GLuint& Get(const GLuint& x, const GLuint& y, const GLuint& channel) { return data[x + y*width + channel*width*height]; }
+    explicit Texture(const char* path);
 
-    void BufferTexture();
+    void BufferTextureIL(const char* path);
+
+    void BufferTextureGL(const GLubyte* data, GLint width, GLint height);
     
 };
 
