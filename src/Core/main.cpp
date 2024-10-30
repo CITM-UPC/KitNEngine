@@ -12,6 +12,7 @@
 #include "assimp/scene.h"
 #include "Structures/MyMesh.h"
 #include "Structures/Texture.h"
+#include "Component/Camera.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -23,13 +24,23 @@ static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
+int eyex = -100, eyey = -100, eyez = 0;   // Posición de la cámara
+float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
+float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
+
+float yaw = 0.0f;   // Ángulo horizontal (izquierda-derecha)
+float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
+float moveStep = 0.2f; // Paso de movimiento de la cámara
+float rotationStep = 2.0f; // Paso de rotación de la cámara
+float sensitivity = 0.1f;
+
 static void init_openGL() {
 	glewInit();
 	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 }
-
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 static std::vector<std::unique_ptr<MyMesh>> meshes;
 static std::vector<std::unique_ptr<Texture>> textures;
 
@@ -155,8 +166,8 @@ static void display_func() {
 	{
 		draw_mesh(*mesh);
 	}
-	glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
-	glScalef(0.999f, 0.999f, 0.999f);
+	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
+	glScalef(0.989f, 0.989f, 0.989f);
 }
 
 static bool processEvents() {
@@ -171,6 +182,71 @@ static bool processEvents() {
 		}
 	}
 	return true;
+}
+void updateCameraDirection() {
+	 
+	/*centerx = eyex + cos(pitch) * cos(yaw) * 100.0f;
+	centery = eyey + sin(pitch) * 100.0f;
+	centerz = eyez + cos(pitch) * sin(yaw) * 100.0f;*/
+}
+
+void processEvent(const SDL_Event& event) {
+	// Manejar eventos de teclado
+	if (event.type == SDL_KEYDOWN) {
+		switch (event.key.keysym.sym) {
+		case SDLK_w: // Mover hacia adelante
+			eyex += (centerx - eyex) * moveStep;
+			eyey += (centery - eyey) * moveStep;
+			eyez += (centerz - eyez) * moveStep;
+			updateCameraDirection();
+			break;
+		case SDLK_s: // Mover hacia atrás
+			eyex -= (centerx - eyex) * moveStep;
+			eyey -= (centery - eyey) * moveStep;
+			eyez -= (centerz - eyez) * moveStep;
+			updateCameraDirection();
+			break;
+		case SDLK_a: // Mover a la izquierda
+			eyex += sin(glm::radians(yaw - 90.0f)) * moveStep;
+			eyez += -cos(glm::radians(yaw - 90.0f)) * moveStep;
+			updateCameraDirection();
+			break;
+		case SDLK_d: // Mover a la derecha
+			eyex += sin(glm::radians(yaw + 90.0f)) * moveStep;
+			eyez += -cos(glm::radians(yaw + 90.0f)) * moveStep;
+			updateCameraDirection();
+			break;
+		case SDLK_UP: // Rotar hacia arriba
+			pitch += rotationStep;
+			if (pitch > 89.0f) pitch = 89.0f; // Limitar el ángulo de pitch
+			updateCameraDirection();
+			break;
+		case SDLK_DOWN: // Rotar hacia abajo
+			pitch -= rotationStep;
+			if (pitch < -89.0f) pitch = -89.0f;
+			updateCameraDirection();
+			break;
+		case SDLK_LEFT: // Rotar hacia la izquierda
+			yaw -= rotationStep;
+			updateCameraDirection();
+			break;
+		case SDLK_RIGHT: // Rotar hacia la derecha
+			yaw += rotationStep;
+			updateCameraDirection();
+			break;
+		}
+	}
+}
+void handleMouseMotion(SDL_Event& event) {
+	// Movimiento del ratón para rotar la cámara
+	yaw += event.motion.xrel * sensitivity;
+	pitch -= event.motion.yrel * sensitivity;
+
+	// Limitar pitch para evitar movimientos bruscos al pasar 90 grados
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
+
+	updateCameraDirection();
 }
 
 static bool LoadMeshes(const char* filename)
@@ -215,30 +291,39 @@ void CleanUp()
 {
 }
 
+
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
 
-	
-	//Temp code (the most permanent type of code)
-	const char* path= "../Assets/Models/masterchiefSmol.fbx";
-	
-	LoadMeshes(path);
-	//Temp code end
+	SDL_SetRelativeMouseMode(SDL_TRUE); // Captura el ratón en la ventana
 
-	
-	
-	while (processEvents()) {
-		const auto t0 = hrclock::now();
+	const char* path = "../Assets/Models/masterchiefSmol.fbx";
+	LoadMeshes(path);
+
+	while (true) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) return 0;
+			processEvent(event); // Llama a `processEvent` para manejar las teclas presionadas
+		}
+
+		// Actualización de la vista de la cámara
+		//Comentar las 3 para ver el modelo de normal
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 1.0, 1000.0);
+		gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
+
+		// Renderizado de la escena
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		display_func();
+
 		window.swapBuffers();
-		const auto t1 = hrclock::now();
-		const auto dt = t1 - t0;
-		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+		std::this_thread::sleep_for(FRAME_DT); // Control de fotogramas por segundo
 	}
 
 	CleanUp();
-	
-	cout << "Bye World!" << endl;
+	cout << "¡Adiós, mundo!" << endl;
 	return 0;
 }
