@@ -32,7 +32,7 @@ find_package(Bullet CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include ${IL_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${BULLET_LIBRARIES}
@@ -43,6 +43,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         imgui::imgui
         assimp::assimp
         SDL2::SDL2_gfx
+        $<TARGET_NAME_IF_EXISTS:DevIL::IL>
+        $<TARGET_NAME_IF_EXISTS:DevIL::ILU>
+        $<TARGET_NAME_IF_EXISTS:DevIL::ILUT>
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
         $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>

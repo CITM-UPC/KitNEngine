@@ -3,15 +3,21 @@
 #include <thread>
 #include <iostream>
 #include <glm/glm.hpp>
-#include <SDL2/SDL_events.h>
+#include <SDL2/SDL.h>
 
 #include "imgui_impl_sdl2.h"
 #include "MyWindow.h"
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
-#include "Structures/MyMesh.h"
+#include "IL/il.h"
+#include "IL/ilu.h"
+#include "IL/ilut.h"
+#include "Structures/FpMesh.h"
+#include "Structures/PpMesh.h"
+#include "Structures/Shader.h"
 #include "Structures/Texture.h"
+#include "Utilities/FileUtils.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -23,31 +29,118 @@ static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-static void init_openGL() {
-	glewInit();
-	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.5, 0.5, 0.5, 1.0);
+void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	std::cout << "OpenGL Debug Message: " << message << std::endl;
 }
 
-static std::vector<std::unique_ptr<MyMesh>> meshes;
+static void init_SDL()
+{
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize SDL: %s\n", SDL_GetError());
+		exit(-1);
+	}
+	
+}
+
+static void init_openGL() {
+	glewExperimental = GL_TRUE;
+	glewInit();
+	
+	if (!GLEW_VERSION_3_3) throw exception("OpenGL 3.3 API is not available.");
+	//glCullFace(GL_BACK);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_TEXTURE_2D);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+
+	// Enable debugging output
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Ensures debugging is synchronous
+	//glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+}
+void init_devIL()
+{
+	if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION)
+	{
+		throw exception("DevIL version mismatch");
+	}
+	
+	ilInit();
+	iluInit();
+	ilutInit();
+}
+
+
+
+ 	
+
+
+GLuint shaderProgram;
+
+vector<unique_ptr<Shader>> shaders;
+
+// Compiles the shader contained in the provided file and type and saves its ID to shaderID.
+void compileShader(GLuint& shaderID, const char* filename, GLenum shaderType)
+{
+	std::string source = LoadTextFile(filename);
+	const GLchar* str = source.c_str();
+	shaderID = glCreateShader(shaderType);
+	glShaderSource(shaderID, 1, &str, NULL);
+	glCompileShader(shaderID);
+
+	GLint  success;
+	char infoLog[512];
+	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+
+	if(!success)
+	{
+		glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
+		std::string shaderTypeString;
+		switch(shaderType)
+		{
+			case GL_VERTEX_SHADER: shaderTypeString = "VERTEX"; break;
+			case GL_FRAGMENT_SHADER: shaderTypeString = "FRAGMENT"; break;
+		default: shaderTypeString = "UNKNOWN"; break;
+		}
+		std::cout << "ERROR::SHADER::" << shaderTypeString << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+
+}
+
+void init_shaders()
+{
+	shaders.push_back(make_unique<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+}
+
+
+static std::vector<std::unique_ptr<kMeshBase>> meshes;
 static std::vector<std::unique_ptr<Texture>> textures;
 
 #pragma region MANUAL_MESH
 
+unique_ptr<FPMesh> manualMesh;
+
 glm::uint vertex_buffer_id = 0;
 
-static const glm::uint num_vertices = 8;
-static glm::float32 vertices[num_vertices*3] = {
-	-0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
-	
-	-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	-0.5f,  0.5f, -0.5f
+static const GLuint num_vertices = 8;
+static const GLuint valsPerVertex = 3;
+static const GLuint valsPerColor = 3;
+static const GLuint vertexSize = valsPerVertex;//+valsPerColor;
+static glm::float32 vertices[num_vertices*vertexSize] = {
+	//Position				////Color
+	-0.5f, -0.5f,  0.5f,	//-0.5f, -0.5f,  0.5f,
+	 0.5f, -0.5f,  0.5f,	// 0.5f, -0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,	// 0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,	//-0.5f,  0.5f,  0.5f,
+	//
+	-0.5f, -0.5f, -0.5f,	//-0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,	// 0.5f, -0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,	// 0.5f,  0.5f, -0.5f,
+	-0.5f,  0.5f, -0.5f,	//-0.5f,  0.5f, -0.5f
 
 };
 
@@ -75,16 +168,15 @@ static glm::uint  triangleIndices[num_indices]
 	1,0,4
 };
 
-static glm::float32 uvCoords[] = {
-	0.0f,0.0f,
-	1.0f,0.0f,
-	0.0f,1.0f,
-	1.0f,1.0f
+static glm::float32 uvCoords[num_indices * 2] = {
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
 void InitDefaultModel()
 {
-	vertex_buffer_id = MyMesh::nextBufferId++;
+	meshes.push_back(make_unique<FPMesh>(vertices, vertexSize,num_vertices));
+	
+	/*vertex_buffer_id = MyMesh::nextBufferId++;
 	index_buffer_id = MyMesh::nextBufferId++;
 	
 	// Generate vertex buffer
@@ -96,6 +188,7 @@ void InitDefaultModel()
 	glGenBuffers (1, (GLuint*) &(index_buffer_id));
 	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
 	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*num_indices, triangleIndices, GL_STATIC_DRAW);
+	*/
 
 	// Generate Texture
 	textures.push_back(std::make_unique<Texture>(256,256));
@@ -103,49 +196,12 @@ void InitDefaultModel()
 
 #pragma endregion MANUAL_MESH
 
-static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_id);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
-	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-	
-	glRotatef(0.5f,1.0f,1.0f,1.0f);
-	
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, NULL);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	
-	// // Dibuixar una línea 10 unitats amunt
-	// glLineWidth(2.0f);
-	// glBegin(GL_LINES);
-	// glVertex3f(0.f, 0.f, 0.f);
-	// glVertex3f(0.f, 10.f, 0.f);
-	// glEnd();
-
-
-	// glColor4ub(color.r, color.g, color.b, color.a);
-	// glBegin(GL_TRIANGLES);
-	// glVertex3d(center.x, center.y + size, center.z);
-	// glVertex3d(center.x - size, center.y - size, center.z);
-	// glVertex3d(center.x + size, center.y - size, center.z);
-	// glEnd();
-}
-
-static void draw_mesh(MyMesh& mesh)
+static void draw_mesh(kMeshBase& mesh)
 {
-	mesh.StartDraw();
+	//glColor3f(1.0f, 1.0f, 0.0f); // Assignar el color d'aquesta manera funciona, però no des de buffer
+	//mesh.Render(shader.get());
+	mesh.Render(shaders[0].get());
 	
-	mesh.EndDraw();
-	//glEnableClientState(GL_VERTEX_ARRAY);
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.vertex_buffer_id);
-	//glVertexPointer(3, GL_FLOAT, 0, NULL);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer_id);
-
-	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
-	//glScalef(0.999f, 0.999f, 0.999f);
-
-	//glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, NULL);
 }
 
 static void display_func() {
@@ -155,8 +211,8 @@ static void display_func() {
 	{
 		draw_mesh(*mesh);
 	}
-	glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
-	glScalef(0.999f, 0.999f, 0.999f);
+	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
+	//glScalef(0.999f, 0.999f, 0.999f);
 }
 
 static bool processEvents() {
@@ -173,41 +229,50 @@ static bool processEvents() {
 	return true;
 }
 
-static bool LoadMeshes(const char* filename)
+static bool LoadModels(const char* filename, bool verbose=false)
 {
-	const struct aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
+	const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
 
 	if (!scene) {
 		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
 		return false;
 	}
 
-	printf("Numero de malles: %i\n", scene->mNumMeshes);
+	if (verbose)
+		printf("Numero de malles: %i\n", scene->mNumMeshes);
 
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		aiMesh *mesh = scene->mMeshes[i] ;
-		printf("\nMalla %u:\n", i) ;
-		printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
-		printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
-		// Vèrtexs
-		for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-			aiVector3D vertex = mesh->mVertices[v] ;
-			printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
-		}
-		// Índexs de triangles (3 per triangle)
-		for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-			aiFace face = mesh->mFaces[f] ;
-			printf(" Indexs triangle %u: ", f) ;
-			for (unsigned int j = 0; j < face.mNumIndices; j++) {
-				printf("%u ", face.mIndices[j]) ;
+		aiMesh *mesh = scene->mMeshes[i];
+		if (verbose)
+		{ // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
+			printf("\nMalla %u:\n", i);
+			printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
+			printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
+			// Vèrtexs
+			for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+				aiVector3D& vertex = mesh->mVertices[v] ;
+				printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
 			}
-			printf("\n") ;
+			// Índexs de triangles (3 per triangle)
+			for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+				aiFace& face = mesh->mFaces[f] ;
+				printf(" Indexs triangle %u: ", f) ;
+				for (unsigned int j = 0; j < face.mNumIndices; j++) {
+					printf("%u ", face.mIndices[j]) ;
+				}
+				printf("\n") ;
+			}
 		}
-
-		meshes.emplace_back(std::make_unique<MyMesh>(mesh));
+		meshes.emplace_back(std::make_unique<PpMesh>(mesh));
 	}
 	
-	aiReleaseImport(scene) ;
+	aiReleaseImport(scene);
+	return true;
+}
+
+static bool LoadTextures(const char* path)
+{
+	textures.emplace_back(make_unique<Texture>(path));
 	return true;
 }
 
@@ -216,14 +281,25 @@ void CleanUp()
 }
 
 int main(int argc, char** argv) {
+	init_SDL();
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
+	init_devIL();
 
+	init_shaders();
 	
 	//Temp code (the most permanent type of code)
-	const char* path= "../Assets/Models/masterchiefSmol.fbx";
+
+	// Load textures
+	//textures.push_back(make_unique<Texture>(256,256));
+	LoadTextures("../Assets/Textures/test.jpg");
+
+	//Load models
+	//InitDefaultModel();
+	const char* path= "../Assets/Models/masterChiefSmol.fbx";
 	
-	LoadMeshes(path);
+	LoadModels(path, false);
+
 	//Temp code end
 
 	
