@@ -8,7 +8,7 @@
 #include "Structures/Shader.h"
 
 
-GLuint PpMesh::dataValsInVBO = 8; // position(3), color(3)
+GLuint PpMesh::dataValsInVBO = 5; // position(3), UV(2)
 
 PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
 {
@@ -19,10 +19,6 @@ PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
         mainData.push_back(mesh->mVertices[i].y);
         mainData.push_back(mesh->mVertices[i].z);
 
-        // TEMPORARY FOR TESTING position data as color
-        mainData.push_back(abs(mesh->mVertices[i].x));
-        mainData.push_back(abs(mesh->mVertices[i].y));
-        mainData.push_back(abs(mesh->mVertices[i].z));
         
         if (mesh->HasTextureCoords(0))
         {
@@ -62,6 +58,8 @@ void PpMesh::Render(const Shader* shaderProgram) const
     //glEnableClientState(GL_VERTEX_ARRAY);
     //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
     glUseProgram(shaderProgram->shaderProgram);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -77,9 +75,11 @@ void PpMesh::Render(const Shader* shaderProgram) const
 
     // Finish Drawing
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-    glBindVertexArray(0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+
+    // glBindTexture(GL_TEXTURE_2D, 0);
+    // glBindVertexArray(0);
+    // glDisableVertexAttribArray(0);
+    // glDisableVertexAttribArray(1);
 
     //glDisableClientState(GL_VERTEX_ARRAY);
     //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -125,13 +125,9 @@ void PpMesh::SetUpMesh()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,dataValsInVBO*sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
 
-    //colors
-    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE,dataValsInVBO*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
     //UVs
-    glVertexAttribPointer(2,2,GL_FLOAT, GL_FALSE, dataValsInVBO*sizeof(GLfloat), (void*)(5*sizeof(GLfloat)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1,2,GL_FLOAT, GL_FALSE, dataValsInVBO*sizeof(GLfloat), (void*)(3*sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
     //Generate mesh vertex_index buffer
     GenerateBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO,indices.data(), sizeof(GLuint) * indices.size(), GL_STATIC_DRAW);

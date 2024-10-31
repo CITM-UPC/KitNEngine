@@ -50,18 +50,19 @@ static void init_openGL() {
 	glewInit();
 	
 	if (!GLEW_VERSION_3_3) throw exception("OpenGL 3.3 API is not available.");
-	//glCullFace(GL_BACK);
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_TEXTURE_2D);
+	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_ARB_shading_language_420pack);
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 	std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
 
 	// Enable debugging output
-	//glEnable(GL_DEBUG_OUTPUT);
-	//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Ensures debugging is synchronous
-	//glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Ensures debugging is synchronous
+	glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 }
 void init_devIL()
 {
@@ -72,7 +73,7 @@ void init_devIL()
 	
 	ilInit();
 	iluInit();
-	ilutInit();
+	//ilutInit();
 }
 
 
@@ -82,7 +83,7 @@ void init_devIL()
 
 GLuint shaderProgram;
 
-vector<unique_ptr<Shader>> shaders;
+vector<shared_ptr<Shader>> shaders;
 
 // Compiles the shader contained in the provided file and type and saves its ID to shaderID.
 void compileShader(GLuint& shaderID, const char* filename, GLenum shaderType)
@@ -116,12 +117,12 @@ Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 void init_shaders()
 {
-	shaders.push_back(make_unique<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+	shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
 }
 
 
-static std::vector<std::unique_ptr<kMeshBase>> meshes;
-static std::vector<std::unique_ptr<Texture>> textures;
+static std::vector<std::shared_ptr<kMeshBase>> meshes;
+static std::vector<std::shared_ptr<Texture>> textures;
 
 #pragma region MANUAL_MESH
 
@@ -265,7 +266,10 @@ static bool LoadModels(const char* filename, bool verbose=false)
 				printf("\n") ;
 			}
 		}
-		meshes.emplace_back(std::make_unique<PpMesh>(mesh));
+		shared_ptr<PpMesh> pp_mesh =std::make_shared<PpMesh>(mesh);
+		if (textures.size() > 0) pp_mesh->texture_id=textures[0]->textureID;
+		meshes.emplace_back(pp_mesh);
+		
 	}
 	
 	aiReleaseImport(scene);
@@ -274,7 +278,7 @@ static bool LoadModels(const char* filename, bool verbose=false)
 
 static bool LoadTextures(const char* path)
 {
-	textures.emplace_back(make_unique<Texture>(path));
+	textures.emplace_back(make_shared<Texture>(path));
 	return true;
 }
 

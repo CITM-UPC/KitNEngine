@@ -27,9 +27,15 @@ void Shader::loadShader(const char* vertexPath, const char* fragmentPath)
     GLuint fragmentShader;
     this->CompileShader(vertexShader,vertexPath,GL_VERTEX_SHADER);
     this->CompileShader(fragmentShader,fragmentPath,GL_FRAGMENT_SHADER);
+    
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
+
+    // Set the 2D sampler for texture rendering
+    glUseProgram(shaderProgram);
+    glUniform1i(glGetUniformLocation(shaderProgram, "Sampler"), 0);
+    glUseProgram(0);
 
     // Check for linking errors
     GLint success;
@@ -65,7 +71,7 @@ GLuint Shader::CompileShader(const char* shaderPath, GLenum shaderType, const ch
     if(!success)
     {
         glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << typeStr << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cerr << "ERROR::SHADER::" << typeStr << "::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
     return shaderID;
 }
