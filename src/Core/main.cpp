@@ -24,7 +24,7 @@ static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-int eyex = -100, eyey = -100, eyez = 0;   // Posición de la cámara
+int eyex = -10, eyey = -100, eyez = 0;   // Posición de la cámara
 float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
 float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
 
@@ -33,6 +33,10 @@ float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
 float moveStep = 0.2f; // Paso de movimiento de la cámara
 float rotationStep = 2.0f; // Paso de rotación de la cámara
 float sensitivity = 0.1f;
+float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
+
+static bool altPressed = false;
+static bool rightClickPressed = false;
 
 static void init_openGL() {
 	glewInit();
@@ -184,70 +188,93 @@ static bool processEvents() {
 	return true;
 }
 void updateCameraDirection() {
-	 
-	/*centerx = eyex + cos(pitch) * cos(yaw) * 100.0f;
-	centery = eyey + sin(pitch) * 100.0f;
-	centerz = eyez + cos(pitch) * sin(yaw) * 100.0f;*/
+	// Usa un radio fijo que mantenga la distancia entre la cámara y el punto de mira
+	float fixedRadius = 100.0f; // Elige un valor apropiado para la distancia deseada
+
+	// Calcula las nuevas posiciones de la cámara basadas en yaw y verticalAngle
+	eyex = centerx + fixedRadius * cos(glm::radians(verticalAngle)) * cos(glm::radians(yaw));
+	eyey = centery + fixedRadius * sin(glm::radians(verticalAngle));
+	eyez = centerz + fixedRadius * cos(glm::radians(verticalAngle)) * sin(glm::radians(yaw));
+}
+
+void handleMouseMotion(const SDL_Event& event) {
+	if (altPressed && rightClickPressed) {
+		yaw += event.motion.xrel * sensitivity;
+		pitch -= event.motion.yrel * sensitivity;
+
+		// Limitar pitch para evitar invertir la cámara
+		if (pitch > 89.0f) pitch = 89.0f;
+		if (pitch < -89.0f) pitch = -89.0f;
+
+		updateCameraDirection();
+	}
 }
 
 void processEvent(const SDL_Event& event) {
-	// Manejar eventos de teclado
+	// Manejar eventos de teclado para registrar si Alt está presionado
+	if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LALT) {
+		altPressed = true;
+	}
+	if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_LALT) {
+		altPressed = false;
+	}
+
+	// Manejar eventos del ratón para registrar si el clic derecho está presionado
+	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+		rightClickPressed = true;
+	}
+	if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
+		rightClickPressed = false;
+	}
+
+	// Llamar a handleMouseMotion si el ratón se mueve
+	if (event.type == SDL_MOUSEMOTION) {
+		handleMouseMotion(event);
+	}
+
+	// Otros controles de cámara con teclado
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
-		case SDLK_w: // Mover hacia adelante
-			eyex += (centerx - eyex) * moveStep;
-			eyey += (centery - eyey) * moveStep;
-			eyez += (centerz - eyez) * moveStep;
+		case SDLK_a:
+			yaw -= rotationStep;
 			updateCameraDirection();
 			break;
-		case SDLK_s: // Mover hacia atrás
-			eyex -= (centerx - eyex) * moveStep;
-			eyey -= (centery - eyey) * moveStep;
-			eyez -= (centerz - eyez) * moveStep;
+		case SDLK_d:
+			yaw += rotationStep;
 			updateCameraDirection();
 			break;
-		case SDLK_a: // Mover a la izquierda
-			eyex += sin(glm::radians(yaw - 90.0f)) * moveStep;
-			eyez += -cos(glm::radians(yaw - 90.0f)) * moveStep;
+		case SDLK_w:
+			verticalAngle += rotationStep;
+			if (verticalAngle > 89.0f) verticalAngle = 89.0f;
 			updateCameraDirection();
 			break;
-		case SDLK_d: // Mover a la derecha
-			eyex += sin(glm::radians(yaw + 90.0f)) * moveStep;
-			eyez += -cos(glm::radians(yaw + 90.0f)) * moveStep;
+		case SDLK_s:
+			verticalAngle -= rotationStep;
+			if (verticalAngle < -89.0f) verticalAngle = -89.0f;
 			updateCameraDirection();
 			break;
-		case SDLK_UP: // Rotar hacia arriba
+		case SDLK_UP:
 			pitch += rotationStep;
-			if (pitch > 89.0f) pitch = 89.0f; // Limitar el ángulo de pitch
+			if (pitch > 89.0f) pitch = 89.0f;
 			updateCameraDirection();
 			break;
-		case SDLK_DOWN: // Rotar hacia abajo
+		case SDLK_DOWN:
 			pitch -= rotationStep;
 			if (pitch < -89.0f) pitch = -89.0f;
 			updateCameraDirection();
 			break;
-		case SDLK_LEFT: // Rotar hacia la izquierda
+		case SDLK_LEFT:
 			yaw -= rotationStep;
 			updateCameraDirection();
 			break;
-		case SDLK_RIGHT: // Rotar hacia la derecha
+		case SDLK_RIGHT:
 			yaw += rotationStep;
 			updateCameraDirection();
 			break;
 		}
 	}
 }
-void handleMouseMotion(SDL_Event& event) {
-	// Movimiento del ratón para rotar la cámara
-	yaw += event.motion.xrel * sensitivity;
-	pitch -= event.motion.yrel * sensitivity;
 
-	// Limitar pitch para evitar movimientos bruscos al pasar 90 grados
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
-
-	updateCameraDirection();
-}
 
 static bool LoadMeshes(const char* filename)
 {
@@ -296,7 +323,7 @@ int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
 
-	SDL_SetRelativeMouseMode(SDL_TRUE); // Captura el ratón en la ventana
+	/*SDL_SetRelativeMouseMode(SDL_TRUE);*/
 
 	const char* path = "../Assets/Models/masterchiefSmol.fbx";
 	LoadMeshes(path);
@@ -305,22 +332,19 @@ int main(int argc, char** argv) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) return 0;
-			processEvent(event); // Llama a `processEvent` para manejar las teclas presionadas
+			processEvent(event);
 		}
 
-		// Actualización de la vista de la cámara
-		//Comentar las 3 para ver el modelo de normal
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 1.0, 1000.0);
 		gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
 
-		// Renderizado de la escena
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		display_func();
 
 		window.swapBuffers();
-		std::this_thread::sleep_for(FRAME_DT); // Control de fotogramas por segundo
+		std::this_thread::sleep_for(FRAME_DT);
 	}
 
 	CleanUp();
