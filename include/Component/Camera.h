@@ -6,6 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <Config/Config.h>
+
+
 
 enum Camera_Movement {
     FORWARD,
@@ -13,6 +16,7 @@ enum Camera_Movement {
     LEFT,
     RIGHT
 };
+
 
 
 const float YAW = -90.0f;
@@ -30,174 +34,159 @@ public:
     
     glm::vec3 Position;
     glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
     
-    float Yaw;
-    float Pitch;
-    
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
-    int lastMouseX = 0, lastMouseY = 0; 
-    bool firstMouse = true; 
-
-    float eyex = 0.0;
-    float eyey = 0.0;
-    float eyez = 0.0;
-    float centerx = 0.0;
-    float centery = 0.0;
-    float centerz = 0.0;
-    float upx = 0.0;
-    float upy = 0.0;
-    float upz = 0.0;
+	
 
     
+    float eyex = -10, eyey = -100, eyez = 0;   // Posición de la cámara
+    float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
+    float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
 
-    float avance = 0.00000000000000000000001;
+    float yaw = 0.0f;   // Ángulo horizontal (izquierda-derecha)
+    float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
+    float moveStep = 0.2f; // Paso de movimiento de la cámara
+    float rotationStep = 2.0f; // Paso de rotación de la cámara
+    float sensitivity = 0.1f;
+    float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
+
+    bool altPressed = false;
+    bool rightClickPressed = false;
+    float fixedRadius = 100.0f;
     
-        
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    void update()
     {
-        Position = position;
-        WorldUp = up;
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
-    
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
-        Position = glm::vec3(posX, posY, posZ);
-        WorldUp = glm::vec3(upX, upY, upZ);
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
-    void update(Camera_Movement movementDirection, float xoffset = 0.0f, float yoffset = 0.0f, float scrollOffset = 0.0f)
-    {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				
+			}
+				
+			ProcessKeyboard(event); // Llama a `processEvent` para manejar las teclas presionadas
+		}
         
-        float currentFrame = static_cast<float>(SDL_GetTicks()) / 1000.0f;
-        static float lastFrame = 0.0f;
-        float deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        
-        const Uint8* state = SDL_GetKeyboardState(NULL);
-
-        
-        if (state[SDL_SCANCODE_W]) {
-            eyex = eyex + avance;
-            printf(" Posicion x  %u: ", eyex);
-        }
-            
-        if (state[SDL_SCANCODE_S]) {
-            eyex--;
-            printf(" Posicion x  %u: ", eyex);
-        }
-            
-        if (state[SDL_SCANCODE_A]) {
-
-        }
-           
-        if (state[SDL_SCANCODE_D]) {
-
-        }
-            
-
-        
-        ProcessMouseMovement(xoffset, yoffset);
-        
-        ProcessMouseScroll(scrollOffset);
-
-        
-        updateCameraVectors();
-        GetViewMatrix();
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 1.0, 1000.0);
         gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
         
     }
-    void updateMousePosition(int currentMouseX, int currentMouseY) {
-        if (firstMouse) {
-            
-            lastMouseX = currentMouseX;
-            lastMouseY = currentMouseY;
-            firstMouse = false;
-        }
-
-        
-        float xoffset = static_cast<float>(currentMouseX - lastMouseX);
-        float yoffset = static_cast<float>(lastMouseY - currentMouseY); 
-
-        
-        lastMouseX = currentMouseX;
-        lastMouseY = currentMouseY;
-
-        
-        ProcessMouseMovement(xoffset, yoffset);
-    }
     
-    glm::mat4 GetViewMatrix()
-    {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    
+    
+    void ProcessKeyboard(const SDL_Event& event)
   {
-        float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            Position += Front * velocity;
-        if (direction == BACKWARD)
-            Position -= Front * velocity;
-        if (direction == LEFT)
-            Position -= Right * velocity;
-        if (direction == RIGHT)
-            Position += Right * velocity;
+		// Manejar eventos de teclado para registrar si Alt está presionado
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LALT) {
+			altPressed = true;
+		}
+		if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_LALT) {
+			altPressed = false;
+		}
+
+		// Manejar eventos del ratón para registrar si el clic derecho está presionado
+		if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+			rightClickPressed = true;
+		}
+		if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
+			rightClickPressed = false;
+		}
+
+		// Llamar a handleMouseMotion si el ratón se mueve
+		if (event.type == SDL_MOUSEMOTION) {
+			ProcessMouseMovement(event);
+		}
+
+		// Detectar la rueda del ratón
+		if (event.type == SDL_MOUSEWHEEL) {
+			if (event.wheel.y > 0) {
+				// La rueda sube
+				fixedRadius -= 3.0f;
+				if (fixedRadius < 1.0f) fixedRadius = 1.0f;  // Evita que se acerque demasiado
+			}
+			else if (event.wheel.y < 0) {
+				// La rueda baja
+				fixedRadius += 3.0f;
+			}
+			updateCameraVectors();
+		}
+
+		// Otros controles de cámara con teclado
+		if (event.type == SDL_KEYDOWN) {
+			switch (event.key.keysym.sym) {
+			case SDLK_a:
+				yaw -= rotationStep;
+				updateCameraVectors();
+				break;
+			case SDLK_d:
+				yaw += rotationStep;
+				updateCameraVectors();
+				break;
+			case SDLK_w:
+				verticalAngle += rotationStep;
+				if (verticalAngle > 89.0f) verticalAngle = 89.0f;
+				updateCameraVectors();
+				break;
+			case SDLK_s:
+				verticalAngle -= rotationStep;
+				if (verticalAngle < -89.0f) verticalAngle = -89.0f;
+				updateCameraVectors();
+				break;
+			case SDLK_UP:
+				pitch += rotationStep;
+				if (pitch > 89.0f) pitch = 89.0f;
+				updateCameraVectors();
+				break;
+			case SDLK_DOWN:
+				pitch -= rotationStep;
+				if (pitch < -89.0f) pitch = -89.0f;
+				updateCameraVectors();
+				break;
+			case SDLK_LEFT:
+				yaw -= rotationStep;
+				updateCameraVectors();
+				break;
+			case SDLK_RIGHT:
+				yaw += rotationStep;
+				updateCameraVectors();
+				break;
+			}
+		}
     }
 
     
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(const SDL_Event& event)
     {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
-        Yaw += xoffset;
-        Pitch += yoffset;
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-        }
+		if (altPressed && rightClickPressed) {
+			yaw += event.motion.xrel * sensitivity;
+			pitch -= event.motion.yrel * sensitivity;
 
-        
+			// Limitar pitch para evitar invertir la cámara
+			if (pitch > 89.0f) pitch = 89.0f;
+			if (pitch < -89.0f) pitch = -89.0f;
+
+			
+		}
         updateCameraVectors();
     }
 
     
     void ProcessMouseScroll(float yoffset)
     {
-        Zoom -= (float)yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+       
     }
 
 private:
     
     void updateCameraVectors()
     {
-       
-        glm::vec3 front;
-        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        front.y = sin(glm::radians(Pitch));
-        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
+		
+
+
+	
+		eyex = centerx + fixedRadius * cos(glm::radians(verticalAngle)) * cos(glm::radians(yaw));
+		eyey = centery + fixedRadius * sin(glm::radians(verticalAngle));
+		eyez = centerz + fixedRadius * cos(glm::radians(verticalAngle)) * sin(glm::radians(yaw));
         
-        Right = glm::normalize(glm::cross(Front, WorldUp));  
-        Up = glm::normalize(glm::cross(Right, Front));
     }
 };
 #endif
