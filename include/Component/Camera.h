@@ -37,10 +37,15 @@ public:
     
 	
 
-    
-    float eyex = -10, eyey = -100, eyez = 0;   // Posición de la cámara
-    float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
-    float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
+	glm::vec3 eye = {-10, -100, 0};
+	glm::vec3 center = { 0, 10, 0 };
+	glm::vec3 up = { 0, 1, 0 };
+	glm::vec3 direcionx = { 0, 0, 0 };
+	glm::vec3 direcciony = { 0, 0, 0 };
+	glm::vec3 direccionz = { 0, 0, 0 };
+    //float eyex = -10, eyey = -100, eyez = 0;   // Posición de la cámara
+    //float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
+    //float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
 
     float yaw = 0.0f;   // Ángulo horizontal (izquierda-derecha)
     float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
@@ -67,7 +72,7 @@ public:
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 1.0, 1000.0);
-        gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
+        gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
         
     }
     
@@ -107,6 +112,7 @@ public:
 				// La rueda baja
 				fixedRadius += 3.0f;
 			}
+
 			updateCameraVectors();
 		}
 
@@ -122,71 +128,88 @@ public:
 				updateCameraVectors();
 				break;
 			case SDLK_w:
-				verticalAngle += rotationStep;
-				if (verticalAngle > 89.0f) verticalAngle = 89.0f;
+				pitch -= rotationStep;
 				updateCameraVectors();
 				break;
 			case SDLK_s:
-				verticalAngle -= rotationStep;
-				if (verticalAngle < -89.0f) verticalAngle = -89.0f;
+				pitch += rotationStep;
 				updateCameraVectors();
 				break;
 			case SDLK_UP:
-				pitch += rotationStep;
-				if (pitch > 89.0f) pitch = 89.0f;
-				updateCameraVectors();
+				eye.x += rotationStep;
+				center.x += rotationStep;
+				
 				break;
 			case SDLK_DOWN:
-				pitch -= rotationStep;
-				if (pitch < -89.0f) pitch = -89.0f;
-				updateCameraVectors();
+				eye.x -= rotationStep;
+				center.x -= rotationStep;
+				
 				break;
 			case SDLK_LEFT:
-				yaw -= rotationStep;
-				updateCameraVectors();
+				eye.z -= rotationStep;
+				center.z -= rotationStep;
+				
 				break;
 			case SDLK_RIGHT:
-				yaw += rotationStep;
-				updateCameraVectors();
+				eye.z += rotationStep;
+				center.z += rotationStep;
+				
+				break;
+			case SDLK_f:
+				center.x == 0;
+				center.y == 0;
+				center.z == 0;
+				eye.x == 0;
+				eye.y == 0;
+				eye.z == 0;
+
 				break;
 			}
 		}
     }
 
     
-    void ProcessMouseMovement(const SDL_Event& event)
-    {
+	void ProcessMouseMovement(const SDL_Event& event)
+	{
 		if (altPressed && rightClickPressed) {
+			// Modificar el yaw para el movimiento horizontal (izquierda y derecha)
 			yaw += event.motion.xrel * sensitivity;
-			pitch -= event.motion.yrel * sensitivity;
+
+			// Modificar el pitch para el movimiento vertical (arriba y abajo)
+			pitch -= event.motion.yrel * sensitivity; 
 
 			// Limitar pitch para evitar invertir la cámara
-			if (pitch > 89.0f) pitch = 89.0f;
-			if (pitch < -89.0f) pitch = -89.0f;
+			/*if (pitch > 89.0f) pitch = 89.0f;
+			if (pitch < -89.0f) pitch = -89.0f;*/
 
-			
+			// Actualizar los vectores de la cámara para reflejar los cambios en yaw y pitch
+			updateCameraVectors();
 		}
-        updateCameraVectors();
-    }
+	}
 
-    
-    void ProcessMouseScroll(float yoffset)
-    {
-       
-    }
+	void updateCameraVectors()
+	{
+		// Calcular las posiciones de la cámara con el efecto combinado de yaw y pitch para rotación en órbita
+		eye.x = center.x + fixedRadius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+		eye.y = center.y + fixedRadius * sin(glm::radians(pitch));
+		eye.z = center.z + fixedRadius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 
-private:
-    
-    void updateCameraVectors()
-    {
-		
+		// Actualizar el punto de vista de la cámara (centro) basado en la posición de la cámara y su dirección
+		Front = glm::normalize(glm::vec3(
+			cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+			sin(glm::radians(pitch)),
+			sin(glm::radians(yaw)) * cos(glm::radians(pitch))
+		));
 
+		// Actualizar el vector hacia arriba para asegurar que la cámara se mantenga orientada correctamente
+		glm::vec3 right = glm::normalize(glm::cross(Front, glm::vec3(up.x, up.y, up.z)));
+		glm::vec3 upt = glm::normalize(glm::cross(right, Front));
 
-	
-		eyex = centerx + fixedRadius * cos(glm::radians(verticalAngle)) * cos(glm::radians(yaw));
-		eyey = centery + fixedRadius * sin(glm::radians(verticalAngle));
-		eyez = centerz + fixedRadius * cos(glm::radians(verticalAngle)) * sin(glm::radians(yaw));
-        
-    }
+		// Aplicar las actualizaciones a upx, upy y upz
+		up.x = upt.x;
+		up.y = upt.y;
+		up.z = upt.z;
+	}
+
 };
 #endif
