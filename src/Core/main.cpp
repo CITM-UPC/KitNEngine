@@ -17,6 +17,8 @@
 #include "Structures/PpMesh.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
+#include "Component/Camera.h"
+#include "Config/Config.h"
 #include "Utilities/FileUtils.h"
 using namespace std;
 
@@ -25,7 +27,7 @@ using u8vec4 = glm::u8vec4;
 using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
 
-static const ivec2 WINDOW_SIZE(1024, 1024);
+
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
@@ -110,6 +112,7 @@ void compileShader(GLuint& shaderID, const char* filename, GLenum shaderType)
 
 
 }
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 void init_shaders()
 {
@@ -213,7 +216,6 @@ static void display_func() {
 	}
 	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
 	//glScalef(0.999f, 0.999f, 0.999f);
-}
 
 static bool processEvents() {
 	SDL_Event event;
@@ -280,6 +282,7 @@ void CleanUp()
 {
 }
 
+
 int main(int argc, char** argv) {
 	init_SDL();
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
@@ -302,19 +305,19 @@ int main(int argc, char** argv) {
 
 	//Temp code end
 
-	
-	
-	while (processEvents()) {
-		const auto t0 = hrclock::now();
+	while (true) {
+		
+		camera.update();
+		
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		display_func();
+
 		window.swapBuffers();
-		const auto t1 = hrclock::now();
-		const auto dt = t1 - t0;
-		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+		std::this_thread::sleep_for(FRAME_DT);
 	}
 
 	CleanUp();
-	
-	cout << "Bye World!" << endl;
+	cout << "¡Adiós, mundo!" << endl;
 	return 0;
 }
