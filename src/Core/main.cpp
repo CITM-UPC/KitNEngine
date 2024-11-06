@@ -25,20 +25,7 @@ using vec3 = glm::dvec3;
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-float eyex = -10, eyey = -100, eyez = 0;   // Posición de la cámara
-float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
-float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
 
-float yaw = 0.0f;   // Ángulo horizontal (izquierda-derecha)
-float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
-float moveStep = 0.2f; // Paso de movimiento de la cámara
-float rotationStep = 2.0f; // Paso de rotación de la cámara
-float sensitivity = 0.1f;
-float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
-
-static bool altPressed = false;
-static bool rightClickPressed = false;
-float fixedRadius = 100.0f;
 
 static void init_openGL() {
 	glewInit();
@@ -189,107 +176,7 @@ static bool processEvents() {
 	}
 	return true;
 }
-//void updateCameraDirection() {
-//	// Usa un radio fijo que mantenga la distancia entre la cámara y el punto de mira
-//	
-//
-//	// Calcula las nuevas posiciones de la cámara basadas en yaw y verticalAngle
-//	eyex = centerx + fixedRadius * cos(glm::radians(verticalAngle)) * cos(glm::radians(yaw));
-//	eyey = centery + fixedRadius * sin(glm::radians(verticalAngle));
-//	eyez = centerz + fixedRadius * cos(glm::radians(verticalAngle)) * sin(glm::radians(yaw));
-//}
 
-//void handleMouseMotion(const SDL_Event& event) {
-//	if (altPressed && rightClickPressed) {
-//		yaw += event.motion.xrel * sensitivity;
-//		pitch -= event.motion.yrel * sensitivity;
-//
-//		// Limitar pitch para evitar invertir la cámara
-//		if (pitch > 89.0f) pitch = 89.0f;
-//		if (pitch < -89.0f) pitch = -89.0f;
-//
-//		updateCameraDirection();
-//	}
-//}
-
-//void processEvent(const SDL_Event& event) {
-//	// Manejar eventos de teclado para registrar si Alt está presionado
-//	if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LALT) {
-//		altPressed = true;
-//	}
-//	if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_LALT) {
-//		altPressed = false;
-//	}
-//
-//	// Manejar eventos del ratón para registrar si el clic derecho está presionado
-//	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
-//		rightClickPressed = true;
-//	}
-//	if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
-//		rightClickPressed = false;
-//	}
-//
-//	// Llamar a handleMouseMotion si el ratón se mueve
-//	if (event.type == SDL_MOUSEMOTION) {
-//		handleMouseMotion(event);
-//	}
-//
-//	// Detectar la rueda del ratón
-//	if (event.type == SDL_MOUSEWHEEL) {
-//		if (event.wheel.y > 0) {
-//			// La rueda sube
-//			fixedRadius -= 3.0f;
-//			if (fixedRadius < 1.0f) fixedRadius = 1.0f;  // Evita que se acerque demasiado
-//		}
-//		else if (event.wheel.y < 0) {
-//			// La rueda baja
-//			fixedRadius += 3.0f;
-//		}
-//		updateCameraDirection();
-//	}
-//
-//	// Otros controles de cámara con teclado
-//	if (event.type == SDL_KEYDOWN) {
-//		switch (event.key.keysym.sym) {
-//		case SDLK_a:
-//			yaw -= rotationStep;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_d:
-//			yaw += rotationStep;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_w:
-//			verticalAngle += rotationStep;
-//			if (verticalAngle > 89.0f) verticalAngle = 89.0f;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_s:
-//			verticalAngle -= rotationStep;
-//			if (verticalAngle < -89.0f) verticalAngle = -89.0f;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_UP:
-//			pitch += rotationStep;
-//			if (pitch > 89.0f) pitch = 89.0f;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_DOWN:
-//			pitch -= rotationStep;
-//			if (pitch < -89.0f) pitch = -89.0f;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_LEFT:
-//			yaw -= rotationStep;
-//			updateCameraDirection();
-//			break;
-//		case SDLK_RIGHT:
-//			yaw += rotationStep;
-//			updateCameraDirection();
-//			break;
-//		}
-//	}
-//}
 
 
 static bool LoadMeshes(const char* filename)
@@ -339,7 +226,6 @@ int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
 
-	/*SDL_SetRelativeMouseMode(SDL_TRUE);*/
 
 	const char* path = "../Assets/Models/masterchiefSmol.fbx";
 	LoadMeshes(path);

@@ -75,9 +75,6 @@ public:
         gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
         
     }
-    
-    
-    
     void ProcessKeyboard(const SDL_Event& event)
   {
 		// Manejar eventos de teclado para registrar si Alt está presionado
@@ -95,30 +92,26 @@ public:
 		if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
 			rightClickPressed = false;
 		}
-
-		// Llamar a handleMouseMotion si el ratón se mueve
 		if (event.type == SDL_MOUSEMOTION) {
 			ProcessMouseMovement(event);
 		}
-
-		// Detectar la rueda del ratón
 		if (event.type == SDL_MOUSEWHEEL) {
 			if (event.wheel.y > 0) {
-				// La rueda sube
 				fixedRadius -= 3.0f;
-				if (fixedRadius < 1.0f) fixedRadius = 1.0f;  // Evita que se acerque demasiado
+				if (fixedRadius < 1.0f) fixedRadius = 1.0f; 
 			}
 			else if (event.wheel.y < 0) {
-				// La rueda baja
 				fixedRadius += 3.0f;
 			}
 
 			updateCameraVectors();
 		}
-
-		// Otros controles de cámara con teclado
 		if (event.type == SDL_KEYDOWN) {
 			switch (event.key.keysym.sym) {
+			case SDLK_t:
+				up.z += rotationStep;
+				center.z += rotationStep;
+				break;
 			case SDLK_a:
 				yaw -= rotationStep;
 				updateCameraVectors();
@@ -148,12 +141,10 @@ public:
 			case SDLK_LEFT:
 				eye.z -= rotationStep;
 				center.z -= rotationStep;
-				
 				break;
 			case SDLK_RIGHT:
 				eye.z += rotationStep;
 				center.z += rotationStep;
-				
 				break;
 			case SDLK_f:
 				center.x == 0;
@@ -162,53 +153,38 @@ public:
 				eye.x == 0;
 				eye.y == 0;
 				eye.z == 0;
-
 				break;
 			}
 		}
     }
-
-    
 	void ProcessMouseMovement(const SDL_Event& event)
 	{
 		if (altPressed && rightClickPressed) {
-			// Modificar el yaw para el movimiento horizontal (izquierda y derecha)
 			yaw += event.motion.xrel * sensitivity;
-
-			// Modificar el pitch para el movimiento vertical (arriba y abajo)
 			pitch -= event.motion.yrel * sensitivity; 
-
-			// Limitar pitch para evitar invertir la cámara
 			/*if (pitch > 89.0f) pitch = 89.0f;
 			if (pitch < -89.0f) pitch = -89.0f;*/
-
-			// Actualizar los vectores de la cámara para reflejar los cambios en yaw y pitch
 			updateCameraVectors();
 		}
 	}
+	void updateDirectionVectors() {
 
+	}
 	void updateCameraVectors()
 	{
-		// Calcular las posiciones de la cámara con el efecto combinado de yaw y pitch para rotación en órbita
 		eye.x = center.x + fixedRadius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 		eye.y = center.y + fixedRadius * sin(glm::radians(pitch));
 		eye.z = center.z + fixedRadius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-
-		// Actualizar el punto de vista de la cámara (centro) basado en la posición de la cámara y su dirección
-		Front = glm::normalize(glm::vec3(
+		/*Front = glm::normalize(glm::vec3(
 			cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
 			sin(glm::radians(pitch)),
 			sin(glm::radians(yaw)) * cos(glm::radians(pitch))
 		));
-
-		// Actualizar el vector hacia arriba para asegurar que la cámara se mantenga orientada correctamente
 		glm::vec3 right = glm::normalize(glm::cross(Front, glm::vec3(up.x, up.y, up.z)));
 		glm::vec3 upt = glm::normalize(glm::cross(right, Front));
-
-		// Aplicar las actualizaciones a upx, upy y upz
 		up.x = upt.x;
 		up.y = upt.y;
-		up.z = upt.z;
+		up.z = upt.z;*/
 	}
 
 };
