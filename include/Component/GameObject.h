@@ -12,12 +12,22 @@
 
 class GameObject : public Component
 {
-    public:
-    GameObject();
+public: // Static members/functions
+
+    static std::vector<GameObjectPtr> gameObjects;
+    
+public:
+    
+    GameObject(GameObjectPtr& go);
     ~GameObject() = default;
 
+    void Awake() override;
+    void Start() override;
+    void PreUpdate() override;
+    void Update() override;
+    void PostUpdate() override;
     void InspectorDisplay() override;
-    
+
 
     [[nodiscard]] const GameObjectPtr& GetChild(glm::uint index) const { return children.at(index); }
     [[nodiscard]] const std::vector<GameObjectPtr>& GetChildren() const { return children; }
@@ -27,6 +37,8 @@ class GameObject : public Component
     [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
 
 private:
+
+    GameObjectPtr parent;
     
     Transform transform = Transform(this);
 

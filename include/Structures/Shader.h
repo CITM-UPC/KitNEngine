@@ -6,14 +6,17 @@
 #define SHADER_H
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <memory>
+#include <vector>
 
 
 class Shader {
 public:
+    static std::vector<std::shared_ptr<Shader>> shaders;
+    
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
-    
-    
     ~Shader();
+    
     void loadShader(const char* vertexPath, const char* fragmentPath);
     void loadShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath);
 

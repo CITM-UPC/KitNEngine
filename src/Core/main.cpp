@@ -17,6 +17,7 @@
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 #include "Component/Camera.h"
+#include "Component/GameObject.h"
 #include "Config/Config.h"
 using namespace std;
 
@@ -26,8 +27,9 @@ using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
 
 
-static const unsigned int FPS = 60;
-static const auto FRAME_DT = 1.0s / FPS;
+static constexpr unsigned int FPS = 60;
+static constexpr auto FRAME_DT = 1.0s / FPS;
+static chrono::duration<float> last_dt = 0s;
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 	std::cout << "OpenGL Debug Message: " << message << std::endl;
@@ -75,12 +77,11 @@ void init_devIL()
 }
 
 
-vector<shared_ptr<Shader>> shaders;
-Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 void init_shaders()
 {
-	shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+	Shader::shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
 }
 
 
@@ -88,7 +89,7 @@ static std::vector<std::shared_ptr<Texture>> textures;
 
 static void draw_mesh(kMeshBase& mesh)
 {
-	mesh.Render(shaders[0].get());
+	mesh.Render(Shader::shaders[0].get());
 	
 }
 
@@ -186,7 +187,7 @@ int main(int argc, char** argv) {
 
 	//Load models
 	//InitDefaultModel();
-	const char* path= "../Assets/Models/MasterChiefSmol.fbx";
+	const char* path= "../Assets/Models/Cube.fbx";
 	
 	LoadModels(path, false);
 
@@ -196,13 +197,20 @@ int main(int argc, char** argv) {
 	
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
+
+		for	(GameObjectPtr& go : GameObject::gameObjects)
+		{
+			go->Update();
+		}
+
+		
 		camera.update();
 		display_func();
 
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
-		const auto dt = t1 - t0;
-		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+		last_dt = t1 - t0;
+		if(last_dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - last_dt);
 	}
 
 	CleanUp();

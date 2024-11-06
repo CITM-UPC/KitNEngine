@@ -6,6 +6,8 @@
 #define COMPONENT_H
 #include <memory>
 
+class GameObject;
+
 class Component;
 
 using ComponentPtr = std::shared_ptr<Component>;
@@ -15,7 +17,7 @@ concept DerivedFromComponent = std::is_base_of_v<Component, T>;
 
 class Component {
 protected:
-    Component(const std::shared_ptr<Component>& parent) : parent(parent){}
+    Component(const std::shared_ptr<GameObject>& parent) : gameObject(parent){}
     Component() = default;
     virtual ~Component() = default;
 
@@ -29,7 +31,7 @@ public:
     virtual void InspectorDisplay(){}
 
 public:
-    std::shared_ptr<Component> parent = nullptr;
+    std::shared_ptr<GameObject> gameObject = nullptr;
 };
 
 

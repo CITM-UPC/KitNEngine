@@ -6,8 +6,35 @@
 
 #include <imgui.h>
 
-GameObject::GameObject()
+std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
+
+GameObject::GameObject(GameObjectPtr& go) : parent(go)
 {
+}
+
+void GameObject::Awake()
+{
+    Component::Awake();
+}
+
+void GameObject::Start()
+{
+    Component::Start();
+}
+
+void GameObject::PreUpdate()
+{
+    Component::PreUpdate();
+}
+
+void GameObject::Update()
+{
+    Component::Update();
+}
+
+void GameObject::PostUpdate()
+{
+    Component::PostUpdate();
 }
 
 void GameObject::InspectorDisplay()

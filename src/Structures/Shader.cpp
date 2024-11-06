@@ -7,6 +7,8 @@
 #include "Utilities/FileUtils.h"
 #include <iostream>
 
+std::vector<std::shared_ptr<Shader>> Shader::shaders = std::vector<std::shared_ptr<Shader>>();
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
     if (geometryPath != nullptr)
@@ -59,7 +61,7 @@ void Shader::loadShader(const char* vertexPath, const char* fragmentPath, const 
 void Shader::SetViewMatrix(glm::mat4 matrix) const
 {
     glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram,"viewMatrix"), 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram,"view"), 1, GL_FALSE, &matrix[0][0]);
 }
 
 GLuint Shader::CompileShader(const char* shaderPath, GLenum shaderType, const char* typeStr)

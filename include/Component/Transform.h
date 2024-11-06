@@ -10,7 +10,7 @@ class GameObject;
 
 using GameObjectPtr = std::shared_ptr<GameObject>;
 
-class Transform : public Component
+class Transform final
 {
 public:
     Transform(GameObject* go) : gameObject(go){}
