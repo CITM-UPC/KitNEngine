@@ -17,8 +17,7 @@
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 #include "Component/Camera.h"
-#include "Config/Config"
-#include "Utilities/FileUtils.h"
+#include "Config/Config.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -77,6 +76,7 @@ void init_devIL()
 
 
 vector<shared_ptr<Shader>> shaders;
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 void init_shaders()
 {
