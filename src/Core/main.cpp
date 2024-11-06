@@ -62,6 +62,8 @@ static void init_openGL() {
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Ensures debugging is synchronous
 	glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+
+	
 }
 
 void init_devIL()
@@ -77,7 +79,6 @@ void init_devIL()
 }
 
 
-Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 void init_shaders()
 {
@@ -170,6 +171,7 @@ void CleanUp()
 {
 }
 
+Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 int main(int argc, char** argv) {
 	init_SDL();
@@ -195,9 +197,10 @@ int main(int argc, char** argv) {
 
 	
 	
-	while (processEvents()) {
+	while (true) {
 		const auto t0 = hrclock::now();
 
+		// TODO migrar gestion de GameObjects a un modulo
 		for	(GameObjectPtr& go : GameObject::gameObjects)
 		{
 			go->Update();

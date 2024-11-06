@@ -13,5 +13,5 @@ void main()
     gl_Position = projection * view * model * vec4(aPos.xyz, 1.0);
     //gl_Position = model * vec4(aPos.xyz, 1.0);
     
-    texCoords = aUV;
+    texCoords = vec2(-aUV.x, aUV.y);
 }

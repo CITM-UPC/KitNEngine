@@ -1,7 +1,4 @@
 #include "Component/Camera.h"
-
-#include <stdexcept>
-
 #include "Structures/Shader.h"
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
@@ -14,6 +11,7 @@ Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(look
 
 void Camera::update()
 {
+    // TODO moure gestió de tecles a un mòdul dedicat
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -22,12 +20,10 @@ void Camera::update()
 				
         ProcessKeyboard(event); // Llama a `processEvent` para manejar las teclas presionadas
     }
-        
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluPerspective(45.0, (double)WINDOW_SIZE.x / (double)WINDOW_SIZE.y, 1.0, 1000.0);
-    gluLookAt(position.x, position.y, position.z, lookTarget.x, lookTarget.y, lookTarget.z, up.x, up.y, up.z);
-    //view = glm::lookAt(position,lookTarget,up);
+
+    // TODO canviar a matriu inicial + transformacions lineals/afins
+    view = glm::lookAt(position,lookTarget,up);
+    
     if (Shader::shaders.size() > 0)
         Shader::shaders.at(0)->SetViewMatrix(view);
     
@@ -55,11 +51,11 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
     }
     if (event.type == SDL_MOUSEWHEEL) {
         if (event.wheel.y > 0) {
-            fixedRadius -= 3.0f;
+            fixedRadius -= moveStep;
             if (fixedRadius < 1.0f) fixedRadius = 1.0f; 
         }
         else if (event.wheel.y < 0) {
-            fixedRadius += 3.0f;
+            fixedRadius += moveStep;
         }
 
         updateCameraVectors();
@@ -71,38 +67,38 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
             lookTarget.z += rotationStep;
             break;
         case SDLK_a:
-            yaw -= rotationStep;
-            updateCameraVectors();
-            break;
-        case SDLK_d:
             yaw += rotationStep;
             updateCameraVectors();
             break;
-        case SDLK_w:
-            pitch -= rotationStep;
+        case SDLK_d:
+            yaw -= rotationStep;
             updateCameraVectors();
             break;
-        case SDLK_s:
+        case SDLK_w:
             pitch += rotationStep;
             updateCameraVectors();
             break;
+        case SDLK_s:
+            pitch -= rotationStep;
+            updateCameraVectors();
+            break;
         case SDLK_UP:
-            position.x += rotationStep;
-            lookTarget.x += rotationStep;
+            position.x += moveStep;
+            lookTarget.x += moveStep;
 				
             break;
         case SDLK_DOWN:
-            position.x -= rotationStep;
-            lookTarget.x -= rotationStep;
+            position.x -= moveStep;
+            lookTarget.x -= moveStep;
 				
             break;
         case SDLK_LEFT:
-            position.z -= rotationStep;
-            lookTarget.z -= rotationStep;
+            position.z -= moveStep;
+            lookTarget.z -= moveStep;
             break;
         case SDLK_RIGHT:
-            position.z += rotationStep;
-            lookTarget.z += rotationStep;
+            position.z += moveStep;
+            lookTarget.z += moveStep;
             break;
         case SDLK_f:
             lookTarget.x = 0;
@@ -120,9 +116,9 @@ void Camera::ProcessMouseMovement(const SDL_Event& event)
 {
     if (altPressed && rightClickPressed) {
         yaw += event.motion.xrel * sensitivity;
-        pitch -= event.motion.yrel * sensitivity; 
-        /*if (pitch > 89.0f) pitch = 89.0f;
-        if (pitch < -89.0f) pitch = -89.0f;*/
+        pitch += event.motion.yrel * sensitivity; 
+        if (pitch > 89.0f) pitch = 89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
         updateCameraVectors();
     }
 }

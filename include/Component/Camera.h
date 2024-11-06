@@ -1,11 +1,11 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include <GL/glew.h>
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
 #include <Config/Config.h>
 
 #include "Component.h"
@@ -58,7 +58,7 @@ public:
 
     bool altPressed = false;
     bool rightClickPressed = false;
-    float fixedRadius = 100.0f;
+    float fixedRadius = 1.0f;
 
 	Camera(glm::vec3 pos, glm::vec3 lookAt);
 	
