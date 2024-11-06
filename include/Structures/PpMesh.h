@@ -14,7 +14,8 @@
 struct PpMesh : kMeshBase
 {
 public:
-    static GLuint dataValsInVBO;
+    static const GLuint dataValsInVBO;
+    static std::vector<std::shared_ptr<PpMesh>> meshes;
 
     explicit PpMesh(const aiMesh* mesh);
     ~PpMesh();

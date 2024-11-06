@@ -4,8 +4,8 @@
 
 #ifndef SHADER_H
 #define SHADER_H
-#include <string>
-#include <GL\glew.h>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 
 class Shader {
@@ -17,6 +17,10 @@ public:
     void loadShader(const char* vertexPath, const char* fragmentPath);
     void loadShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath);
 
+    void SetViewMatrix(glm::mat4 matrix) const;
+
+private:
+    
     GLuint CompileShader(const char* shaderPath, GLenum shaderType, const char* typeStr);
     void CompileShader(GLuint& shaderID, const char* filename, GLenum shaderType);
 public:

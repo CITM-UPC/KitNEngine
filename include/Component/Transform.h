@@ -4,27 +4,29 @@
 
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
+
+class GameObject;
+
+using GameObjectPtr = std::shared_ptr<GameObject>;
 
 class Transform : public Component
 {
 public:
-    Transform();
-    ~Transform();
+    Transform(GameObject* go) : gameObject(go){}
+    ~Transform() = default;
 
-
-    [[nodiscard]] glm::vec3 Position() const;
-    [[nodiscard]] glm::vec3 Rotation() const;
-    [[nodiscard]] glm::vec3 Scale() const;
-    [[nodiscard]] glm::vec3 Forward() const;
-    [[nodiscard]] glm::vec3 Up() const;
-    [[nodiscard]] glm::vec3 Right() const;
+    [[nodiscard]] glm::vec3 Position() const{return glm::vec3(_M[3]);}
+    [[nodiscard]] glm::vec3 Rotation() const{return glm::vec3();}
+    [[nodiscard]] glm::vec3 Scale() const{return glm::vec3();}
+    [[nodiscard]] glm::vec3 Forward() const{return -glm::vec3(_M[2]);}
+    [[nodiscard]] glm::vec3 Up() const{return glm::vec3();}
+    [[nodiscard]] glm::vec3 Right() const{return glm::vec3(_M[0]);}
     
     
-    glm::vec3 position;
-    glm::vec4 rotation;
-    glm::vec3 scale;
+    GameObjectPtr gameObject;
+    
+    glm::mat4 _M;
 };
 
 #endif //TRANSFORM_H

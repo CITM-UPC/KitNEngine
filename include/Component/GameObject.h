@@ -4,22 +4,17 @@
 
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
-#include <memory>
-#include <vector>
-
 #include "Component.h"
 #include "Transform.h"
-#include "OpenEXR/IlmThreadProcessGroup.h"
 
-class GameObject;
-
-using GameObjectPtr = std::shared_ptr<GameObject>;
+#include <memory>
+#include <vector>
 
 class GameObject : public Component
 {
     public:
     GameObject();
-    ~GameObject();
+    ~GameObject() = default;
 
     void InspectorDisplay() override;
     
@@ -33,7 +28,7 @@ class GameObject : public Component
 
 private:
     
-    Transform transform;
+    Transform transform = Transform(this);
 
     std::vector<ComponentPtr> components;
     std::vector<GameObjectPtr> children;

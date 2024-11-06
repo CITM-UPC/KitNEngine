@@ -7,8 +7,9 @@
 
 #include "Structures/Shader.h"
 
+const GLuint PpMesh::dataValsInVBO = 5; // position(3), UV(2)
 
-GLuint PpMesh::dataValsInVBO = 5; // position(3), UV(2)
+std::vector<std::shared_ptr<PpMesh>> PpMesh::meshes = std::vector<std::shared_ptr<PpMesh>>();
 
 PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
 {

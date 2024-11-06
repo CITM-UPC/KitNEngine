@@ -13,12 +13,11 @@
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/ilut.h"
-#include "Structures/FpMesh.h"
 #include "Structures/PpMesh.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 #include "Component/Camera.h"
-#include "Config/Config.h"
+#include "Config/Config"
 #include "Utilities/FileUtils.h"
 using namespace std;
 
@@ -57,63 +56,27 @@ static void init_openGL() {
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 	std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-
-
+	
 	// Enable debugging output
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Ensures debugging is synchronous
 	glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 }
+
 void init_devIL()
 {
+	ilInit();
+	iluInit();
+	//ilutInit();
+
 	if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION)
 	{
 		throw exception("DevIL version mismatch");
 	}
-	
-	ilInit();
-	iluInit();
-	//ilutInit();
 }
 
-
-
- 	
-
-
-GLuint shaderProgram;
 
 vector<shared_ptr<Shader>> shaders;
-
-// Compiles the shader contained in the provided file and type and saves its ID to shaderID.
-void compileShader(GLuint& shaderID, const char* filename, GLenum shaderType)
-{
-	std::string source = LoadTextFile(filename);
-	const GLchar* str = source.c_str();
-	shaderID = glCreateShader(shaderType);
-	glShaderSource(shaderID, 1, &str, NULL);
-	glCompileShader(shaderID);
-
-	GLint  success;
-	char infoLog[512];
-	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
-
-	if(!success)
-	{
-		glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
-		std::string shaderTypeString;
-		switch(shaderType)
-		{
-			case GL_VERTEX_SHADER: shaderTypeString = "VERTEX"; break;
-			case GL_FRAGMENT_SHADER: shaderTypeString = "FRAGMENT"; break;
-		default: shaderTypeString = "UNKNOWN"; break;
-		}
-		std::cout << "ERROR::SHADER::" << shaderTypeString << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-
-}
-Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 void init_shaders()
 {
@@ -121,89 +84,10 @@ void init_shaders()
 }
 
 
-static std::vector<std::shared_ptr<kMeshBase>> meshes;
 static std::vector<std::shared_ptr<Texture>> textures;
-
-#pragma region MANUAL_MESH
-
-unique_ptr<FPMesh> manualMesh;
-
-glm::uint vertex_buffer_id = 0;
-
-static const GLuint num_vertices = 8;
-static const GLuint valsPerVertex = 3;
-static const GLuint valsPerColor = 3;
-static const GLuint vertexSize = valsPerVertex;//+valsPerColor;
-static glm::float32 vertices[num_vertices*vertexSize] = {
-	//Position				////Color
-	-0.5f, -0.5f,  0.5f,	//-0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f,  0.5f,	// 0.5f, -0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,	// 0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,	//-0.5f,  0.5f,  0.5f,
-	//
-	-0.5f, -0.5f, -0.5f,	//-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,	// 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,	// 0.5f,  0.5f, -0.5f,
-	-0.5f,  0.5f, -0.5f,	//-0.5f,  0.5f, -0.5f
-
-};
-
-glm::uint index_buffer_id = 0;
-
-const glm::uint num_indices = 36;
-static glm::uint  triangleIndices[num_indices]
-{
-	0,1,2,
-	2,3,0,
-	
-	4,5,6,
-	6,7,4,
-
-	4,0,3,
-	3,7,4,
-
-	1,5,6,
-	6,2,1,
-
-	3,2,6,
-	6,7,3,
-
-	4,5,1,
-	1,0,4
-};
-
-static glm::float32 uvCoords[num_indices * 2] = {
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
-
-void InitDefaultModel()
-{
-	meshes.push_back(make_unique<FPMesh>(vertices, vertexSize,num_vertices));
-	
-	/*vertex_buffer_id = MyMesh::nextBufferId++;
-	index_buffer_id = MyMesh::nextBufferId++;
-	
-	// Generate vertex buffer
-	glGenBuffers (1, (GLuint*) &(vertex_buffer_id));
-	glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_id);
-	glBufferData (GL_ARRAY_BUFFER, sizeof(float)*num_vertices*3, vertices, GL_STATIC_DRAW);
-
-	// Generate vertex_index buffer
-	glGenBuffers (1, (GLuint*) &(index_buffer_id));
-	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-	glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*num_indices, triangleIndices, GL_STATIC_DRAW);
-	*/
-
-	// Generate Texture
-	textures.push_back(std::make_unique<Texture>(256,256));
-}
-
-#pragma endregion MANUAL_MESH
 
 static void draw_mesh(kMeshBase& mesh)
 {
-	//glColor3f(1.0f, 1.0f, 0.0f); // Assignar el color d'aquesta manera funciona, però no des de buffer
-	//mesh.Render(shader.get());
 	mesh.Render(shaders[0].get());
 	
 }
@@ -211,12 +95,11 @@ static void draw_mesh(kMeshBase& mesh)
 static void display_func() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	for (auto& mesh : meshes)
+	for (auto& mesh : PpMesh::meshes)
 	{
 		draw_mesh(*mesh);
 	}
-	//glRotatef(0.5f, 1.0f, 1.0f, 1.0f);
-	//glScalef(0.999f, 0.999f, 0.999f);
+}
 
 static bool processEvents() {
 	SDL_Event event;
@@ -268,7 +151,7 @@ static bool LoadModels(const char* filename, bool verbose=false)
 		}
 		shared_ptr<PpMesh> pp_mesh =std::make_shared<PpMesh>(mesh);
 		if (textures.size() > 0) pp_mesh->texture_id=textures[0]->textureID;
-		meshes.emplace_back(pp_mesh);
+		PpMesh::meshes.emplace_back(pp_mesh);
 		
 	}
 	
@@ -303,25 +186,27 @@ int main(int argc, char** argv) {
 
 	//Load models
 	//InitDefaultModel();
-	const char* path= "../Assets/Models/masterChiefSmol.fbx";
+	const char* path= "../Assets/Models/MasterChiefSmol.fbx";
 	
 	LoadModels(path, false);
 
 	//Temp code end
 
-	while (true) {
-		
+	
+	
+	while (processEvents()) {
+		const auto t0 = hrclock::now();
 		camera.update();
-		
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		display_func();
 
 		window.swapBuffers();
-		std::this_thread::sleep_for(FRAME_DT);
+		const auto t1 = hrclock::now();
+		const auto dt = t1 - t0;
+		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
 
 	CleanUp();
-	cout << "¡Adiós, mundo!" << endl;
+	
+	cout << "Bye World!" << endl;
 	return 0;
 }

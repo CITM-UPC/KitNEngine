@@ -56,6 +56,12 @@ void Shader::loadShader(const char* vertexPath, const char* fragmentPath, const 
     std::cerr << "Geometry shaders not yet implemented!" << std::endl;
 }
 
+void Shader::SetViewMatrix(glm::mat4 matrix) const
+{
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram,"viewMatrix"), 1, GL_FALSE, &matrix[0][0]);
+}
+
 GLuint Shader::CompileShader(const char* shaderPath, GLenum shaderType, const char* typeStr)
 {
     std::string source = LoadTextFile(shaderPath);

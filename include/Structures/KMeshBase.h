@@ -5,10 +5,15 @@
 #ifndef KMESHBASE_H
 #define KMESHBASE_H
 #include "GL/glew.h"
+#include <memory>
+#include <vector>
 
+
+struct PpMesh;
 class Shader;
 class kMeshBase {
 public:
+
 
     GLuint VAO = 0; // Buffer de modelo entero
     GLuint VBO = 0; // Buffer de vertices

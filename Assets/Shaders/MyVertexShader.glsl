@@ -4,9 +4,11 @@ layout (location = 1) in vec2 aUV;
 
 out vec2 texCoords;
 
+uniform mat4 viewMat = mat4(1.0);
+
 void main()
 {
-    gl_Position = vec4(aPos.xyz, 1.0);
+    gl_Position = viewMat * vec4(aPos.xyz, 1.0);
     
     texCoords = aUV;
 }
