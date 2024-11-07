@@ -4,6 +4,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 #include <iostream>
+#include <Component/Formas Primitivas.h>
 using namespace std;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
@@ -56,8 +57,44 @@ void MyWindow::swapBuffers() const {
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
             }
+            
             ImGui::EndMenu();
         }
+        // codigo temporal
+
+        if (ImGui::BeginMenu("Formas Primitivas"))
+        {
+            if (ImGui::MenuItem("Circulo"))
+            {
+                draw_circle();
+            }
+            if (ImGui::MenuItem("Cubo"))
+            {
+                draw_cube();
+            }
+            if (ImGui::MenuItem("Triangulo"))
+            {
+                draw_triangle();
+            }
+            if (ImGui::MenuItem("Cilindro"))
+            {
+                draw_cylinder();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("GitHub")) {
+            if (ImGui::MenuItem("Abrir enlace")) {
+                // Windows
+                std::system("start https://github.com/Ropuce/GameEngine");
+            }
+            if (ImGui::MenuItem("Trap")) {
+                // Una broma xd
+                std::system("start https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+            }
+            ImGui::EndMenu();
+        }
+
+        // fin del codigo temporal
         ImGui::EndMainMenuBar();
     }
 
