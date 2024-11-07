@@ -3,6 +3,6 @@
 
 #include <glm/glm.hpp>
 
-static const glm::ivec2 WINDOW_SIZE(1024, 1024); 
+static const glm::ivec2 WINDOW_SIZE(1800, 900); 
 
 #endif

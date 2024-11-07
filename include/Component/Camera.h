@@ -20,7 +20,7 @@ enum Camera_Movement {
 
 
 
-const float YAW = -90.0f;
+const float YAW = 0.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
@@ -38,27 +38,33 @@ public:	// Static members/functions
 public:
 
 	
-	glm::vec3 up = { 0, 1, 0 };
-	glm::vec3 position;
+	glm::vec3 worldUp = { 0, 1, 0 };
 	glm::vec3 lookTarget;
-	glm::vec3 cameraDirection;
+	
+	glm::vec3 position;
+	
+	glm::vec3 camFront;
 	glm::vec3 camRight;
 	glm::vec3 camUp;
+
+	
 	glm::mat4 view;
+	glm::mat4 projection;
+	
 	//float eyex = -10, eyey = -100, eyez = 0;   // Posici鏮 de la c嫥ara
     //float centerx = 0.0f, centery = 10.0f, centerz = 0.0f; // Punto de vista
     //float upx = 0.0f, upy = 1.0f, upz = 0.0f;       // Vector hacia arriba
 
-    float yaw = 0.0f;   // 聲gulo horizontal (izquierda-derecha)
+    float yaw = 90.0f;   // 聲gulo horizontal (izquierda-derecha)
     float pitch = 0.0f; // 聲gulo vertical (arriba-abajo)
-    float moveStep = 0.2f; // Paso de movimiento de la c嫥ara
+    float moveStep = 0.02f; // Paso de movimiento de la c嫥ara
     float rotationStep = 2.0f; // Paso de rotaci鏮 de la c嫥ara
     float sensitivity = 0.1f;
     float verticalAngle = 0.0f; // 聲gulo vertical para orbitaci鏮 con W y S
 
     bool altPressed = false;
     bool rightClickPressed = false;
-    float fixedRadius = 1.0f;
+    float zoom = 1.0f;
 
 	Camera(glm::vec3 pos, glm::vec3 lookAt);
 	

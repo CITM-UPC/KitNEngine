@@ -42,7 +42,7 @@ static void init_SDL()
 		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize SDL: %s\n", SDL_GetError());
 		exit(-1);
 	}
-	
+
 }
 
 static void init_openGL() {
@@ -171,7 +171,7 @@ void CleanUp()
 {
 }
 
-Camera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 int main(int argc, char** argv) {
 	init_SDL();
@@ -185,11 +185,11 @@ int main(int argc, char** argv) {
 
 	// Load textures
 	//textures.push_back(make_unique<Texture>(256,256));
-	LoadTextures("../Assets/Textures/test.jpg");
+	LoadTextures("../Assets/Textures/Baker_house.png");
 
 	//Load models
 	//InitDefaultModel();
-	const char* path= "../Assets/Models/Cube.fbx";
+	const char* path= "../Assets/Models/BakerHouse.fbx";
 	
 	LoadModels(path, false);
 

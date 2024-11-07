@@ -7,6 +7,9 @@
 #include "Utilities/FileUtils.h"
 #include <iostream>
 
+#include "Component/Camera.h"
+#include "Component/Camera.h"
+
 std::vector<std::shared_ptr<Shader>> Shader::shaders = std::vector<std::shared_ptr<Shader>>();
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
@@ -58,10 +61,10 @@ void Shader::loadShader(const char* vertexPath, const char* fragmentPath, const 
     std::cerr << "Geometry shaders not yet implemented!" << std::endl;
 }
 
-void Shader::SetViewMatrix(glm::mat4 matrix) const
+void Shader::SetMatrix(const char* name, glm::mat4 matrix) const
 {
     glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram,"view"), 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram,name), 1, GL_FALSE, &matrix[0][0]);
 }
 
 GLuint Shader::CompileShader(const char* shaderPath, GLenum shaderType, const char* typeStr)

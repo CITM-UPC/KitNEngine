@@ -1,12 +1,10 @@
 #include "Component/Camera.h"
+
 #include "Structures/Shader.h"
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
 {
-    cameraDirection = glm::normalize(position-lookTarget);
-    camRight = glm::normalize(glm::cross(up, cameraDirection));
-    camUp = glm::cross(cameraDirection, camRight);
-    view = glm::lookAt(position,lookTarget, up);
+    updateCameraVectors();
 }
 
 void Camera::update()
@@ -22,10 +20,14 @@ void Camera::update()
     }
 
     // TODO canviar a matriu inicial + transformacions lineals/afins
-    view = glm::lookAt(position,lookTarget,up);
+    view = glm::lookAt(position,position+camFront,camUp);
+    projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
     
     if (Shader::shaders.size() > 0)
-        Shader::shaders.at(0)->SetViewMatrix(view);
+    {
+        Shader::shaders.at(0)->SetMatrix("view", view);
+        Shader::shaders.at(0)->SetMatrix("projection", projection);
+    }
     
 }
 
@@ -51,11 +53,12 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
     }
     if (event.type == SDL_MOUSEWHEEL) {
         if (event.wheel.y > 0) {
-            fixedRadius -= moveStep;
-            if (fixedRadius < 1.0f) fixedRadius = 1.0f; 
+            zoom -= moveStep;
+            if (zoom < 0.1f) zoom = 0.1f; 
         }
         else if (event.wheel.y < 0) {
-            fixedRadius += moveStep;
+            zoom += moveStep;
+            if (zoom > 2.0f) zoom = 2.0f;
         }
 
         updateCameraVectors();
@@ -63,24 +66,28 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
         case SDLK_t:
-            up.z += rotationStep;
-            lookTarget.z += rotationStep;
+            camUp.z += rotationStep;
+            camFront.z += rotationStep;
             break;
         case SDLK_a:
-            yaw += rotationStep;
-            updateCameraVectors();
+            position -= camRight*moveStep;
+            // yaw += rotationStep;
+            // updateCameraVectors();
             break;
         case SDLK_d:
-            yaw -= rotationStep;
-            updateCameraVectors();
+            position += camRight*moveStep;
+            // yaw -= rotationStep;
+            // updateCameraVectors();
             break;
         case SDLK_w:
-            pitch += rotationStep;
-            updateCameraVectors();
+            position += camFront*moveStep;
+            // pitch += rotationStep;
+            // updateCameraVectors();
             break;
         case SDLK_s:
-            pitch -= rotationStep;
-            updateCameraVectors();
+            position -= camFront*moveStep;
+            // pitch -= rotationStep;
+            // updateCameraVectors();
             break;
         case SDLK_UP:
             position.x += moveStep;
@@ -106,7 +113,7 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
             lookTarget.z = 0;
             position.x = 0;
             position.y = 0;
-            position.z = 0;
+            position.z = 1;
             break;
         }
     }
@@ -114,13 +121,16 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
 
 void Camera::ProcessMouseMovement(const SDL_Event& event)
 {
-    if (altPressed && rightClickPressed) {
-        yaw += event.motion.xrel * sensitivity;
+    if (rightClickPressed) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);	
+        yaw -= event.motion.xrel * sensitivity;
         pitch += event.motion.yrel * sensitivity; 
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
         updateCameraVectors();
     }
+    else
+        SDL_SetRelativeMouseMode(SDL_FALSE);	
 }
 
 void Camera::updateDirectionVectors()
@@ -130,17 +140,11 @@ void Camera::updateDirectionVectors()
 
 void Camera::updateCameraVectors()
 {
-    position.x = lookTarget.x + fixedRadius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    position.y = lookTarget.y + fixedRadius * sin(glm::radians(pitch));
-    position.z = lookTarget.z + fixedRadius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    /*Front = glm::normalize(glm::vec3(
-        cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
-        sin(glm::radians(pitch)),
-        sin(glm::radians(yaw)) * cos(glm::radians(pitch))
-    ));
-    glm::vec3 right = glm::normalize(glm::cross(Front, glm::vec3(up.x, up.y, up.z)));
-    glm::vec3 upt = glm::normalize(glm::cross(right, Front));
-    up.x = upt.x;
-    up.y = upt.y;
-    up.z = upt.z;*/
+    camFront.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    camFront.y = sin(glm::radians(pitch));
+    camFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    camFront = glm::normalize(camFront);
+    camRight = glm::normalize(glm::cross(camFront, worldUp));
+    camUp = glm::normalize(glm::cross(camRight,camFront));
+
 }

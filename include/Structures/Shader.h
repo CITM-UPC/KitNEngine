@@ -20,7 +20,7 @@ public:
     void loadShader(const char* vertexPath, const char* fragmentPath);
     void loadShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath);
 
-    void SetViewMatrix(glm::mat4 matrix) const;
+    void SetMatrix(const char* name, glm::mat4 matrix) const;
 
 private:
     
