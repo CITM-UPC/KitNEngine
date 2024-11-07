@@ -123,8 +123,8 @@ void Camera::ProcessMouseMovement(const SDL_Event& event)
 {
     if (rightClickPressed) {
         SDL_SetRelativeMouseMode(SDL_TRUE);	
-        yaw -= event.motion.xrel * sensitivity;
-        pitch += event.motion.yrel * sensitivity; 
+        yaw += event.motion.xrel * sensitivity;
+        pitch -= event.motion.yrel * sensitivity; 
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
         updateCameraVectors();
