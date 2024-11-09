@@ -5,6 +5,7 @@
 #include <imgui_impl_sdl2.h>
 #include <iostream>
 #include <Component/Formas Primitivas.h>
+#include <Structures/UIWindows.h>
 using namespace std;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
@@ -43,65 +44,57 @@ MyWindow::~MyWindow() {
 }
 
 void MyWindow::swapBuffers() const {
+    static bool showConsole = false;
+    static bool showConfig = false;
+    static bool showInspector = false;
+    static bool showherarqui = false;
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("Prova"))
-        {
-            if (ImGui::MenuItem("Git out"))
-            {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("Archivo")) {
+            if (ImGui::MenuItem("Salir")) {
                 SDL_Event quit_event;
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
             }
-            
-            ImGui::EndMenu();
-        }
-        // codigo temporal
-
-        if (ImGui::BeginMenu("Formas Primitivas"))
-        {
-            if (ImGui::MenuItem("Circulo"))
-            {
-                draw_circle();
-            }
-            if (ImGui::MenuItem("Cubo"))
-            {
-                draw_cube();
-            }
-            if (ImGui::MenuItem("Triangulo"))
-            {
-                draw_triangle();
-            }
-            if (ImGui::MenuItem("Cilindro"))
-            {
-                draw_cylinder();
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("GitHub")) {
-            if (ImGui::MenuItem("Abrir enlace")) {
-                // Windows
+            if (ImGui::MenuItem("GitHub")) {
                 std::system("start https://github.com/Ropuce/GameEngine");
             }
-            if (ImGui::MenuItem("Trap")) {
-                // Una broma xd
-                std::system("start https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+            if (ImGui::MenuItem("Acerca de")) {
+                ImGui::OpenPopup("AboutPopup");
             }
             ImGui::EndMenu();
         }
 
-        // fin del codigo temporal
+        if (ImGui::BeginMenu("Cargar Primitivas")) {
+            if (ImGui::MenuItem("Cargar Círculo")) draw_circle();
+            if (ImGui::MenuItem("Cargar Cubo")) draw_cube();
+            if (ImGui::MenuItem("Cargar Triángulo")) draw_triangle();
+            if (ImGui::MenuItem("Cargar Cilindro")) draw_cylinder();
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Ventanas del Editor")) {
+            ImGui::MenuItem("Consola", NULL, &showConsole);
+            ImGui::MenuItem("Configuración", NULL, &showConfig);
+            ImGui::MenuItem("Inspector", NULL, &showInspector);
+            ImGui::MenuItem("Jerarquia", NULL, &showherarqui);
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 
+    ShowConsoleWindow(&showConsole);
+    ShowConfigWindow(&showConfig);
+    ShowInspectorWindow(&showInspector);
+    ShowHerarkiWindow(&showherarqui);
+    
+    ShowAboutPopup();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    ImGui::EndFrame();
-    
     SDL_GL_SwapWindow(static_cast<SDL_Window*>(_window));
 }
-
