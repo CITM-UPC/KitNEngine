@@ -59,20 +59,22 @@ public:
     float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
     float moveStep = 0.02f; // Paso de movimiento de la cámara
     float rotationStep = 2.0f; // Paso de rotación de la cámara
-    float sensitivity = 0.1f;
+    float sensitivity = 0.5f;
     float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
 
     bool altPressed = false;
-    bool rightClickPressed = false;
+    bool FPSCam = false;
+	bool arcBallCam = false;
     float zoom = 1.0f;
+	float targetDistance = 2.0f;
 
 	Camera(glm::vec3 pos, glm::vec3 lookAt);
 	
     void update();
     
-    void ProcessKeyboard(const SDL_Event& event);
+    void ProcessInput();
   
-	void ProcessMouseMovement(const SDL_Event& event);
+	void ProcessMouseMovement();
 	
 	void updateDirectionVectors();
 	

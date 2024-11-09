@@ -1,5 +1,9 @@
 #include "Component/Camera.h"
 
+#include <iostream>
+#include <ostream>
+
+#include "Core/App.h"
 #include "Structures/Shader.h"
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
@@ -9,21 +13,13 @@ Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(look
 
 void Camera::update()
 {
-    // TODO moure gestió de tecles a un mòdul dedicat
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-				
-        }
-				
-        ProcessKeyboard(event); // Llama a `processEvent` para manejar las teclas presionadas
-    }
+    ProcessInput();
 
     // TODO canviar a matriu inicial + transformacions lineals/afins
     view = glm::lookAt(position,position+camFront,camUp);
     projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
     
-    if (Shader::shaders.size() > 0)
+    if (!Shader::shaders.empty())
     {
         Shader::shaders.at(0)->SetMatrix("view", view);
         Shader::shaders.at(0)->SetMatrix("projection", projection);
@@ -31,64 +27,59 @@ void Camera::update()
     
 }
 
-void Camera::ProcessKeyboard(const SDL_Event& event)
+void Camera::ProcessInput()
 {
+    SDL_Event event = SDL_Event();
+    
+    // TODO tecles configurables (ja implementat a modul Input)
+    
     // Manejar eventos de teclado para registrar si Alt está presionado
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LALT) {
-        altPressed = true;
-    }
-    if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_LALT) {
-        altPressed = false;
-    }
-
+    altPressed = app->input->GetKey(SDL_SCANCODE_LALT) == KeyState::KEY_REPEAT;
+    
     // Manejar eventos del ratón para registrar si el clic derecho está presionado
-    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
-        rightClickPressed = true;
-    }
-    if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) {
-        rightClickPressed = false;
-    }
-    if (event.type == SDL_MOUSEMOTION) {
-        ProcessMouseMovement(event);
-    }
-    if (event.type == SDL_MOUSEWHEEL) {
-        if (event.wheel.y > 0) {
-            zoom -= moveStep;
-            if (zoom < 0.1f) zoom = 0.1f; 
-        }
-        else if (event.wheel.y < 0) {
-            zoom += moveStep;
-            if (zoom > 2.0f) zoom = 2.0f;
-        }
+    KeyState rButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT);
+    FPSCam = rButtonState == KeyState::KEY_REPEAT;
 
-        updateCameraVectors();
-    }
-    if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-        case SDLK_t:
-            camUp.z += rotationStep;
-            camFront.z += rotationStep;
-            break;
-        case SDLK_a:
-            position -= camRight*moveStep;
-            // yaw += rotationStep;
-            // updateCameraVectors();
-            break;
-        case SDLK_d:
-            position += camRight*moveStep;
-            // yaw -= rotationStep;
-            // updateCameraVectors();
-            break;
-        case SDLK_w:
+
+    KeyState lButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT);
+    arcBallCam = altPressed && lButtonState == KeyState::KEY_REPEAT;
+    //rightClickPressed = app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KeyState::KEY_REPEAT;
+    
+    ProcessMouseMovement();
+
+    int wheelX, wheelY;
+    app->input->GetMouseWheel(wheelX, wheelY);
+    
+
+    if (FPSCam)
+    {
+        // Moviment camara fps
+        if (app->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
             position += camFront*moveStep;
-            // pitch += rotationStep;
-            // updateCameraVectors();
-            break;
-        case SDLK_s:
+        if (app->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
             position -= camFront*moveStep;
-            // pitch -= rotationStep;
-            // updateCameraVectors();
-            break;
+        if (app->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
+            position -= camRight*moveStep;
+        if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
+            position += camRight*moveStep;
+
+        targetDistance = glm::distance(position,lookTarget);
+    }
+    else if (arcBallCam)
+    {
+        // Moviment orbital
+        targetDistance += (wheelY*moveStep); // Apropa o allunya de l'objecte
+    }
+    else
+    {
+        zoom += wheelY * moveStep;
+    }
+        
+    
+    
+    /*
+     *if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
         case SDLK_UP:
             position.x += moveStep;
             lookTarget.x += moveStep;
@@ -117,17 +108,23 @@ void Camera::ProcessKeyboard(const SDL_Event& event)
             break;
         }
     }
+    */
+    
+    updateCameraVectors();
+
 }
 
-void Camera::ProcessMouseMovement(const SDL_Event& event)
+void Camera::ProcessMouseMovement()
 {
-    if (rightClickPressed) {
-        SDL_SetRelativeMouseMode(SDL_TRUE);	
-        yaw += event.motion.xrel * sensitivity;
-        pitch -= event.motion.yrel * sensitivity; 
+    if (FPSCam || arcBallCam) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        int x,y;
+        app->input->GetMouseMotion(x,y);
+        yaw += x * sensitivity;
+        pitch -= y * sensitivity; 
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
-        updateCameraVectors();
+        //updateCameraVectors();
     }
     else
         SDL_SetRelativeMouseMode(SDL_FALSE);	
@@ -140,10 +137,23 @@ void Camera::updateDirectionVectors()
 
 void Camera::updateCameraVectors()
 {
-    camFront.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    camFront.y = sin(glm::radians(pitch));
-    camFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    if (arcBallCam)
+    {
+        position.x = lookTarget.x - targetDistance * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+        position.y = lookTarget.y - targetDistance * sin(glm::radians(pitch));
+        position.z = lookTarget.z - targetDistance * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+        
+        camFront = lookTarget - position;
+    }
+    else
+    {
+        camFront.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+        camFront.y = sin(glm::radians(pitch));
+        camFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));    
+    }
+
     camFront = glm::normalize(camFront);
+    
     camRight = glm::normalize(glm::cross(camFront, worldUp));
     camUp = glm::normalize(glm::cross(camRight,camFront));
 

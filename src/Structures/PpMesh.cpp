@@ -62,8 +62,6 @@ void PpMesh::Render(const Shader* shaderProgram) const
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glUseProgram(shaderProgram->shaderProgram);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
 
     // no activar hasta que se tengan shaders de color funcionales
@@ -93,8 +91,6 @@ void PpMesh::Render(GLuint shaderProgram) const
     //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glBindVertexArray(VAO);
     glUseProgram(shaderProgram);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
 
     // no activar hasta que se tengan shaders de color funcionales
@@ -108,8 +104,6 @@ void PpMesh::Render(GLuint shaderProgram) const
     // Finish Drawing
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
 
     //glDisableClientState(GL_VERTEX_ARRAY);
     //glDisableClientState(GL_TEXTURE_COORD_ARRAY);

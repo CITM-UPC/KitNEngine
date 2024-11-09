@@ -79,12 +79,9 @@ void init_devIL()
 	}
 }
 
-
-vector<shared_ptr<Shader>> shaders;
-
 void init_shaders()
 {
-	shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+	Shader::shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
 }
 
 
@@ -92,7 +89,7 @@ static std::vector<std::shared_ptr<Texture>> textures;
 
 static void draw_mesh(kMeshBase& mesh)
 {
-	mesh.Render(shaders[0].get());
+	mesh.Render(Shader::shaders[0].get());
 	
 }
 
@@ -173,6 +170,7 @@ void CleanUp()
 {
 }
 
+AppPtr app = AppPtr(new App);
 
 int main(int argc, char** argv) {
 	init_SDL();
@@ -194,17 +192,16 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path, false);
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Temp code end
 
-	auto app = App::GetInstance();
-	app.Init();
-	app.Start();
+	app->Init();
+	app->Start();
 	bool ret = true;
 	while (ret) {
 		const auto t0 = hrclock::now();
 
-		ret = app.Update();
+		ret = app->Update();
 		
 		camera.update();
 		display_func();
@@ -215,7 +212,7 @@ int main(int argc, char** argv) {
 		if(last_dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - last_dt);
 	}
 
-	app.CleanUp();
+	app->CleanUp();
 	
 	CleanUp();
 	

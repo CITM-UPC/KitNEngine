@@ -169,15 +169,16 @@ public:
 	glm::vec2 GetAxis(ControlID x, ControlID y);
 
 	// Get mouse / axis position
-	void GetMousePosition(int &x, int &y);
-	void GetMouseMotion(int& x, int& y);
+	void GetMousePosition(int &x, int &y) const;
+	void GetMouseMotion(int& x, int& y) const;
+	void GetMouseWheel(int& x, int& y) const;
 
 	// Check if a certain window event happened
-	bool GetWindowEvent(EventWindow ev);
+	bool GetWindowEvent(EventWindow ev) const;
 
-	bool SaveBindings();
+	static bool SaveBindings();
 
-	std::string GetText() const { return textInput; }
+	[[nodiscard]] std::string GetText() const { return textInput; }
 	void ResetText() { textInput = ""; }
 
 private:
@@ -188,7 +189,7 @@ private:
 	}
 
 	// Devuelve el estado de un boton, ya sea de teclado o mando
-	const ControlBinding& GetBind(ControlID id);
+	const ControlBinding& GetBind(ControlID id) const;
 
 	// Actualiza los controles asignados
 	void UpdateBindings();
@@ -196,7 +197,7 @@ private:
 	// Encuentra todos los mandos compatibles conectado al pc
 	void FindControllers();
 
-	// A�ade el mando con el id proporcionado a la lista de mandos detectados
+	// Añade el mando con el id proporcionado a la lista de mandos detectados
 	void AddController(Sint32 id);
 
 private:
@@ -208,10 +209,12 @@ private:
 	KeyState*	keyboard;
 	KeyState mouseButtons[NUM_MOUSE_BUTTONS];
 	std::vector<unique_gameController_t> controllers;
-	int	mouseMotionX;
-	int mouseMotionY;
-	int mouseX;
-	int mouseY;
+	int	mouseMotionX = 0;
+	int mouseMotionY = 0;
+	int mouseX = 0;
+	int mouseY = 0;
+	int mouseWheelX = 0;
+	int mouseWheelY = 0;
 
 	// Entrada de texto
 	std::string textInput;

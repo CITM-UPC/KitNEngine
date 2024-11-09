@@ -12,12 +12,15 @@
 
 class Input;
 
+class App;
+using AppPtr = std::unique_ptr<App>;
+
 class App {
-private:
-    App();
 public: // Methods
 
-    static App& GetInstance();
+    App();
+
+    ~App();
 
     bool Init();
 
@@ -27,17 +30,18 @@ public: // Methods
 
     bool CleanUp();
 
+    bool AddModule(const ModulePtr& module);
+
 
 public: // Member variables
 
     std::shared_ptr<Input> input;
-
 
 private:
     std::vector<ModulePtr> modules;
     
 };
 
-
+extern AppPtr app;
 
 #endif //APP_H
