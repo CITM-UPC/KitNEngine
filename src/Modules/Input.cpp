@@ -176,6 +176,8 @@ bool Input::PreUpdate()
 			mouseButtons[i] = KEY_IDLE;
 	}
 
+	mouseWheelX = mouseWheelY = mouseMotionX = mouseMotionY = 0;
+
 	UpdateBindings();
 
 	while(SDL_PollEvent(&event) != 0)
@@ -226,6 +228,12 @@ bool Input::PreUpdate()
 				//LOG("Mouse motion x %d y %d", mouse_motion_x, mouse_motion_y);
 			}
 			break;
+
+			case SDL_MOUSEWHEEL:
+			{
+				mouseWheelX = event.wheel.x;
+				mouseWheelY = event.wheel.y;
+			}
 
 			case SDL_CONTROLLERDEVICEADDED:
 				AddController(event.cdevice.which);
@@ -286,19 +294,25 @@ glm::vec2 Input::GetAxis(ControlID x, ControlID y)
 	return ret;
 }
 
-void Input::GetMousePosition(int& x, int& y)
+void Input::GetMousePosition(int& x, int& y) const
 {
 	x = mouseX;
 	y = mouseY;
 }
 
-void Input::GetMouseMotion(int& x, int& y)
+void Input::GetMouseMotion(int& x, int& y) const
 {
 	x = mouseMotionX;
 	y = mouseMotionY;
 }
 
-bool Input::GetWindowEvent(EventWindow ev)
+void Input::GetMouseWheel(int& x, int& y) const
+{
+	x = mouseWheelX;
+	y = mouseWheelY;
+}
+
+bool Input::GetWindowEvent(EventWindow ev) const
 {
 	return windowEvents[ev];
 }
@@ -327,16 +341,16 @@ bool Input::SaveBindings()
 	return true;
 }
 
-const ControlBinding& Input::GetBind(ControlID id)
+const ControlBinding& Input::GetBind(const ControlID id) const
 {
 	return bindings.at(id);
 }
 
 void Input::UpdateBindings()
 {
-	for (size_t i = 0; i < bindings.size(); i++)
+	for (auto & binding : bindings)
 	{
-		bindings[i].Update(this);
+		binding.Update(this);
 	}
 }
 
@@ -351,11 +365,11 @@ void Input::FindControllers() {
 
 inline void Input::AddController(Sint32 id) {
 	bool reassigned = false;
-	for (size_t i = 0; i < controllers.size(); i++)
+	for (auto & controller : controllers)
 	{
-		if (!controllers[i]) {
+		if (!controller) {
 			unique_gameController_t source = unique_gameController_t(SDL_GameControllerOpen(id), SDL_GameControllerClose);
-			controllers[i] = std::move(source);
+			controller = std::move(source);
 			reassigned = true;
 			break;
 		}
