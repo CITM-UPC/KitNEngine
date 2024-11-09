@@ -19,8 +19,13 @@
 #include "Component/Camera.h"
 #include "Component/GameObject.h"
 #include "Config/Config.h"
+<<<<<<< HEAD
 #include "Core/App.h"
 #include "Utilities/Time.h"
+=======
+#include "Structures/UIWindows.h"
+
+>>>>>>> 32ceb9b (Consola actualizada)
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -200,6 +205,12 @@ int main(int argc, char** argv) {
 	app->Start();
 	bool ret = true;
 	while (ret) {
+=======
+	InitializeGeometryLoading();
+	InitializeLibraries();
+	
+	while (processEvents()) {
+>>>>>>> 32ceb9b (Consola actualizada)
 		const auto t0 = hrclock::now();
 
 		ret = app->Update();
