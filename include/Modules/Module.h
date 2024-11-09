@@ -4,8 +4,11 @@
 
 #ifndef MODULE_H
 #define MODULE_H
+#include <memory>
 #include <string>
 
+class Module;
+using ModulePtr = std::shared_ptr<Module>;
 
 class Module {
 public:

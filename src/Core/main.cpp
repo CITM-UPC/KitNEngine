@@ -19,6 +19,7 @@
 #include "Component/Camera.h"
 #include "Component/GameObject.h"
 #include "Config/Config.h"
+#include "Core/App.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -79,10 +80,11 @@ void init_devIL()
 }
 
 
+vector<shared_ptr<Shader>> shaders;
 
 void init_shaders()
 {
-	Shader::shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+	shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
 }
 
 
@@ -90,7 +92,7 @@ static std::vector<std::shared_ptr<Texture>> textures;
 
 static void draw_mesh(kMeshBase& mesh)
 {
-	mesh.Render(Shader::shaders[0].get());
+	mesh.Render(shaders[0].get());
 	
 }
 
@@ -171,7 +173,6 @@ void CleanUp()
 {
 }
 
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 int main(int argc, char** argv) {
 	init_SDL();
@@ -193,19 +194,17 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path, false);
 
+	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Temp code end
 
-	
-	
-	while (true) {
+	auto app = App::GetInstance();
+	app.Init();
+	app.Start();
+	bool ret = true;
+	while (ret) {
 		const auto t0 = hrclock::now();
 
-		// TODO migrar gestion de GameObjects a un modulo
-		for	(GameObjectPtr& go : GameObject::gameObjects)
-		{
-			go->Update();
-		}
-
+		ret = app.Update();
 		
 		camera.update();
 		display_func();
@@ -216,6 +215,8 @@ int main(int argc, char** argv) {
 		if(last_dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - last_dt);
 	}
 
+	app.CleanUp();
+	
 	CleanUp();
 	
 	cout << "Bye World!" << endl;
