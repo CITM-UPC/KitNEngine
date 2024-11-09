@@ -8,6 +8,7 @@
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
 {
+    targetDistance = glm::distance(position,lookTarget);
     updateCameraVectors();
 }
 
@@ -43,9 +44,15 @@ void Camera::ProcessInput()
 
     KeyState lButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT);
     arcBallCam = altPressed && lButtonState == KeyState::KEY_REPEAT;
-    //rightClickPressed = app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KeyState::KEY_REPEAT;
     
     ProcessMouseMovement();
+
+    if (app->input->GetKey(SDL_SCANCODE_F) == KeyState::KEY_DOWN)
+    {
+        lookTarget = glm::vec3(0.0f,0.0f,0.0f);
+        targetDistance = glm::distance(position,lookTarget);
+        arcBallCam = true; // Aprofita el codi de arcball que centra la camera sobre l'objectiu
+    }
 
     int wheelX, wheelY;
     app->input->GetMouseWheel(wheelX, wheelY);
@@ -62,13 +69,12 @@ void Camera::ProcessInput()
             position -= camRight*moveStep;
         if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
             position += camRight*moveStep;
-
-        targetDistance = glm::distance(position,lookTarget);
+      
     }
     else if (arcBallCam)
     {
         // Moviment orbital
-        targetDistance += (wheelY*moveStep); // Apropa o allunya de l'objecte
+        targetDistance -= (wheelY * moveStep); // Apropa o allunya de l'objecte
     }
     else
     {
@@ -147,6 +153,7 @@ void Camera::updateCameraVectors()
     }
     else
     {
+        
         camFront.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
         camFront.y = sin(glm::radians(pitch));
         camFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));    
@@ -156,5 +163,11 @@ void Camera::updateCameraVectors()
     
     camRight = glm::normalize(glm::cross(camFront, worldUp));
     camUp = glm::normalize(glm::cross(camRight,camFront));
+
+    if (FPSCam)
+    {
+        targetDistance = glm::distance(position,lookTarget);
+        lookTarget = position+camFront*targetDistance;
+    }
 
 }
