@@ -28,21 +28,22 @@ class Input;
 // Atajo para smart pointers de tipo SDL_GameController
 using unique_gameController_t = std::unique_ptr<SDL_GameController, decltype(&SDL_GameControllerClose)>;
 
-// Identificadores de controles deben ser a�adidos aqui
+// TODO canviar de enum a hashmap o similar per permetre canviar la quantitat de bindings diferents i tenir mes flexibilitat
+// Identificadores de controles deben ser añadidos aqui
 enum ControlID {
-	NONE = -1,
-	CONFIRM,
-	BACK,
-	PAUSE,
-	MOVE_HORIZONTAL,
-	MOVE_VERTICAL,
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	APP_EXIT,
-	DEBUG_CONSOLE,
-	ID_COUNT
+	BINDING_NONE = -1,
+	BINDING_CONFIRM,
+	BINDING_BACK,
+	BINDING_PAUSE,
+	BINDING_MOVE_HORIZONTAL,
+	BINDING_MOVE_VERTICAL,
+	BINDING_UP,
+	BINDING_DOWN,
+	BINDING_LEFT,
+	BINDING_RIGHT,
+	BINDING_APP_EXIT,
+	BINDING_DEBUG_CONSOLE,
+	BINDING_ID_COUNT
 };
 
 enum EventWindow
@@ -104,7 +105,7 @@ public:
 public:
 
 	bool isAxisControl = false;
-	ControlID bind = ControlID::NONE;
+	ControlID bind = ControlID::BINDING_NONE;
 	bool isPositive = false;
 
 	// Teclas y botones

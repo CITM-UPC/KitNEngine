@@ -48,19 +48,19 @@ bool Input::Awake()
 	// }
 
 	//Default (por si faltan valores en el archivo de configuracion)
-	bindings[CONFIRM]
+	bindings[BINDING_CONFIRM]
 		.SetPButton(SDL_CONTROLLER_BUTTON_A)
 		.SetPKey(SDL_SCANCODE_SPACE);
 
-	bindings[BACK]
+	bindings[BINDING_BACK]
 		.SetPButton(SDL_CONTROLLER_BUTTON_B)
 		.SetPKey(SDL_SCANCODE_LSHIFT);
 
-	bindings[PAUSE]
+	bindings[BINDING_PAUSE]
 		.SetPButton(SDL_CONTROLLER_BUTTON_START)
 		.SetPKey(SDL_SCANCODE_P);
 
-	bindings[MOVE_HORIZONTAL]
+	bindings[BINDING_MOVE_HORIZONTAL]
 		.SetAxisControl(true)
 		.SetAxis(SDL_CONTROLLER_AXIS_LEFTX)
 		.SetPButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
@@ -68,7 +68,7 @@ bool Input::Awake()
 		.SetPKey(SDL_SCANCODE_D)
 		.SetNKey(SDL_SCANCODE_A);
 
-	bindings[MOVE_VERTICAL]
+	bindings[BINDING_MOVE_VERTICAL]
 		.SetAxisControl(true)
 		.SetAxis(SDL_CONTROLLER_AXIS_LEFTY)
 		.SetPButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)
@@ -76,27 +76,27 @@ bool Input::Awake()
 		.SetPKey(SDL_SCANCODE_S)
 		.SetNKey(SDL_SCANCODE_W);
 
-	bindings[UP]
-		.SetBind(MOVE_VERTICAL)
+	bindings[BINDING_UP]
+		.SetBind(BINDING_MOVE_VERTICAL)
 		.SetIsPositive(false);
 
-	bindings[DOWN]
-		.SetBind(MOVE_VERTICAL)
+	bindings[BINDING_DOWN]
+		.SetBind(BINDING_MOVE_VERTICAL)
 		.SetIsPositive(true);
 
-	bindings[LEFT]
-		.SetBind(MOVE_HORIZONTAL)
+	bindings[BINDING_LEFT]
+		.SetBind(BINDING_MOVE_HORIZONTAL)
 		.SetIsPositive(false);
 
-	bindings[RIGHT]
-		.SetBind(MOVE_HORIZONTAL)
+	bindings[BINDING_RIGHT]
+		.SetBind(BINDING_MOVE_HORIZONTAL)
 		.SetIsPositive(true);
 
-	bindings[APP_EXIT]
+	bindings[BINDING_APP_EXIT]
 		.SetPButton(SDL_CONTROLLER_BUTTON_BACK)
 		.SetPKey(SDL_SCANCODE_ESCAPE);
 
-	bindings[DEBUG_CONSOLE]
+	bindings[BINDING_DEBUG_CONSOLE]
 		.SetPKey(SDL_SCANCODE_F1);
 
 
@@ -282,7 +282,7 @@ glm::vec2 Input::GetAxis(ControlID x, ControlID y)
 {
 	glm::vec2 ret;
 	ret.x = GetBind(x).Axis();
-	ret.y = (y == NONE) ? 0 : GetBind(y).Axis();
+	ret.y = (y == BINDING_NONE) ? 0 : GetBind(y).Axis();
 	return ret;
 }
 
@@ -394,7 +394,7 @@ void ControlBinding::Update(Input* input)
 		axisVal = MAX(-maxVal, MIN(maxVal, axisVal));
 
 	}
-	else if (bind != ControlID::NONE) {
+	else if (bind != ControlID::BINDING_NONE) {
 		float axis = input->GetAxis(bind);
 		bool check = (isPositive ? (axis > 0):(axis < 0));
 		if (check)

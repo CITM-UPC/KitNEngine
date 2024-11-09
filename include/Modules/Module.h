@@ -13,22 +13,22 @@ using ModulePtr = std::shared_ptr<Module>;
 class Module {
 public:
     
-    Module(const char* name) : _name(name)
+    explicit Module(const char* name) : _name(name)
     {
         
     }
 
-    virtual ~Module();    
+    virtual ~Module() = default;    
 
-    bool Init();
+    virtual bool Init() { return true; }
 
-    bool Start();
+    virtual bool Start() { return true; }
 
-    bool Update();
+    virtual bool Update() { return true; }
 
-    bool CleanUp();
+    virtual bool CleanUp() { return true; }
 
-    const char* GetName() const { return _name.c_str(); }
+    [[nodiscard]] const char* GetName() const { return _name.c_str(); }
 
     
 private:
