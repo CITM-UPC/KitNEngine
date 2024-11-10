@@ -21,12 +21,14 @@ public:
     GameObject(GameObjectPtr& go);
     ~GameObject() = default;
 
-    void Awake() override;
-    void Start() override;
-    void PreUpdate() override;
-    void Update() override;
-    void PostUpdate() override;
-    void InspectorDisplay() override;
+    bool Awake() override;
+    bool Start() override;
+    bool PreUpdate() override;
+    bool Update() override;
+    bool PostUpdate() override;
+    bool InspectorDisplay() override;
+    bool CleanUp() override;
+    // TODO afegir Enable/Disable
 
 
     [[nodiscard]] const GameObjectPtr& GetChild(glm::uint index) const { return children.at(index); }
@@ -44,6 +46,8 @@ private:
 
     std::vector<ComponentPtr> components;
     std::vector<GameObjectPtr> children;
+
+    bool _active = true;
 
 };
 

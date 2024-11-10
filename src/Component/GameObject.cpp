@@ -12,44 +12,82 @@ GameObject::GameObject(GameObjectPtr& go) : parent(go)
 {
 }
 
-void GameObject::Awake()
+bool GameObject::Awake()
 {
-    Component::Awake();
+    if (!Component::Awake()) return false;
+    return true;
 }
 
-void GameObject::Start()
+bool GameObject::Start()
 {
-    Component::Start();
+    if (!Component::Start()) return false;
+    return true;
 }
 
-void GameObject::PreUpdate()
+bool GameObject::PreUpdate()
 {
-    Component::PreUpdate();
+    if (!Component::PreUpdate()) return false;
+    return true;
 }
 
-void GameObject::Update()
+bool GameObject::Update()
 {
-    Component::Update();
+    if (!Component::Update()) return false;
+    return true;
 }
 
-void GameObject::PostUpdate()
+bool GameObject::PostUpdate()
 {
-    Component::PostUpdate();
+    if (!Component::PostUpdate()) return false;
+
+    for (GameObjectPtr& go : GameObject::gameObjects)
+    {
+        if (go->_active && !go->PostUpdate())
+            return false;
+    }
+
+    return true;
 }
 
-void GameObject::InspectorDisplay()
+bool GameObject::InspectorDisplay()
 {
-    Component::InspectorDisplay();
+    //Component::InspectorDisplay();
     ImGui::Text("GameObject");
+    
     for (ComponentPtr& component : components)
-        component->InspectorDisplay();
+    {
+        if (component->InspectorDisplay()) return false;
+    }
+    
+    return true;
 }
 
-template <typename T>
+bool GameObject::CleanUp()
+{
+    bool ret = true;
+
+    for (ComponentPtr& component : components)
+    {
+        ret &= component->CleanUp();
+    }
+    
+    for (GameObjectPtr& go : children)
+    {
+        ret &=go->CleanUp();
+    }
+
+    children.clear();
+    
+    ret &= Component::CleanUp();
+
+    return ret;
+}
+
+template <class T>
 std::shared_ptr<T> GameObject::GetComponentOfType() const
 {
-    static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
-    static_assert(!std::is_base_of_v<GameObject, T>, "T must NOT be a GameObject. Use GetChild instead");
+    static_assert(std::is_base_of_v<Component, T>, "T ha de derivar de Component");
+    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha de ser un GameObject. Utilitza GetChild per obtenir un GameObject");
 
     for (const ComponentPtr& component : components) {
         // Attempt to cast to the desired type and return it if successful

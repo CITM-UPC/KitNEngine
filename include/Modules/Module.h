@@ -13,7 +13,7 @@ using ModulePtr = std::shared_ptr<Module>;
 class Module {
 public:
     
-    explicit Module(const char* name) : _name(name)
+    explicit Module(const char* name, bool enabled = true, bool needsReinit) : _name(name), _startEnabled(enabled), _needsReinit(needsReinit)
     {
         
     }
@@ -21,23 +21,23 @@ public:
     virtual ~Module() = default;    
 
     virtual bool Init() { return true; }
-
     virtual bool Start() { return true; }
-
     virtual bool PreUpdate() { return true; }
-    
     virtual bool Update() { return true; }
-
     virtual bool PostUpdate() { return true; }
-
     virtual bool CleanUp() { return true; }
 
     [[nodiscard]] const char* GetName() const { return _name.c_str(); }
 
     
-private:
+protected:
 
     std::string _name;
+
+    bool _startEnabled;
+    bool _needsReinit;
+    bool _awoken = false;
+    bool _started = false;
     
 };
 

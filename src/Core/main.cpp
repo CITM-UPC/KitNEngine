@@ -20,6 +20,7 @@
 #include "Component/GameObject.h"
 #include "Config/Config.h"
 #include "Core/App.h"
+#include "Utilities/Time.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -208,7 +209,7 @@ int main(int argc, char** argv) {
 
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
-		last_dt = t1 - t0;
+		Time::UpdateDeltaTime(last_dt = t1 - t0);
 		if(last_dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - last_dt);
 	}
 

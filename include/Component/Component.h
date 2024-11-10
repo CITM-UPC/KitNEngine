@@ -10,7 +10,7 @@ class GameObject;
 
 class Component;
 
-using ComponentPtr = std::shared_ptr<Component>;
+using ComponentPtr = std::unique_ptr<Component>;
 
 template <typename T>
 concept DerivedFromComponent = std::is_base_of_v<Component, T>;
@@ -19,18 +19,20 @@ class Component {
 protected:
     Component(const std::shared_ptr<GameObject>& parent) : gameObject(parent){}
     Component() = default;
+
+public:
     virtual ~Component() = default;
 
-public:
+    virtual bool Awake() { return true; }
+    virtual bool Start(){ return true; }
+    virtual bool PreUpdate(){ return true; }
+    virtual bool Update(){ return true; }
+    virtual bool PostUpdate(){ return true; }
+    virtual bool InspectorDisplay(){ return true; }
+    virtual bool CleanUp(){ return true; }
 
-    virtual void Awake(){}
-    virtual void Start(){}
-    virtual void PreUpdate(){}
-    virtual void Update(){}
-    virtual void PostUpdate(){}
-    virtual void InspectorDisplay(){}
-
 public:
+    // El GameObject al qual està assignat aquest component
     std::shared_ptr<GameObject> gameObject = nullptr;
 };
 
