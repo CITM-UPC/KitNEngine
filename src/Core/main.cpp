@@ -21,6 +21,8 @@
 #include "Config/Config.h"
 #include "Core/App.h"
 #include "Utilities/Time.h"
+#include "Structures/UIWindows.h"
+
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -100,6 +102,7 @@ static void display_func() {
 	}
 }
 
+
 static bool LoadModels(const char* filename)
 {
 	PpMesh::ImportMeshes(filename);
@@ -144,6 +147,19 @@ int main(int argc, char** argv) {
 	app->Init();
 	app->Start();
 	bool ret = true;
+		InitializeGeometryLoading();
+		InitializeLibraries();
+		for (int p = 0; p < 5; p++) {
+			GameObjectPtr parent = std::make_shared<GameObject>(nullptr);
+			GameObject::gameObjects.push_back(parent);
+			for (int c = 0; c < 3; c++) {
+				GameObjectPtr child = std::make_shared<GameObject>(parent);
+				parent->GetChildren().push_back(child);
+			}
+		}
+
+	
+	
 	while (ret) {
 		const auto t0 = hrclock::now();
 

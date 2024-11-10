@@ -31,9 +31,9 @@ public:
     // TODO afegir Enable/Disable
 
 
-    [[nodiscard]] const GameObjectPtr& GetChild(glm::uint index) const { return children.at(index); }
-    [[nodiscard]] const std::vector<GameObjectPtr>& GetChildren() const { return children; }
-    [[nodiscard]] const Transform& GetTransform() const { return transform; }
+    [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }
+    [[nodiscard]] std::vector<GameObjectPtr>& GetChildren() { return children; }
+    [[nodiscard]] Transform& GetTransform() { return transform; }
 
     template <typename T>
     [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;

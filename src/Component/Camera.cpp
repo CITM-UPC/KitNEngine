@@ -11,8 +11,9 @@ Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(look
 {
     targetDistance = glm::distance(position,lookTarget);
     updateCameraVectors();
-}
 
+}
+std::shared_ptr<Camera> Camera::activeCamera;
 void Camera::update()
 {
     ProcessInput();

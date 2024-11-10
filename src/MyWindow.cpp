@@ -4,6 +4,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 #include <iostream>
+#include <Component/Formas Primitivas.h>
+#include <Structures/UIWindows.h>
 using namespace std;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
@@ -42,29 +44,57 @@ MyWindow::~MyWindow() {
 }
 
 void MyWindow::swapBuffers() const {
+    static bool showConsole = false;
+    static bool showConfig = false;
+    static bool showInspector = false;
+    static bool showherarqui = false;
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("Prova"))
-        {
-            if (ImGui::MenuItem("Git out"))
-            {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("Archivo")) {
+            if (ImGui::MenuItem("Salir")) {
                 SDL_Event quit_event;
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
             }
+            if (ImGui::MenuItem("GitHub")) {
+                std::system("start https://github.com/Ropuce/GameEngine");
+            }
+            if (ImGui::MenuItem("Acerca de")) {
+                ImGui::OpenPopup("AboutPopup");
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Cargar Primitivas")) {
+            if (ImGui::MenuItem("Cargar Circulo")) draw_circle();
+            if (ImGui::MenuItem("Cargar Cubo")) draw_cube();
+            if (ImGui::MenuItem("Cargar Triangulo")) draw_triangle();
+            if (ImGui::MenuItem("Cargar Cilindro")) draw_cylinder();
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Ventanas del Editor")) {
+            ImGui::MenuItem("Consola", NULL, &showConsole);
+            ImGui::MenuItem("Configuracion", NULL, &showConfig);
+            ImGui::MenuItem("Inspector", NULL, &showInspector);
+            ImGui::MenuItem("Jerarquia", NULL, &showherarqui);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
+    ShowConsoleWindow(&showConsole);
+    ShowConfigWindow(&showConfig);
+    ShowInspectorWindow(&showInspector);
+    ShowHerarkiWindow(&showherarqui);
+    
+    ShowAboutPopup();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    ImGui::EndFrame();
-    
     SDL_GL_SwapWindow(static_cast<SDL_Window*>(_window));
 }
-
