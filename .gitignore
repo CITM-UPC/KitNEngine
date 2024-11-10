@@ -9,5 +9,6 @@
 /dataSources/
 /dataSources.local.xml
 /cmake-build-debug/
+/rel/
 /out/
 /[Bb]in/
