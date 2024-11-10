@@ -51,14 +51,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
         yaml-cpp::yaml-cpp
 )
-
-
-# install licenses
-file(GLOB LICENSE_DIRS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/*")
-foreach(LICENSE_DIR ${LICENSE_DIRS})
-    if (EXISTS ${LICENSE_DIR}/copyright)
-        get_filename_component(LICENSE_LIB_NAME ${LICENSE_DIR} NAME)
-        message(STATUS ${LICENSE_LIB_NAME})
-        install(FILES ${LICENSE_DIR}/copyright DESTINATION "license" RENAME ${LICENSE_LIB_NAME})
-    endif()
-endforeach()
