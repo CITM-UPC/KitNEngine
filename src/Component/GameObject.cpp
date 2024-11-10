@@ -8,7 +8,7 @@
 
 std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
 
-GameObject::GameObject(GameObjectPtr& go) : parent(go)
+GameObject::GameObject(GameObjectPtr go) : parent(go)
 {
 }
 

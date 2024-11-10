@@ -112,7 +112,7 @@ static bool processEvents() {
 		case SDL_QUIT:
 			return false;
 		default:
-			ImGui_ImplSDL2_ProcessEvent(&event);
+			
 			break;
 		}
 	}
@@ -203,9 +203,18 @@ int main(int argc, char** argv) {
 	bool ret = true;
 		InitializeGeometryLoading();
 		InitializeLibraries();
+		for (int p = 0; p < 5; p++) {
+			GameObjectPtr parent = std::make_shared<GameObject>(nullptr);
+			GameObject::gameObjects.push_back(parent);
+			for (int c = 0; c < 3; c++) {
+				GameObjectPtr child = std::make_shared<GameObject>(parent);
+				parent->GetChildren().push_back(child);
+			}
+		}
+
 	
 	
-	while (processEvents()) {
+	while (ret) {
 		const auto t0 = hrclock::now();
 
 		ret = app->Update();

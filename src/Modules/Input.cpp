@@ -5,6 +5,7 @@
 
 #include "Utilities/Defs.h"
 #include "Utilities/Log.h"
+#include "imgui_impl_sdl2.h"
 
 #define MAX_KEYS 300
 
@@ -261,6 +262,7 @@ bool Input::PreUpdate()
 				}
 				break;
 		}
+		ImGui_ImplSDL2_ProcessEvent(&event);
 	}
 
 	return true;

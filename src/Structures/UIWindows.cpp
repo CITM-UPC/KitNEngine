@@ -25,7 +25,7 @@ void ShowConsoleWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
 
-    if (*p_open && ImGui::Begin("Consola", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (*p_open && ImGui::Begin("Consola", p_open)) {
         ImGui::TextWrapped("Aqui apareceran los mensajes de la consola...");
 
         // Mostrar todos los mensajes de log en la consola
@@ -41,7 +41,7 @@ void ShowConfigWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(420, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
 
-    if (*p_open && ImGui::Begin("Configuracion", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (*p_open && ImGui::Begin("Configuracion")) {
         static float valores_fps[100] = {};
         static int indice_fps = 0;
         valores_fps[indice_fps] = ImGui::GetIO().Framerate;
@@ -74,9 +74,9 @@ void ShowInspectorWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
-    if (*p_open && ImGui::Begin("Inspector", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (*p_open && ImGui::Begin("Inspector", p_open)) {
 
-        if (selectedItem == 0) {  // Si se ha seleccionado la Cámara
+        /* if (selectedItem == 0) {  // Si se ha seleccionado la Cámara
             ImGui::Text("Posición de la Cámara:");
 
             // Comprobamos si activeCamera está válido antes de acceder a position
@@ -98,7 +98,9 @@ void ShowInspectorWindow(bool* p_open) {
 
             ImGui::Text("Tamaño de la textura: 30x30");
             ImGui::Text("Ruta de la textura: C:\\Users\\Paco\\Documents\\GitHub\\GameEngine\\Assets\\Textures");
-        }
+        }*/
+
+
         ImGui::End();
     }
 }
@@ -114,22 +116,32 @@ void ShowAboutPopup() {
 void ShowHerarkiWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-    if (*p_open && ImGui::Begin("Jerarquia", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (*p_open && ImGui::Begin("Jerarquia", p_open)) {
 
         // Variable para almacenar el estado de la selección
         
 
-        if (ImGui::Selectable("Camara", selectedItem == 0)) {
-            selectedItem = 0;  // Indicar que la "Cámara" ha sido seleccionada
+        for (GameObjectPtr& g :  GameObject::gameObjects) {
+            DisplayGameObjectsInHierarchy(g);
         }
-        if (ImGui::Selectable("BakedHouse", selectedItem == 1)) {
-            selectedItem = 1;  // Indicar que "BakedHouse" ha sido seleccionada
-        }
-
+            
+            
         ImGui::End();
     }
 }
 
+
+void DisplayGameObjectsInHierarchy(GameObjectPtr& go){
+    if (ImGui::TreeNode("GameObject"))
+    {
+
+        for (GameObjectPtr& g : go->GetChildren())
+        {
+            DisplayGameObjectsInHierarchy(g);
+        }
+        ImGui::TreePop();
+    }
+}
 void InitializeGeometryLoading() {
     AddLogMessage("LOG: Iniciando carga de geometría desde ASSIMP...");
     // Código de carga...
