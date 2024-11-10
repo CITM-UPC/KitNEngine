@@ -99,6 +99,8 @@ bool EntityManager::CleanUp()
     {
         ret &= gameObject->CleanUp();
     }
+
+    GameObject::gameObjects.clear();
     
     return ret && Module::CleanUp();
 }

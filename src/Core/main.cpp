@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 			GameObject::gameObjects.push_back(parent);
 			for (int c = 0; c < 3; c++) {
 				GameObjectPtr child = std::make_shared<GameObject>(parent);
-				parent->GetChildren().push_back(child);
+				parent->AddChild(child);
 			}
 		}
 

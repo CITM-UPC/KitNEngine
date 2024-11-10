@@ -15,6 +15,12 @@ GameObject::GameObject(GameObjectPtr go) : parent(std::move(go))
 {
 }
 
+GameObject::~GameObject()
+{
+    children.clear();
+    components.clear();
+}
+
 bool GameObject::Awake()
 {
     if (!Component::Awake()) return false;
@@ -43,7 +49,7 @@ bool GameObject::PostUpdate()
 {
     if (!Component::PostUpdate()) return false;
 
-    for (GameObjectPtr& go : GameObject::gameObjects)
+    for (GameObjectPtr& go : children)
     {
         if (go->_active && !go->PostUpdate())
             return false;
@@ -86,7 +92,7 @@ bool GameObject::CleanUp()
     return ret;
 }
 
-GameObjectPtr GameObject::AddChild(const GameObjectPtr& g)
+GameObjectPtr GameObject::AddChild(const GameObjectPtr g)
 {
     return children.emplace_back(g);
 }

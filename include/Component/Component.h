@@ -10,7 +10,7 @@ class GameObject;
 
 class Component;
 
-using ComponentPtr = std::unique_ptr<Component>;
+using ComponentPtr = std::shared_ptr<Component>;
 
 template <typename T>
 concept DerivedFromComponent = std::is_base_of_v<Component, T>;

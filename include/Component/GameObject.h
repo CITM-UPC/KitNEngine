@@ -19,7 +19,7 @@ public: // Static members/functions
 public:
     
     GameObject(GameObjectPtr go);
-    ~GameObject() = default;
+    ~GameObject();
 
     bool Awake() override;
     bool Start() override;
@@ -33,17 +33,17 @@ public:
 
     [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }
     [[nodiscard]] std::vector<GameObjectPtr>& GetChildren() { return children; }
-    [[nodiscard]] Transform& GetTransform() { return transform; }
+    [[nodiscard]] const TransformPtr GetTransform() { return transform; }
 
     template <typename T>
     [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
-    GameObjectPtr AddChild(const GameObjectPtr& g);
+    GameObjectPtr AddChild(GameObjectPtr g);
 
 private:
 
     GameObjectPtr parent;
     
-    Transform transform = Transform(this);
+    TransformPtr transform = std::make_shared<Transform>(this);
 
     std::vector<ComponentPtr> components;
     std::vector<GameObjectPtr> children;
