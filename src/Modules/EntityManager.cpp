@@ -4,12 +4,21 @@
 
 #include "Modules/EntityManager.h"
 
-#include <stdexcept>
+#include <filesystem>
 
+#include "Modules/Input.h"
+#include "Component/GameObject.h"
+
+#include <iostream>
+#include <ostream>
+
+#include "Structures/PpMesh.h"
+#include "Structures/Texture.h"
 #include "Utilities/Log.h"
 
 EntityManager::EntityManager() : Module("EntityManager")
 {
+    Input::OnDropFile.addCB([this](OnDropEventType& path){this->OnDropFile(path);});
 }
 
 EntityManager::~EntityManager()
@@ -92,4 +101,35 @@ bool EntityManager::CleanUp()
     }
     
     return ret && Module::CleanUp();
+}
+
+void EntityManager::OnDropFile(OnDropEventType& fileName)
+{
+    auto extension = std::filesystem::path(fileName).extension().string();
+    if (extension == ".fbx")
+    {
+        PpMesh::meshes.clear();
+        auto meshes = PpMesh::ImportMeshes(fileName.c_str());
+
+        // TODO Guardar la mesh al GameObject a través d'un component
+        // GameObjectPtr gameObject = GameObjectPtr(new GameObject(nullptr));
+        // for (auto& mesh : meshes)
+        // {
+        //     auto g = gameObject->AddChild(GameObjectPtr(new GameObject(nullptr)));
+        //     g->
+        // }
+    }
+    else if (extension == ".png" || extension == ".PNG"
+        || extension == ".JPG" || extension == ".JPEG" || extension == ".jpg" || extension == ".jpeg"
+        || extension == ".dds" || extension == ".DDS"
+        )
+    {
+        Texture::textures.clear();
+        const auto id = Texture::ImportTexture(fileName.c_str());
+
+        for (auto& mesh : PpMesh::meshes)
+        {
+            mesh->texture_id = id;
+        }
+    }
 }

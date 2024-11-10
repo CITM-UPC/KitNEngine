@@ -5,10 +5,13 @@
 #include "Component/GameObject.h"
 
 #include <imgui.h>
+#include <stdexcept>
+
+#include <utility>
 
 std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
 
-GameObject::GameObject(GameObjectPtr go) : parent(go)
+GameObject::GameObject(GameObjectPtr go) : parent(std::move(go))
 {
 }
 
@@ -81,6 +84,11 @@ bool GameObject::CleanUp()
     ret &= Component::CleanUp();
 
     return ret;
+}
+
+GameObjectPtr GameObject::AddChild(const GameObjectPtr& g)
+{
+    return children.emplace_back(g);
 }
 
 template <class T>

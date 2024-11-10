@@ -87,9 +87,6 @@ void init_shaders()
 	Shader::shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
 }
 
-
-static std::vector<std::shared_ptr<Texture>> textures;
-
 static void draw_mesh(kMeshBase& mesh)
 {
 	mesh.Render(Shader::shaders[0].get());
@@ -105,67 +102,16 @@ static void display_func() {
 	}
 }
 
-static bool processEvents() {
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-		case SDL_QUIT:
-			return false;
-		default:
-			
-			break;
-		}
-	}
-	return true;
-}
 
-static bool LoadModels(const char* filename, bool verbose=false)
+static bool LoadModels(const char* filename)
 {
-	const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
-
-	if (!scene) {
-		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
-		return false;
-	}
-
-	if (verbose)
-		printf("Numero de malles: %i\n", scene->mNumMeshes);
-
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		aiMesh *mesh = scene->mMeshes[i];
-		if (verbose)
-		{ // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
-			printf("\nMalla %u:\n", i);
-			printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
-			printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
-			// Vèrtexs
-			for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-				aiVector3D& vertex = mesh->mVertices[v] ;
-				printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
-			}
-			// Índexs de triangles (3 per triangle)
-			for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-				aiFace& face = mesh->mFaces[f] ;
-				printf(" Indexs triangle %u: ", f) ;
-				for (unsigned int j = 0; j < face.mNumIndices; j++) {
-					printf("%u ", face.mIndices[j]) ;
-				}
-				printf("\n") ;
-			}
-		}
-		shared_ptr<PpMesh> pp_mesh =std::make_shared<PpMesh>(mesh);
-		if (textures.size() > 0) pp_mesh->texture_id=textures[0]->textureID;
-		PpMesh::meshes.emplace_back(pp_mesh);
-		
-	}
-	
-	aiReleaseImport(scene);
+	PpMesh::ImportMeshes(filename);
 	return true;
 }
 
 static bool LoadTextures(const char* path)
 {
-	textures.emplace_back(make_shared<Texture>(path));
+	Texture::ImportTexture(path);
 	return true;
 }
 
@@ -193,7 +139,7 @@ int main(int argc, char** argv) {
 	//InitDefaultModel();
 	const char* path= "../Assets/Models/BakerHouse.fbx";
 	
-	LoadModels(path, false);
+	LoadModels(path);
 
 	Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Temp code end

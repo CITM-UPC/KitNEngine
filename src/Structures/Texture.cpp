@@ -7,8 +7,13 @@
 #include <iostream>
 #include <ostream>
 
+std::vector<Texture> Texture::textures;
 
-ILuint Texture::nextID = 1;
+ILuint Texture::ImportTexture(const char* path)
+{
+    std::cout << "Importing texture: " << path << std::endl;
+    return textures.emplace_back(path).textureID;
+}
 
 Texture::Texture(const GLint width, const GLint height)
 {
@@ -27,8 +32,6 @@ Texture::Texture(const GLint width, const GLint height)
     }
     this->width = width;
     this->height = height;
-    
-    this->textureID = nextID++;
 
     BufferTextureGL(data.data(), width, height);
 }
@@ -38,14 +41,17 @@ Texture::Texture(const std::vector<GLubyte>& data, const GLint width, const GLin
     this->width = width;
     this->height = height;
 
-    this->textureID = nextID++;
-
     BufferTextureGL(data.data(), width, height);
 }
 
 Texture::Texture(const char* path)
 {
     BufferTextureIL(path);
+}
+
+Texture::~Texture()
+{
+    glDeleteTextures(1, &textureID);
 }
 
 void Texture::BufferTextureIL(const char* path)

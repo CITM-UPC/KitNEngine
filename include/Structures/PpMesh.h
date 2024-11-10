@@ -10,6 +10,8 @@
 
 #include "assimp/mesh.h"
 
+using PpMeshPtr = std::shared_ptr<PpMesh>;
+
 // Mesh para pipeline programable
 struct PpMesh : kMeshBase
 {
@@ -17,6 +19,8 @@ public:
     static const GLuint dataValsInVBO;
     static std::vector<std::shared_ptr<PpMesh>> meshes;
 
+    static std::vector<PpMeshPtr> ImportMeshes(const char* filename);
+    
     explicit PpMesh(const aiMesh* mesh);
     ~PpMesh();
 

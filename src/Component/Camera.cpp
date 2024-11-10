@@ -1,10 +1,11 @@
 #include "Component/Camera.h"
 
-#include <iostream>
 #include <ostream>
 
 #include "Core/App.h"
 #include "Structures/Shader.h"
+
+#include "Modules/Input.h"
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
 {

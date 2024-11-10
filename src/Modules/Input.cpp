@@ -9,6 +9,8 @@
 
 #define MAX_KEYS 300
 
+Event<OnDropEventType&> Input::OnDropFile;
+
 Input::Input() : Module("Input")
 {
 	// TODO canviar per std::array
@@ -261,6 +263,17 @@ bool Input::PreUpdate()
 					textInput.pop_back();
 				}
 				break;
+		case SDL_DROPFILE:
+			{
+				if (event.drop.file)
+				{
+					OnDropEventType param = OnDropEventType(event.drop.file);
+					OnDropFile.broadcast(param);
+
+					SDL_free(event.drop.file);
+				}
+			}
+			
 		}
 		ImGui_ImplSDL2_ProcessEvent(&event);
 	}

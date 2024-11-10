@@ -37,6 +37,7 @@ public:
 
     template <typename T>
     [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
+    GameObjectPtr AddChild(const GameObjectPtr& g);
 
 private:
 
