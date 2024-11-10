@@ -84,7 +84,7 @@ void init_devIL()
 
 void init_shaders()
 {
-	Shader::shaders.push_back(make_shared<Shader>("../Assets/Shaders/MyVertexShader.glsl", "../Assets/Shaders/MyFragmentShader.glsl"));
+	Shader::shaders.push_back(make_shared<Shader>("Assets/Shaders/MyVertexShader.glsl", "Assets/Shaders/MyFragmentShader.glsl"));
 }
 
 static void draw_mesh(kMeshBase& mesh)
@@ -133,11 +133,11 @@ int main(int argc, char** argv) {
 
 	// Load textures
 	//textures.push_back(make_unique<Texture>(256,256));
-	LoadTextures("../Assets/Textures/Baker_house.png");
+	LoadTextures("Assets/Textures/Baker_house.png");
 
 	//Load models
 	//InitDefaultModel();
-	const char* path= "../Assets/Models/BakerHouse.fbx";
+	const char* path= "Assets/Models/BakerHouse.fbx";
 	
 	LoadModels(path);
 
