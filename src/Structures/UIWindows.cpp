@@ -3,6 +3,7 @@
 #include <psapi.h>
 #include <vector>
 #include <string>
+#include "Component/Camera.h"
 
 size_t GetMemoryUsage() {
     PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -25,7 +26,7 @@ void ShowConsoleWindow(bool* p_open) {
     ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
 
     if (*p_open && ImGui::Begin("Consola", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-        ImGui::TextWrapped("Aquí aparecerán los mensajes de la consola...");
+        ImGui::TextWrapped("Aqui apareceran los mensajes de la consola...");
 
         // Mostrar todos los mensajes de log en la consola
         for (const auto& message : logMessages) {
@@ -40,46 +41,70 @@ void ShowConfigWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(420, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
 
-    if (*p_open && ImGui::Begin("Configuración", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (*p_open && ImGui::Begin("Configuracion", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
         static float valores_fps[100] = {};
         static int indice_fps = 0;
         valores_fps[indice_fps] = ImGui::GetIO().Framerate;
         indice_fps = (indice_fps + 1) % 100;
         ImGui::PlotLines("FPS", valores_fps, 100);
 
-        if (ImGui::CollapsingHeader("Configuración de Módulos")) {
+        if (ImGui::CollapsingHeader("Configuracion de Modulos")) {
             ImGui::Text("Renderizador, Ventana, Entrada, Texturas...");
         }
 
-        if (ImGui::CollapsingHeader("Información del Sistema")) {
+        if (ImGui::CollapsingHeader("Informacion del Sistema")) {
             size_t memoriaUso = GetMemoryUsage();
             ImGui::Text("Uso de Memoria: %zu MB", memoriaUso);
-            ImGui::Text("Mondongo");
-            ImGui::Text("Versión de OpenGL: 4.3");
+
+            // Reemplazamos "Mondongo" por algo relacionado con la detección de hardware
+            ImGui::Text("Deteccion de Hardware:");
+
+            // Aquí podrías agregar más detalles específicos, como por ejemplo:
+            SYSTEM_INFO si;
+            GetSystemInfo(&si);
+            ImGui::Text("Procesador: %u nucleos", si.dwNumberOfProcessors);
+            // También puedes mostrar más información de hardware aquí si lo deseas.
+
+            ImGui::Text("Version de OpenGL: 4.3");
         }
         ImGui::End();
     }
 }
-
 void ShowInspectorWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
     if (*p_open && ImGui::Begin("Inspector", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-        ImGui::Text("GameObject: BakedHouse" );
 
-        ImGui::Text("Position: 0  0  0");
-        ImGui::Text("Rotation: 0  0  0");
-        ImGui::Text("Scale:  1  1  1");
+        if (selectedItem == 0) {  // Si se ha seleccionado la Cámara
+            ImGui::Text("Posición de la Cámara:");
 
-        ImGui::Text("Number of vertices: 10000");
-        ImGui::Text("Number of triangles: 2000" );
+            // Comprobamos si activeCamera está válido antes de acceder a position
+            
+                glm::vec3 camPos = Camera::activeCamera->position;
+                ImGui::Text("X: %.2f, Y: %.2f, Z: %.2f", camPos.x, camPos.y, camPos.z);
+            
+            else {
+                ImGui::Text("Cámara no activa");
+            }
+        }
+        else if (selectedItem == 1) {  // Si se ha seleccionado "BakedHouse"
+            ImGui::Text("GameObject: BakedHouse");
 
-        ImGui::Text("Texture Size: 30x30");
-        ImGui::Text("Texture Path C:\Users\Paco\Documents\GitHub\GameEngine\Assets\Textures");
+            ImGui::Text("Posición: 0  0  0");
+            ImGui::Text("Rotación: 0  0  0");
+            ImGui::Text("Escala:  1  1  1");
+
+            ImGui::Text("Número de vértices: 10000");
+            ImGui::Text("Número de triángulos: 2000");
+
+            ImGui::Text("Tamaño de la textura: 30x30");
+            ImGui::Text("Ruta de la textura: C:\\Users\\Paco\\Documents\\GitHub\\GameEngine\\Assets\\Textures");
+        }
         ImGui::End();
     }
 }
+
 
 void ShowAboutPopup() {
     if (ImGui::BeginPopup("AboutPopup")) {
@@ -91,15 +116,18 @@ void ShowAboutPopup() {
 void ShowHerarkiWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-    if (*p_open && ImGui::Begin("Jerarquía", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-        ImGui::Text("Camara");
-        ImGui::Text("BakerHouse");
-        /*ImGui::Text("Objeto 3");
-        if (ImGui::TreeNode("Grupo de Objetos")) {
-            ImGui::Text("Objeto 4");
-            ImGui::Text("Objeto 5");
-            ImGui::TreePop();
-        }*/
+    if (*p_open && ImGui::Begin("Jerarquia", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+
+        // Variable para almacenar el estado de la selección
+        
+
+        if (ImGui::Selectable("Camara", selectedItem == 0)) {
+            selectedItem = 0;  // Indicar que la "Cámara" ha sido seleccionada
+        }
+        if (ImGui::Selectable("BakedHouse", selectedItem == 1)) {
+            selectedItem = 1;  // Indicar que "BakedHouse" ha sido seleccionada
+        }
+
         ImGui::End();
     }
 }

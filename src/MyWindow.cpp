@@ -70,16 +70,16 @@ void MyWindow::swapBuffers() const {
         }
 
         if (ImGui::BeginMenu("Cargar Primitivas")) {
-            if (ImGui::MenuItem("Cargar Círculo")) draw_circle();
+            if (ImGui::MenuItem("Cargar Circulo")) draw_circle();
             if (ImGui::MenuItem("Cargar Cubo")) draw_cube();
-            if (ImGui::MenuItem("Cargar Triángulo")) draw_triangle();
+            if (ImGui::MenuItem("Cargar Triangulo")) draw_triangle();
             if (ImGui::MenuItem("Cargar Cilindro")) draw_cylinder();
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Ventanas del Editor")) {
             ImGui::MenuItem("Consola", NULL, &showConsole);
-            ImGui::MenuItem("Configuración", NULL, &showConfig);
+            ImGui::MenuItem("Configuracion", NULL, &showConfig);
             ImGui::MenuItem("Inspector", NULL, &showInspector);
             ImGui::MenuItem("Jerarquia", NULL, &showherarqui);
             ImGui::EndMenu();

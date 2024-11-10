@@ -3,7 +3,7 @@
 
 #include <imgui.h>
 
-
+static int selectedItem = -1;
 
 void ShowConsoleWindow(bool* p_open);
 void ShowConfigWindow(bool* p_open);
