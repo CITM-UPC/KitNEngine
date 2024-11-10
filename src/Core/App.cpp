@@ -4,6 +4,9 @@
 
 #include "Core/App.h"
 
+#include "Modules/Input.h"
+#include "Modules/EntityManager.h"
+
 
 App::App()
 {    
@@ -19,6 +22,7 @@ bool App::Init()
 {
     // Module creation
     AddModule(input = std::make_shared<Input>());
+    AddModule(entities = std::make_shared<EntityManager>());
     
     return true;
 }

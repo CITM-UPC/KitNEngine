@@ -18,7 +18,7 @@ public: // Static members/functions
     
 public:
     
-    GameObject(GameObjectPtr& go);
+    GameObject(GameObjectPtr go);
     ~GameObject() = default;
 
     bool Awake() override;
@@ -37,6 +37,7 @@ public:
 
     template <typename T>
     [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
+    GameObjectPtr AddChild(const GameObjectPtr& g);
 
 private:
 

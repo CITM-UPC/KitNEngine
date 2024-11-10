@@ -13,6 +13,8 @@
 
 #include <SDL.h>
 
+#include "Structures/Event.h"
+
 //#define NUM_KEYS 352
 #define NUM_MOUSE_BUTTONS 5
 //#define LAST_KEYS_PRESSED_BUFFER 50
@@ -71,7 +73,7 @@ public:
 		SetDeadZone(DEAD_ZONE);
 	}
 
-	ControlBinding(SDL_Scancode _posKey, SDL_GameControllerButton _posButton, SDL_Scancode _negKey, SDL_GameControllerButton _negButton, SDL_GameControllerAxis _axis, float _maxVal, float _deadZone) : posKey(_posKey), posButton(_posButton), negKey(_negKey), negButton(_negButton), axis(_axis), maxVal(_maxVal)
+	ControlBinding(SDL_Scancode _posKey, SDL_GameControllerButton _posButton, SDL_Scancode _negKey, SDL_GameControllerButton _negButton, SDL_GameControllerAxis _axis, float _maxVal, float _deadZone) : posKey(_posKey), posButton(_posButton), negKey(_negKey), negButton(_negButton), axis(_axis), maxVal(_maxVal), deadZone(_deadZone)
 	{
 		// If any axis-related values is assigned, this binding will update axis data
 		isAxisControl = (axis != SDL_CONTROLLER_AXIS_INVALID
@@ -121,7 +123,7 @@ public:
 	KeyState state = KeyState::KEY_IDLE;
 	float axisVal = 0.0f;
 	float maxVal = 1.0f;
-	int deadZone; // Set in constructor
+	float deadZone = 0; // Set in constructor
 };
 
 class Input : public Module
@@ -200,6 +202,12 @@ private:
 	// Añade el mando con el id proporcionado a la lista de mandos detectados
 	void AddController(Sint32 id);
 
+
+public:
+
+	// Events
+	static Event<OnDropEventType&> OnDropFile;
+	
 private:
 
 	std::string filePath;
