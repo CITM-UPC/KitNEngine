@@ -81,8 +81,8 @@ void ShowInspectorWindow(bool* p_open) {
 
             // Comprobamos si activeCamera está válido antes de acceder a position
             
-                glm::vec3 camPos = Camera::activeCamera->position;
-                ImGui::Text("X: %.2f, Y: %.2f, Z: %.2f", camPos.x, camPos.y, camPos.z);
+                //glm::vec3 camPos = Camera::activeCamera->position;
+                //ImGui::Text("X: %.2f, Y: %.2f, Z: %.2f", camPos.x, camPos.y, camPos.z);
         
             
         }
