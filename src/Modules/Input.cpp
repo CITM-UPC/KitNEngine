@@ -396,7 +396,7 @@ void ControlBinding::Update(Input* input)
 			axisTemp = SDL_GameControllerGetAxis(c, axis);
 		}
 		if (abs(axisTemp) < deadZone) {
-			axisVal = -kN - bN + kP + bP; // Botones opuestos pulsados = 0 movimiento, gana el lado que tenga mas "potencia"
+			axisVal = -(float)kN - (float)bN + (float)kP + (float)bP; // Botones opuestos pulsados = 0 movimiento, gana el lado que tenga mas "potencia"
 		}
 		else
 		{

@@ -63,6 +63,7 @@ public:
     float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
 
     bool altPressed = false;
+	bool rMousePressed = false;
     bool FPSCam = false;
 	bool arcBallCam = false;
     float zoom = 1.0f;

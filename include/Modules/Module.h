@@ -13,7 +13,7 @@ using ModulePtr = std::shared_ptr<Module>;
 class Module {
 public:
     
-    explicit Module(const char* name, bool enabled = true, bool needsReinit) : _name(name), _startEnabled(enabled), _needsReinit(needsReinit)
+    explicit Module(const char* name, bool enabled = true, bool needsReinit = false) : _name(name), _startEnabled(enabled), _needsReinit(needsReinit)
     {
         
     }

@@ -42,8 +42,8 @@ void Camera::ProcessInput()
     FPSCam = rButtonState == KeyState::KEY_REPEAT;
 
 
-    KeyState lButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT);
-    arcBallCam = altPressed && lButtonState == KeyState::KEY_REPEAT;
+    rMousePressed = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KeyState::KEY_REPEAT;
+    arcBallCam = altPressed && rMousePressed;
     
     ProcessMouseMovement();
 
@@ -78,7 +78,7 @@ void Camera::ProcessInput()
     }
     else
     {
-        zoom += wheelY * moveStep;
+        zoom -= wheelY * moveStep;
     }
         
     
@@ -122,7 +122,7 @@ void Camera::ProcessInput()
 
 void Camera::ProcessMouseMovement()
 {
-    if (FPSCam || arcBallCam) {
+    if (FPSCam || (arcBallCam && rMousePressed)) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         int x,y;
         app->input->GetMouseMotion(x,y);
