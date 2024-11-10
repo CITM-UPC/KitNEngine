@@ -66,6 +66,17 @@ void ShowInspectorWindow(bool* p_open) {
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
     if (*p_open && ImGui::Begin("Inspector", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+        ImGui::Text("GameObject: BakedHouse" );
+
+        ImGui::Text("Position: 0  0  0");
+        ImGui::Text("Rotation: 0  0  0");
+        ImGui::Text("Scale:  1  1  1");
+
+        ImGui::Text("Number of vertices: 10000");
+        ImGui::Text("Number of triangles: 2000" );
+
+        ImGui::Text("Texture Size: 30x30");
+        ImGui::Text("Texture Path C:\Users\Paco\Documents\GitHub\GameEngine\Assets\Textures");
         ImGui::End();
     }
 }
@@ -81,14 +92,14 @@ void ShowHerarkiWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
     if (*p_open && ImGui::Begin("Jerarquía", p_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-        ImGui::Text("Objeto 1");
-        ImGui::Text("Objeto 2");
-        ImGui::Text("Objeto 3");
+        ImGui::Text("Camara");
+        ImGui::Text("BakerHouse");
+        /*ImGui::Text("Objeto 3");
         if (ImGui::TreeNode("Grupo de Objetos")) {
             ImGui::Text("Objeto 4");
             ImGui::Text("Objeto 5");
             ImGui::TreePop();
-        }
+        }*/
         ImGui::End();
     }
 }
