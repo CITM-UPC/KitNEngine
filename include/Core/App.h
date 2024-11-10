@@ -7,10 +7,10 @@
 #include <memory>
 #include <vector>
 
-#include "Modules/Input.h"
 #include "Modules/Module.h"
 
 class Input;
+class EntityManager;
 
 class App;
 using AppPtr = std::unique_ptr<App>;
@@ -36,6 +36,7 @@ public: // Methods
 public: // Member variables
 
     std::shared_ptr<Input> input;
+    std::shared_ptr<EntityManager> entities;
 
 private:
     std::vector<ModulePtr> modules;

@@ -4,10 +4,8 @@
 
 #ifndef ENTITYMANAGER_H
 #define ENTITYMANAGER_H
+#include "Input.h"
 #include "Module.h"
-#include <vector>
-
-#include "Component/GameObject.h"
 
 
 class EntityManager : public Module {
@@ -22,6 +20,9 @@ public:
     bool Update() override;
     bool PostUpdate() override;
     bool CleanUp() override;
+
+    void OnDropFile(OnDropEventType& fileName);
+
     
 };
 

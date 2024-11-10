@@ -12,7 +12,10 @@
 #define COLOR_CHANNELS 4
 
 struct Texture {
-    static ILuint nextID;
+
+    static std::vector<Texture> textures;
+
+    static ILuint ImportTexture(const char* path);
     
     GLint width = 0;
     GLint height = 0;
@@ -24,6 +27,8 @@ struct Texture {
     Texture(const std::vector<GLubyte>& data, GLint width, GLint height);
 
     explicit Texture(const char* path);
+
+    ~Texture();
 
     void BufferTextureIL(const char* path);
 

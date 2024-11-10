@@ -5,11 +5,59 @@
 
 #include <stdexcept>
 
+#include "assimp/cimport.h"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
 #include "Structures/Shader.h"
+#include "Structures/Texture.h"
 
 const GLuint PpMesh::dataValsInVBO = 5; // position(3), UV(2)
 
 std::vector<std::shared_ptr<PpMesh>> PpMesh::meshes = std::vector<std::shared_ptr<PpMesh>>();
+
+std::vector<PpMeshPtr> PpMesh::ImportMeshes(const char* filename)
+{
+    std::vector<PpMeshPtr> ret;
+    
+    const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
+
+    if (!scene) {
+        fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
+        return ret;
+    }
+
+        printf("Numero de malles: %i\n", scene->mNumMeshes);
+
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+        aiMesh *mesh = scene->mMeshes[i];
+        { // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
+            printf("\nMalla %u:\n", i);
+            printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
+            printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
+            // Vèrtexs
+            for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+                aiVector3D& vertex = mesh->mVertices[v] ;
+                printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
+            }
+            // Índexs de triangles (3 per triangle)
+            for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+                aiFace& face = mesh->mFaces[f] ;
+                printf(" Indexs triangle %u: ", f) ;
+                for (unsigned int j = 0; j < face.mNumIndices; j++) {
+                    printf("%u ", face.mIndices[j]) ;
+                }
+                printf("\n") ;
+            }
+        }
+        PpMeshPtr pp_mesh = std::make_shared<PpMesh>(mesh);
+        if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
+        ret.push_back(PpMesh::meshes.emplace_back(pp_mesh));
+		
+    }
+	
+    aiReleaseImport(scene);
+    return ret;
+}
 
 PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
 {
