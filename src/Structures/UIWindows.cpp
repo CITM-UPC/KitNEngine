@@ -83,10 +83,8 @@ void ShowInspectorWindow(bool* p_open) {
             
                 glm::vec3 camPos = Camera::activeCamera->position;
                 ImGui::Text("X: %.2f, Y: %.2f, Z: %.2f", camPos.x, camPos.y, camPos.z);
+        
             
-            else {
-                ImGui::Text("Cámara no activa");
-            }
         }
         else if (selectedItem == 1) {  // Si se ha seleccionado "BakedHouse"
             ImGui::Text("GameObject: BakedHouse");
