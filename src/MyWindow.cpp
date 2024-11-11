@@ -31,7 +31,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
 
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
-    ImGui_ImplOpenGL3_Init("#version 130");
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
 MyWindow::~MyWindow() {
@@ -78,7 +78,8 @@ void MyWindow::swapBuffers() const {
         }
 
         if (ImGui::BeginMenu("Ventanas del Editor")) {
-            ImGui::MenuItem("Consola", NULL, &showConsole);
+            if (ImGui::MenuItem("Consola", NULL, &showConsole))
+                cout << "ConsolaItem pulsado" << endl;
             ImGui::MenuItem("Configuracion", NULL, &showConfig);
             ImGui::MenuItem("Inspector", NULL, &showInspector);
             ImGui::MenuItem("Jerarquia", NULL, &showherarqui);

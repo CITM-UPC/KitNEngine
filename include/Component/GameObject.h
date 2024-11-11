@@ -28,7 +28,7 @@ public:
     bool PostUpdate() override;
     bool InspectorDisplay() override;
     bool CleanUp() override;
-    // TODO afegir Enable/Disable
+    
 
 
     [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }

@@ -29,6 +29,7 @@ public:
 private:
     static std::chrono::duration<float> timeDelta;
     static std::chrono::time_point<std::chrono::steady_clock,std::chrono::milliseconds> startTime;
+    static float timeScale;
 };
 
 #endif //TIME_H

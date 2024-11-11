@@ -9,6 +9,8 @@ duration<float> Time::timeDelta = seconds(0);
 
 time_point<steady_clock, milliseconds> Time::startTime;
 
+float Time::timeScale = 1.0f;
+
 long long Time::GetTime()
 {
     return since(startTime).count();

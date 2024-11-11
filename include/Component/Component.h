@@ -31,9 +31,15 @@ public:
     virtual bool InspectorDisplay(){ return true; }
     virtual bool CleanUp(){ return true; }
 
+    bool Enable();
+    bool Disable();
+
 public:
     // El GameObject al qual està assignat aquest component
     std::shared_ptr<GameObject> gameObject = nullptr;
+
+private:
+    bool _enabled = true;
 };
 
 
