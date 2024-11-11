@@ -11,4 +11,5 @@
 /cmake-build-debug/
 /rel/
 /out/
-/[Bb]in/
+/[Bb]in/*
+!/[Bb]in/Assets/
