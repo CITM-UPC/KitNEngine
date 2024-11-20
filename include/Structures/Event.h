@@ -61,5 +61,8 @@ private:
     std::list<CallbackType> cbs;
 };
 
+typedef Event<int> IntEvent;
+typedef Event<void> SimpleEvent;
+
 
 #endif //EVENT_H

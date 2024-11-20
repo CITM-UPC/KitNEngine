@@ -141,7 +141,12 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path);
 
-	Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	GameObjectPtr camObject = make_shared<GameObject>(nullptr);
+	// Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	auto c = new Camera();
+	c->SetGameObject(camObject.get());
+
 	//Temp code end
 
 	app->Init();
@@ -165,7 +170,7 @@ int main(int argc, char** argv) {
 
 		ret = app->Update();
 		
-		camera.update();
+		camObject->Update();
 		display_func();
 
 		window.swapBuffers();

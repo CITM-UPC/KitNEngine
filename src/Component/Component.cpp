@@ -5,6 +5,36 @@
 
 #include <stdexcept>
 
+#include "Component/GameObject.h"
+
+Component& Component::SetGameObject(GameObject* parent)
+{
+    if (parent == nullptr)
+    {
+        return *this;
+    }
+
+    // Només pot estar assignat a un GameObject
+    if (this->gameObject != nullptr)
+    {
+        this->gameObject->RemoveComponent(this);
+    }
+
+    if (this->gameObject != parent)
+    {
+        this->gameObject = parent;
+        parent->AddComponent(this);
+    }
+
+    return *this;
+}
+
+
+Component::Component(GameObject* parent)
+{
+    SetGameObject(parent);
+}
+
 bool Component::Enable()
 {
     if (!_enabled)

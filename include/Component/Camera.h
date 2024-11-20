@@ -1,5 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+#include "Component/Component.h"
+
 #include <GL/glew.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -7,8 +9,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <SDL2/SDL.h>
 #include <Config/Config.h>
-
-#include "Component.h"
 
 
 enum class Camera_Movement {
@@ -63,15 +63,31 @@ public:
     float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
 
     bool altPressed = false;
+	bool shiftPressed = false;
 	bool rMousePressed = false;
     bool FPSCam = false;
 	bool arcBallCam = false;
     float zoom = 1.0f;
 	float targetDistance = 2.0f;
+	float speedMulti = 2.0f;
 
-	Camera(glm::vec3 pos, glm::vec3 lookAt);
 	
-    void update();
+	explicit Camera();
+	Camera(glm::vec3 pos, glm::vec3 lookAt);
+
+	bool Awake() override;
+
+	bool Start() override;
+
+	bool PreUpdate() override;
+	
+    bool Update() override;
+
+	bool PostUpdate() override;
+
+	bool InspectorDisplay() override;
+
+	bool CleanUp() override;
     
     void ProcessInput();
   

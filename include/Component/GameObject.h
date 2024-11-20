@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-class GameObject : public Component
+class GameObject final: public Component
 {
 public: // Static members/functions
 
@@ -28,28 +28,45 @@ public:
     bool PostUpdate() override;
     bool InspectorDisplay() override;
     bool CleanUp() override;
+
+    bool IsGameObject() const override { return true; }
+
+    GameObject& SetParent(GameObject* parent);
     
-
-
     [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }
     [[nodiscard]] std::vector<GameObjectPtr>& GetChildren() { return children; }
     [[nodiscard]] const TransformPtr GetTransform() { return transform; }
 
     template <typename T>
-    [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
-    GameObjectPtr AddChild(GameObjectPtr g);
+    [[nodiscard]] T& GetComponentOfType() const;
+
+    // Afegeix el component a la llista d'aquest GameObject
+    Component& AddComponent(Component* c = nullptr);
+    void RemoveComponent(Component* component);
+
+    GameObject& AddChild(GameObjectPtr& g);
+    GameObject& AddChild(GameObject* g);
+    void RemoveChild(const GameObject* child);
+
+private:
+    
+    // Sempre retorna nullptr en un GameObject. Utilitza SetParent()
+    Component& SetGameObject(GameObject* parent) override { gameObject = this; return *this; }
+
+public:
+
+    GameObjectPtr parent;
 
 private:
 
-    GameObjectPtr parent;
+    GameObject* gameObject = this;
     
     TransformPtr transform = std::make_shared<Transform>(this);
 
     std::vector<ComponentPtr> components;
     std::vector<GameObjectPtr> children;
 
-    bool _active = true;
-
+    friend Transform;
 };
 
 #endif //GAMEOBJECT_H

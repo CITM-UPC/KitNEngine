@@ -7,23 +7,22 @@
 #include <memory>
 
 class GameObject;
+using GameObjectPtr = std::shared_ptr<GameObject>;
 
 class Component;
-
 using ComponentPtr = std::shared_ptr<Component>;
 
-template <typename T>
-concept DerivedFromComponent = std::is_base_of_v<Component, T>;
-
-class Component {
+class Component
+{
 protected:
-    Component(const std::shared_ptr<GameObject>& parent) : gameObject(parent){}
+    explicit Component(GameObject* parent);
+    
     Component() = default;
 
 public:
     virtual ~Component() = default;
 
-    virtual bool Awake() { return true; }
+    virtual bool Awake() = 0;
     virtual bool Start(){ return true; }
     virtual bool PreUpdate(){ return true; }
     virtual bool Update(){ return true; }
@@ -31,15 +30,22 @@ public:
     virtual bool InspectorDisplay(){ return true; }
     virtual bool CleanUp(){ return true; }
 
+    virtual Component& SetGameObject(GameObject* parent);    
+    virtual bool IsGameObject() const { return false; }
+
     bool Enable();
     bool Disable();
 
 public:
     // El GameObject al qual està assignat aquest component
-    std::shared_ptr<GameObject> gameObject = nullptr;
+    GameObject* gameObject = nullptr;
 
-private:
+protected:
     bool _enabled = true;
+    bool _active = true;
+    bool _awoken = false;
+
+    friend GameObject;
 };
 
 

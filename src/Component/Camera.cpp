@@ -7,18 +7,39 @@
 
 #include "Modules/Input.h"
 
-Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : position(pos), lookTarget(lookAt)
+Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+{
+}
+
+Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : Component(), lookTarget(lookAt), position(pos)
 {
     targetDistance = glm::distance(position,lookTarget);
     updateCameraVectors();
-
 }
+
+bool Camera::Awake()
+{
+    return true;
+}
+
 std::shared_ptr<Camera> Camera::activeCamera;
-void Camera::update()
+
+bool Camera::Start()
+{
+    return Component::Start();
+}
+
+bool Camera::PreUpdate()
+{
+    return Component::PreUpdate();
+}
+
+bool Camera::Update()
 {
     ProcessInput();
 
     // TODO canviar a matriu inicial + transformacions lineals/afins
+    // TODO Canviar a utilitzar Transform del GameObject al que esta assignada
     view = glm::lookAt(position,position+camFront,camUp);
     projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
     
@@ -27,7 +48,23 @@ void Camera::update()
         Shader::shaders.at(0)->SetMatrix("view", view);
         Shader::shaders.at(0)->SetMatrix("projection", projection);
     }
-    
+
+    return Component::Update();
+}
+
+bool Camera::PostUpdate()
+{
+    return Component::PostUpdate();
+}
+
+bool Camera::InspectorDisplay()
+{
+    return Component::InspectorDisplay();
+}
+
+bool Camera::CleanUp()
+{
+    return Component::CleanUp();
 }
 
 void Camera::ProcessInput()
@@ -38,6 +75,8 @@ void Camera::ProcessInput()
     
     // Manejar eventos de teclado para registrar si Alt está presionado
     altPressed = app->input->GetKey(SDL_SCANCODE_LALT) == KeyState::KEY_REPEAT;
+
+    shiftPressed = app->input->GetKey(SDL_SCANCODE_LSHIFT) == KeyState::KEY_REPEAT;
     
     // Manejar eventos del ratón para registrar si el clic derecho está presionado
     KeyState rButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT);
@@ -64,59 +103,31 @@ void Camera::ProcessInput()
     {
         // Moviment camara fps
         if (app->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
-            position += camFront*moveStep;
+            position += camFront * moveStep * (shiftPressed ? speedMulti : 1);
         if (app->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
-            position -= camFront*moveStep;
+            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1);
         if (app->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
-            position -= camRight*moveStep;
+            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1);
         if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
-            position += camRight*moveStep;
+            position += camRight * moveStep * (shiftPressed ? speedMulti : 1);
       
-    }
-    else if (arcBallCam)
-    {
-        // Moviment orbital
-        targetDistance -= (wheelY * moveStep); // Apropa o allunya de l'objecte
     }
     else
     {
-        zoom -= wheelY * moveStep;
+        // Moviment orbital
+        targetDistance -= (wheelY * moveStep); // Apropa o allunya de l'objecte
+        if (targetDistance < 0.1f) targetDistance = 0.1f;
+        if (targetDistance > 100.0f) targetDistance = 100.0f;
+
+        arcBallCam = true; // Aprofita càmera orbital per moure al nou punt
     }
-        
+    // else
+    // {
+    //     zoom -= wheelY * moveStep;
+    //     if (zoom < 0.1f) zoom = 0.1f;
+    //     else if (zoom > 3.0f) zoom = 3.0f;
+    // }
     
-    
-    /*
-     *if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-        case SDLK_UP:
-            position.x += moveStep;
-            lookTarget.x += moveStep;
-				
-            break;
-        case SDLK_DOWN:
-            position.x -= moveStep;
-            lookTarget.x -= moveStep;
-				
-            break;
-        case SDLK_LEFT:
-            position.z -= moveStep;
-            lookTarget.z -= moveStep;
-            break;
-        case SDLK_RIGHT:
-            position.z += moveStep;
-            lookTarget.z += moveStep;
-            break;
-        case SDLK_f:
-            lookTarget.x = 0;
-            lookTarget.y = 0;
-            lookTarget.z = 0;
-            position.x = 0;
-            position.y = 0;
-            position.z = 1;
-            break;
-        }
-    }
-    */
     
     updateCameraVectors();
 
