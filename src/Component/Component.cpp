@@ -3,36 +3,52 @@
 //
 #include "Component/Component.h"
 
+#include <iostream>
+#include <ostream>
 #include <stdexcept>
 
 #include "Component/GameObject.h"
 
-Component& Component::SetGameObject(GameObject* parent)
+ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newParent)
 {
-    if (parent == nullptr)
+    if (component == nullptr)
     {
-        return *this;
+        std::cerr << "Component::SetGameObject() called with null pointer" << std::endl;
+        return component;
+    }
+    if (newParent == nullptr)
+    {
+        std::cerr << "New parent is null" << std::endl;
+        return component;
     }
 
-    // Només pot estar assignat a un GameObject
-    if (this->gameObject != nullptr)
+    if (component->IsGameObject())
     {
-        this->gameObject->RemoveComponent(this);
+        GameObjectPtr go = std::dynamic_pointer_cast<GameObject>(component);
+        go->parent->RemoveChild(go.get());
+        newParent->AddChild(go);
+    }
+    else
+    {
+        // TODO trobar una forma adequada de transferir components entre gameobjects
+
+        // Només pot estar assignat a un GameObject
+        if (component->gameObject != nullptr)
+        {
+            component->gameObject->RemoveComponent(component.get());
+        }
+
+        component->gameObject = newParent;
+        newParent->AddComponent(component);
     }
 
-    if (this->gameObject != parent)
-    {
-        this->gameObject = parent;
-        parent->AddComponent(this);
-    }
-
-    return *this;
+    return component;
 }
 
 
-Component::Component(GameObject* parent)
+Component::Component(GameObject* parent) : gameObject(parent)
 {
-    SetGameObject(parent);
+    //SetGameObject(this, parent);
 }
 
 bool Component::Enable()

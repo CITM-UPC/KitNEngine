@@ -5,19 +5,15 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 
-#include "imgui_impl_sdl2.h"
 #include "MyWindow.h"
-#include "assimp/cimport.h"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/ilut.h"
 #include "Structures/PpMesh.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
-#include "Component/Camera.h"
 #include "Component/GameObject.h"
+#include "Component/Camera.h"
 #include "Config/Config.h"
 #include "Core/App.h"
 #include "Utilities/Time.h"
@@ -144,8 +140,12 @@ int main(int argc, char** argv) {
 	GameObjectPtr camObject = make_shared<GameObject>(nullptr);
 	// Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	auto c = new Camera();
-	c->SetGameObject(camObject.get());
+	// Creacio generica de component
+	//camObject->AddComponentOfType<Camera>();
+
+	// Creacio manual de camera
+	ComponentPtr c = std::make_shared<Camera>();
+	Component::SetGameObject(c, camObject.get());
 
 	//Temp code end
 

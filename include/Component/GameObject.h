@@ -40,18 +40,18 @@ public:
     template <typename T>
     [[nodiscard]] T& GetComponentOfType() const;
 
+    template <std::derived_from<Component> T>
+    std::shared_ptr<T> AddComponentOfType();
+    
+    
     // Afegeix el component a la llista d'aquest GameObject
-    Component& AddComponent(Component* c = nullptr);
+    ComponentPtr AddComponent(ComponentPtr& c);
     void RemoveComponent(Component* component);
 
     GameObject& AddChild(GameObjectPtr& g);
     GameObject& AddChild(GameObject* g);
     void RemoveChild(const GameObject* child);
 
-private:
-    
-    // Sempre retorna nullptr en un GameObject. Utilitza SetParent()
-    Component& SetGameObject(GameObject* parent) override { gameObject = this; return *this; }
 
 public:
 

@@ -15,6 +15,7 @@ using ComponentPtr = std::shared_ptr<Component>;
 class Component
 {
 protected:
+    // Do not call this directly, use a GameObject's AddComponent method instead
     explicit Component(GameObject* parent);
     
     Component() = default;
@@ -30,7 +31,7 @@ public:
     virtual bool InspectorDisplay(){ return true; }
     virtual bool CleanUp(){ return true; }
 
-    virtual Component& SetGameObject(GameObject* parent);    
+    static ComponentPtr SetGameObject(ComponentPtr& component, GameObject* newParent);    
     virtual bool IsGameObject() const { return false; }
 
     bool Enable();

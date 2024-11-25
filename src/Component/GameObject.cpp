@@ -12,6 +12,7 @@
 
 #include <utility>
 
+
 std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
 
 GameObject::GameObject(GameObjectPtr go) : parent(std::move(go))
@@ -150,13 +151,8 @@ void GameObject::RemoveComponent(Component* component)
 {
     // TODO acaba aixo
     std::cerr << "GameObject::RemoveComponent called - Implementation unfinished: Expect errors" << std::endl;
-    for (int i = 0; i < components.size(); ++i)
-    {
-        if (components[i].get() == component)
-        {
-            components.erase(components.begin() + i);
-        }
-    }
+    auto pred = [component](const ComponentPtr& c){return c.get() == component;};
+    std::erase_if(components, pred);
 }
 
 GameObject& GameObject::AddChild(GameObjectPtr& g)
@@ -177,7 +173,10 @@ GameObject& GameObject::AddChild(GameObject* g)
 
 void GameObject::RemoveChild(const GameObject* child)
 {
-    throw std::logic_error("Not implemented");
+    // TODO acaba aixo
+    std::cerr << "GameObject::RemoveComponent called - Implementation unfinished: Expect errors" << std::endl;
+    auto pred = [child](const GameObjectPtr& go){return go.get() == child;};
+    std::erase_if(children, pred);
 }
 
 template <class T>
@@ -197,22 +196,38 @@ T& GameObject::GetComponentOfType() const
     return nullptr;
 }
 
-Component& GameObject::AddComponent(Component* c)
+template <std::derived_from<Component> T>
+std::shared_ptr<T> GameObject::AddComponentOfType()
 {
-    if (dynamic_cast<GameObject*>(c) != nullptr)
+    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha derivar de GameObject");
+
+    std::shared_ptr<T> c = std::make_shared<T>(*this);
+    components.push_back(c);
+
+    if (_awoken && c->_enabled && !c->_awoken)
+    {
+        c->Awake();
+    }
+
+    return c;
+}
+
+ComponentPtr GameObject::AddComponent(ComponentPtr& c)
+{
+    if (dynamic_pointer_cast<GameObject>(c) != nullptr)
         throw std::logic_error("Component must not be a GameObject");
     
-    ComponentPtr component = std::shared_ptr<Component>(c);
+    
     if (c->gameObject != this)
-        c->SetGameObject(this);
+        Component::SetGameObject(c, this);
 
-    components.push_back(component);
+    components.push_back(c);
 
-    if (_awoken)
+    if (_awoken && c->_enabled && !c->_awoken)
     {
-        component->Awake();
+        c->Awake();
     }
     
-    return *component;
+    return c;
 }
 
