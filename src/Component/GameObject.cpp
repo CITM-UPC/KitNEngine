@@ -151,6 +151,7 @@ bool GameObject::PostUpdate()
 
     for (std::shared_ptr<Component>& go : components)
     {
+        if (go.get() == this) continue;
         if (go->_active && !go->PostUpdate())
             return false;
     }
