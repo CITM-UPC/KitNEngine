@@ -15,6 +15,17 @@
 
 std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
 
+GameObjectPtr GameObject::CreateGameObject(GameObjectPtr& parent)
+{
+    GameObjectPtr ret;
+    if (parent == nullptr)
+        ret = gameObjects.emplace_back(ret);
+    else
+        parent->AddChild(ret);
+
+    return ret;
+}
+
 GameObject::GameObject(GameObjectPtr go) : parent(std::move(go))
 {
 }
@@ -149,8 +160,8 @@ GameObject& GameObject::SetParent(GameObject* parent)
 
 void GameObject::RemoveComponent(Component* component)
 {
-    // TODO acaba aixo
-    std::cerr << "GameObject::RemoveComponent called - Implementation unfinished: Expect errors" << std::endl;
+    // TODO prova aixo
+    std::cerr << "GameObject::RemoveComponent called - Implementation untested: Expect errors" << std::endl;
     auto pred = [component](const ComponentPtr& c){return c.get() == component;};
     std::erase_if(components, pred);
 }
@@ -173,8 +184,8 @@ GameObject& GameObject::AddChild(GameObject* g)
 
 void GameObject::RemoveChild(const GameObject* child)
 {
-    // TODO acaba aixo
-    std::cerr << "GameObject::RemoveComponent called - Implementation unfinished: Expect errors" << std::endl;
+    // TODO prova aixo
+    std::cerr << "GameObject::RemoveChild called - Implementation untested: Expect errors" << std::endl;
     auto pred = [child](const GameObjectPtr& go){return go.get() == child;};
     std::erase_if(children, pred);
 }

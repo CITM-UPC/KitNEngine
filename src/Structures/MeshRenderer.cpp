@@ -1,7 +1,7 @@
 //
 // Created by Roger on 16/10/2024.
 //
-#include "Structures/PpMesh.h"
+#include "Structures/MeshRenderer.h"
 
 #include <stdexcept>
 
@@ -11,13 +11,13 @@
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 
-const GLuint PpMesh::dataValsInVBO = 5; // position(3), UV(2)
+const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
 
-std::vector<std::shared_ptr<PpMesh>> PpMesh::meshes = std::vector<std::shared_ptr<PpMesh>>();
+std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::meshes = std::vector<std::shared_ptr<MeshRenderer>>();
 
-std::vector<PpMeshPtr> PpMesh::ImportMeshes(const char* filename)
+std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
 {
-    std::vector<PpMeshPtr> ret;
+    std::vector<MeshRendererPtr> ret;
     
     const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
 
@@ -49,9 +49,9 @@ std::vector<PpMeshPtr> PpMesh::ImportMeshes(const char* filename)
                 printf("\n") ;
             }
         }
-        PpMeshPtr pp_mesh = std::make_shared<PpMesh>(mesh);
+        MeshRendererPtr pp_mesh = std::make_shared<MeshRenderer>(mesh);
         if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
-        ret.push_back(PpMesh::meshes.emplace_back(pp_mesh));
+        ret.push_back(MeshRenderer::meshes.emplace_back(pp_mesh));
 		
     }
 	
@@ -59,7 +59,7 @@ std::vector<PpMeshPtr> PpMesh::ImportMeshes(const char* filename)
     return ret;
 }
 
-PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
+MeshRenderer::MeshRenderer(const aiMesh* mesh)// : kRendererBase()
 {
     mainData.reserve(mesh->mNumVertices*3);
     for (unsigned int i = 0; i < mesh->mNumVertices;i++)
@@ -94,7 +94,7 @@ PpMesh::PpMesh(const aiMesh* mesh) : kMeshBase()
     SetUpMesh();
 }
 
-PpMesh::~PpMesh()
+MeshRenderer::~MeshRenderer()
 {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -102,7 +102,27 @@ PpMesh::~PpMesh()
     glDeleteBuffers(1, &uv_buffer_id);
 }
 
-void PpMesh::Render(const Shader* shaderProgram) const
+bool MeshRenderer::Awake()
+{
+    throw std::logic_error("Not implemented");
+}
+
+bool MeshRenderer::Start()
+{
+    return Component::Start();
+}
+
+bool MeshRenderer::PreUpdate()
+{
+    return Component::PreUpdate();
+}
+
+bool MeshRenderer::Update()
+{
+    return Component::Update();
+}
+
+void MeshRenderer::Render(const Shader* shaderProgram) const
 {
     //glEnableClientState(GL_VERTEX_ARRAY);
     //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -132,32 +152,27 @@ void PpMesh::Render(const Shader* shaderProgram) const
     //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-//Temporary function for shader refactor testing
-void PpMesh::Render(GLuint shaderProgram) const
+void MeshRenderer::Render() const
 {
-    //glEnableClientState(GL_VERTEX_ARRAY);
-    //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glBindVertexArray(VAO);
-    glUseProgram(shaderProgram);
-
-
-    // no activar hasta que se tengan shaders de color funcionales
-    // if (texture_id>0)
-    // {
-    //     glActiveTexture(GL_TEXTURE0);
-    //     glBindTexture(GL_TEXTURE_2D, texture_id);
-    // }
-
-
-    // Finish Drawing
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-    glBindVertexArray(0);
-
-    //glDisableClientState(GL_VERTEX_ARRAY);
-    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    Render(Shader::GetShader(shader_id).get());
 }
 
-void PpMesh::SetUpMesh()
+bool MeshRenderer::PostUpdate()
+{
+    return Component::PostUpdate();
+}
+
+bool MeshRenderer::InspectorDisplay()
+{
+    return Component::InspectorDisplay();
+}
+
+bool MeshRenderer::CleanUp()
+{
+    return Component::CleanUp();
+}
+
+void MeshRenderer::SetUpMesh()
 {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -186,7 +201,7 @@ void PpMesh::SetUpMesh()
     glBindVertexArray(0);
 }
 
-void PpMesh::GenerateBuffer(const GLenum type, GLuint& bufferID, const void* data, const GLsizeiptr dataSize, const GLenum usage)
+inline void MeshRenderer::GenerateBuffer(const GLenum type, GLuint& bufferID, const void* data, const GLsizeiptr dataSize, const GLenum usage)
 {
     glGenBuffers(1, &bufferID);
     glBindBuffer(type, bufferID);

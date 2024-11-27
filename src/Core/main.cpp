@@ -9,7 +9,7 @@
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/ilut.h"
-#include "Structures/PpMesh.h"
+#include "Structures/MeshRenderer.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 #include "Component/GameObject.h"
@@ -83,25 +83,26 @@ void init_shaders()
 	Shader::shaders.push_back(make_shared<Shader>("Assets/Shaders/MyVertexShader.glsl", "Assets/Shaders/MyFragmentShader.glsl"));
 }
 
-static void draw_mesh(kMeshBase& mesh)
+/*static void draw_mesh(kRendererBase& mesh)
 {
 	mesh.Render(Shader::shaders[0].get());
 	
-}
+}*/
 
 static void display_func() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	for (auto& mesh : PpMesh::meshes)
+	for (auto& mesh : MeshRenderer::meshes)
 	{
-		draw_mesh(*mesh);
+		//draw_mesh(*mesh);
+		mesh->Render();
 	}
 }
 
 
 static bool LoadModels(const char* filename)
 {
-	PpMesh::ImportMeshes(filename);
+	MeshRenderer::ImportMeshes(filename);
 	return true;
 }
 
@@ -137,16 +138,11 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path);
 
-	GameObjectPtr camObject = make_shared<GameObject>(nullptr);
-	// Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	// GameObject arrel per a components de l'editor. No es troba en la llista principal de GameObjects
+	GameObjectPtr editorRootObject = make_shared<GameObject>(nullptr);
 
 	// Creacio generica de component
-	GameObject::AddComponentOfType<Camera>(camObject);
-
-	// Creacio manual de camera
-	/*ComponentPtr c = std::make_shared<Camera>();
-	Component::SetGameObject(c, camObject.get());
-	*/
+	editorRootObject->AddComponentOfType<Camera>(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//Temp code end
 
@@ -171,7 +167,7 @@ int main(int argc, char** argv) {
 
 		ret = app->Update();
 		
-		camObject->Update();
+		editorRootObject->Update();
 		display_func();
 
 		window.swapBuffers();

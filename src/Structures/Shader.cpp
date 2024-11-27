@@ -12,6 +12,11 @@
 
 std::vector<std::shared_ptr<Shader>> Shader::shaders = std::vector<std::shared_ptr<Shader>>();
 
+std::shared_ptr<Shader> Shader::GetShader(GLuint id)
+{
+    return shaders.at(id);
+}
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
     if (geometryPath != nullptr)

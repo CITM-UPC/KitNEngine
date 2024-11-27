@@ -10,11 +10,14 @@
 #include <memory>
 #include <vector>
 
+// Evita instanciar GameObjects directament, utilitza CreateGameObject() en el seu lloc
 class GameObject final: public Component
 {
 public: // Static members/functions
 
     static std::vector<GameObjectPtr> gameObjects;
+
+    GameObjectPtr CreateGameObject(GameObjectPtr& parent);
     
 public:
     
@@ -40,9 +43,9 @@ public:
     template <typename T>
     [[nodiscard]] T& GetComponentOfType() const;
 
-    template <typename T>
+    template <typename T, typename... Args>
     requires std::derived_from<T, Component>
-    static std::shared_ptr<T> AddComponentOfType(GameObjectPtr go);
+    std::shared_ptr<T> AddComponentOfType(Args&&... args);
     
     
     // Afegeix el component a la llista d'aquest GameObject
@@ -71,18 +74,18 @@ private:
 };
 
 
-template <typename T>
+template <typename T, typename... Args>
 requires std::derived_from<T, Component>
-std::shared_ptr<T> GameObject::AddComponentOfType(GameObjectPtr go)
+std::shared_ptr<T> GameObject::AddComponentOfType(Args&&... args)
 {
     static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha derivar de GameObject");
 
-    std::shared_ptr<T> c = std::make_shared<T>();
+    std::shared_ptr<T> c = std::make_shared<T>(std::forward<Args>(args)...);
     ComponentPtr componentCast = std::dynamic_pointer_cast<Component>(c);
-    SetGameObject(componentCast, go.get());
-    go->components.push_back(c);
+    SetGameObject(componentCast, this);
+    components.push_back(c);
 
-    if (go->_awoken && c->_enabled && !c->_awoken)
+    if (_awoken && c->_enabled && !c->_awoken)
     {
         c->Awake();
     }

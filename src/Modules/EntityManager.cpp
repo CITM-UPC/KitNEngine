@@ -12,7 +12,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "Structures/PpMesh.h"
+#include "Structures/MeshRenderer.h"
 #include "Structures/Texture.h"
 #include "Utilities/Log.h"
 
@@ -110,8 +110,8 @@ void EntityManager::OnDropFile(OnDropEventType& fileName)
     auto extension = std::filesystem::path(fileName).extension().string();
     if (extension == ".fbx")
     {
-        PpMesh::meshes.clear();
-        auto meshes = PpMesh::ImportMeshes(fileName.c_str());
+        MeshRenderer::meshes.clear();
+        auto meshes = MeshRenderer::ImportMeshes(fileName.c_str());
 
         // TODO Guardar la mesh al GameObject a través d'un component
         // GameObjectPtr gameObject = GameObjectPtr(new GameObject(nullptr));
@@ -129,7 +129,7 @@ void EntityManager::OnDropFile(OnDropEventType& fileName)
         Texture::textures.clear();
         const auto id = Texture::ImportTexture(fileName.c_str());
 
-        for (auto& mesh : PpMesh::meshes)
+        for (auto& mesh : MeshRenderer::meshes)
         {
             mesh->texture_id = id;
         }

@@ -13,6 +13,9 @@
 class Shader {
 public:
     static std::vector<std::shared_ptr<Shader>> shaders;
+    static std::shared_ptr<Shader> GetShader(GLuint id);
+    
+public:
     
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
     ~Shader();
