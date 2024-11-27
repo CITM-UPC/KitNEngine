@@ -141,11 +141,12 @@ int main(int argc, char** argv) {
 	// Camera camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	// Creacio generica de component
-	//camObject->AddComponentOfType<Camera>();
+	GameObject::AddComponentOfType<Camera>(camObject);
 
 	// Creacio manual de camera
-	ComponentPtr c = std::make_shared<Camera>();
+	/*ComponentPtr c = std::make_shared<Camera>();
 	Component::SetGameObject(c, camObject.get());
+	*/
 
 	//Temp code end
 

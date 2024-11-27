@@ -40,8 +40,9 @@ public:
     template <typename T>
     [[nodiscard]] T& GetComponentOfType() const;
 
-    template <std::derived_from<Component> T>
-    std::shared_ptr<T> AddComponentOfType();
+    template <typename T>
+    requires std::derived_from<T, Component>
+    static std::shared_ptr<T> AddComponentOfType(GameObjectPtr go);
     
     
     // Afegeix el component a la llista d'aquest GameObject
@@ -68,5 +69,25 @@ private:
 
     friend Transform;
 };
+
+
+template <typename T>
+requires std::derived_from<T, Component>
+std::shared_ptr<T> GameObject::AddComponentOfType(GameObjectPtr go)
+{
+    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha derivar de GameObject");
+
+    std::shared_ptr<T> c = std::make_shared<T>();
+    ComponentPtr componentCast = std::dynamic_pointer_cast<Component>(c);
+    SetGameObject(componentCast, go.get());
+    go->components.push_back(c);
+
+    if (go->_awoken && c->_enabled && !c->_awoken)
+    {
+        c->Awake();
+    }
+
+    return c;
+}
 
 #endif //GAMEOBJECT_H

@@ -16,9 +16,8 @@ class Component
 {
 protected:
     // Do not call this directly, use a GameObject's AddComponent method instead
-    explicit Component(GameObject* parent);
+    explicit Component() = default;
     
-    Component() = default;
 
 public:
     virtual ~Component() = default;

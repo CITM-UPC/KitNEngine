@@ -196,22 +196,6 @@ T& GameObject::GetComponentOfType() const
     return nullptr;
 }
 
-template <std::derived_from<Component> T>
-std::shared_ptr<T> GameObject::AddComponentOfType()
-{
-    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha derivar de GameObject");
-
-    std::shared_ptr<T> c = std::make_shared<T>(*this);
-    components.push_back(c);
-
-    if (_awoken && c->_enabled && !c->_awoken)
-    {
-        c->Awake();
-    }
-
-    return c;
-}
-
 ComponentPtr GameObject::AddComponent(ComponentPtr& c)
 {
     if (dynamic_pointer_cast<GameObject>(c) != nullptr)

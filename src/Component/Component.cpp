@@ -45,12 +45,6 @@ ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newPa
     return component;
 }
 
-
-Component::Component(GameObject* parent) : gameObject(parent)
-{
-    //SetGameObject(this, parent);
-}
-
 bool Component::Enable()
 {
     if (!_enabled)
