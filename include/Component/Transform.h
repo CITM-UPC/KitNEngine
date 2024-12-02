@@ -8,6 +8,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Camera.h"
+#include "Camera.h"
+
 class GameObject;
 
 class Transform;
@@ -23,7 +26,7 @@ public:
         gameObject = nullptr;
     }
 
-    [[nodiscard]] const glm::mat4& GetMatrix() const;
+    [[nodiscard]] glm::mat4 GetMatrix() const;
     [[nodiscard]] glm::vec3 GetPosition() const;
     [[nodiscard]] glm::quat GetRotation() const;
     [[nodiscard]] glm::vec3 GetScale() const;
@@ -34,16 +37,18 @@ public:
     [[nodiscard]] glm::mat4 GetWorldMatrix() const;
     [[nodiscard]] glm::vec3 GetWorldPos() const;
 
+    void SetMatrix(const glm::mat4& matrix);
+    void SetPosition(const glm::vec3& position);
+    void SetRotation(const glm::quat& rotation);
+    void SetScale(const glm::vec3& scale);
+    void LookAt(const glm::vec3& position);
+
 public:
     
     GameObject* gameObject = nullptr;
 
 private:
     glm::mat4 M = glm::mat4(1.0f);
-
-    glm::vec3 scale ={};
-    glm::quat rotation ={};
-    glm::vec3 translation ={};
 };
 
 #endif //TRANSFORM_H

@@ -3,9 +3,11 @@
 //
 #include "Component/Transform.h"
 
+#include <stdexcept>
+
 #include "Component/GameObject.h"
 
-const glm::mat4& Transform::GetMatrix() const
+glm::mat4 Transform::GetMatrix() const
 {
     return M;
 }
@@ -54,4 +56,29 @@ glm::mat4 Transform::GetWorldMatrix() const
 glm::vec3 Transform::GetWorldPos() const
 {
     return GetWorldMatrix()*M[3];
+}
+
+void Transform::SetMatrix(const glm::mat4& matrix)
+{
+    M = matrix;
+}
+
+void Transform::SetPosition(const glm::vec3& position)
+{
+    M[3] = glm::vec4(position,M[3][3]);
+}
+
+void Transform::SetRotation(const glm::quat& rotation)
+{
+    throw std::logic_error("Not implemented");
+}
+
+void Transform::SetScale(const glm::vec3& scale)
+{
+    throw std::logic_error("Not implemented");
+}
+
+void Transform::LookAt(const glm::vec3& position)
+{
+    throw std::logic_error("Not implemented");
 }

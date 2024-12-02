@@ -2,10 +2,14 @@
 
 #include <ostream>
 
+#include "Component/GameObject.h"
 #include "Core/App.h"
 #include "Structures/Shader.h"
 
 #include "Modules/Input.h"
+#include "Utilities/Time.h"
+
+std::shared_ptr<Camera> Camera::activeCamera;
 
 Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
@@ -13,16 +17,16 @@ Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : Component(), lookTarget(lookAt), position(pos)
 {
-    targetDistance = glm::distance(position,lookTarget);
-    updateCameraVectors();
+    
 }
 
 bool Camera::Awake()
 {
+    
+    targetDistance = glm::distance(position,lookTarget);
+    updateCameraVectors();
     return true;
 }
-
-std::shared_ptr<Camera> Camera::activeCamera;
 
 bool Camera::Start()
 {
@@ -40,13 +44,17 @@ bool Camera::Update()
 
     // TODO canviar a matriu inicial + transformacions lineals/afins
     // TODO Canviar a utilitzar Transform del GameObject al que esta assignada
-    view = glm::lookAt(position,position+camFront,camUp);
-    projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
+    TransformPtr t = gameObject->GetTransform();
     
-    if (!Shader::shaders.empty())
+    //view = glm::lookAt(position,position+camFront,camUp);
+    view = glm::lookAt(position,position+camFront,camUp);
+    t->SetMatrix(view);
+    projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
+
+    if (activeCamera.get() == this && !Shader::shaders.empty())
     {
         Shader::shaders.at(0)->SetMatrix("view", view);
-        Shader::shaders.at(0)->SetMatrix("projection", projection);
+        Shader::shaders.at(0)->SetMatrix("projection", projection); 
     }
 
     return Component::Update();
@@ -103,19 +111,19 @@ void Camera::ProcessInput()
     {
         // Moviment camara fps
         if (app->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
-            position += camFront * moveStep * (shiftPressed ? speedMulti : 1);
+            position += camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
-            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1);
+            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
-            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1);
+            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
-            position += camRight * moveStep * (shiftPressed ? speedMulti : 1);
+            position += camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
       
     }
     else
     {
         // Moviment orbital
-        targetDistance -= (wheelY * moveStep); // Apropa o allunya de l'objecte
+        targetDistance -= (wheelY * zoomStep); // Apropa o allunya de l'objecte
         if (targetDistance < 0.1f) targetDistance = 0.1f;
         if (targetDistance > 100.0f) targetDistance = 100.0f;
 
@@ -139,8 +147,8 @@ void Camera::ProcessMouseMovement()
         SDL_SetRelativeMouseMode(SDL_TRUE);
         int x,y;
         app->input->GetMouseMotion(x,y);
-        yaw += x * sensitivity;
-        pitch -= y * sensitivity; 
+        yaw += x * sensitivity * Time::GetDeltaTime();
+        pitch -= y * sensitivity * Time::GetDeltaTime(); 
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
         //updateCameraVectors();

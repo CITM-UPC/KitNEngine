@@ -142,7 +142,12 @@ int main(int argc, char** argv) {
 	GameObjectPtr editorRootObject = make_shared<GameObject>(nullptr);
 
 	// Creacio generica de component
-	editorRootObject->AddComponentOfType<Camera>(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera::activeCamera = editorRootObject->AddComponentOfType<Camera>(glm::vec3(0.0f, 0.0f, -3.0f),
+	                                                                    glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	
+	editorRootObject->Awake();
+	editorRootObject->Start();
 
 	//Temp code end
 

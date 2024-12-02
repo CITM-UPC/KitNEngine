@@ -18,17 +18,6 @@ enum class Camera_Movement {
     RIGHT
 };
 
-
-
-const float YAW = 0.0f;
-const float PITCH = 0.0f;
-const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
-
-
-
-
 class Camera : public Component
 {
 public:	// Static members/functions
@@ -57,9 +46,9 @@ public:
 
     float yaw = 90.0f;   // Ángulo horizontal (izquierda-derecha)
     float pitch = 0.0f; // Ángulo vertical (arriba-abajo)
-    float moveStep = 0.02f; // Paso de movimiento de la cámara
-    float rotationStep = 2.0f; // Paso de rotación de la cámara
-    float sensitivity = 0.5f;
+    float moveStep = 10.0f; // Paso de movimiento de la cámara
+    float rotationStep = 20.0f; // Paso de rotación de la cámara
+    float sensitivity = 100.0f;
     float verticalAngle = 0.0f; // Ángulo vertical para orbitación con W y S
 
     bool altPressed = false;
@@ -68,6 +57,7 @@ public:
     bool FPSCam = false;
 	bool arcBallCam = false;
     float zoom = 1.0f;
+	float zoomStep = 0.2f;
 	float targetDistance = 2.0f;
 	float speedMulti = 2.0f;
 
