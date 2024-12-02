@@ -6,79 +6,82 @@
 #include <stdexcept>
 
 #include "Component/GameObject.h"
+#include "glm/gtx/quaternion.hpp"
 
-glm::mat4 Transform::GetMatrix() const
+glm::mat4 Transform::GetBasis() const
 {
-    return M;
+    return basis;
 }
 
 glm::vec3 Transform::GetPosition() const
 {
-    return M[3];
+    return position;
 }
 
 glm::quat Transform::GetRotation() const
 {
-    return glm::quat_cast(M);
+    return glm::quat_cast(basis);
 }
 
 glm::vec3 Transform::GetScale() const
 {
     return glm::vec3(
-        glm::length(M[0]),
-        glm::length(M[1]),
-        glm::length(M[2])
+        glm::length(basis[0]),
+        glm::length(basis[1]),
+        glm::length(basis[2])
         );
 }
 
 glm::vec3 Transform::GetRight() const
 {
-    return glm::normalize(glm::vec3(M[0][0], M[1][0], M[2][0]));
+    return glm::normalize(glm::vec3(basis[0][0], basis[1][0], basis[2][0]));
 }
 
 glm::vec3 Transform::GetUp() const
 {
-    return glm::normalize(glm::vec3(M[0][1], M[1][1], M[2][1]));
+    return glm::normalize(glm::vec3(basis[0][1], basis[1][1], basis[2][1]));
 }
 
 glm::vec3 Transform::GetForward() const
 {
-    return glm::normalize(glm::vec3(M[0][2], M[1][2], M[2][2]));
+    return glm::normalize(glm::vec3(basis[0][2], basis[1][2], basis[2][2]));
 }
 
 glm::mat4 Transform::GetWorldMatrix() const
 {
+    
+    return glm::translate(glm::mat4(GetWorldBasis()), GetWorldPos());
+}
+
+glm::mat3 Transform::GetWorldBasis() const
+{
     if (gameObject->parent == nullptr)
-        return M;
-    return gameObject->parent->GetTransform()->GetWorldMatrix() * this->M;
+        return basis;
+    else
+        return gameObject->parent->transform->GetWorldBasis()*basis;
 }
 
 glm::vec3 Transform::GetWorldPos() const
 {
-    return GetWorldMatrix()*M[3];
-}
-
-void Transform::SetMatrix(const glm::mat4& matrix)
-{
-    M = matrix;
+    return (GetWorldMatrix()*glm::vec4(position,1.0f));
 }
 
 void Transform::SetPosition(const glm::vec3& position)
 {
-    M[3] = glm::vec4(position,M[3][3]);
+    basis[3] = glm::vec4(position,basis[3][3]);
 }
 
 void Transform::SetRotation(const glm::quat& rotation)
 {
-    throw std::logic_error("Not implemented");
+    basis = glm::toMat4(rotation);
 }
 
 void Transform::SetScale(const glm::vec3& scale)
 {
-    throw std::logic_error("Not implemented");
+    basis = glm::scale(glm::mat4(),scale);
 }
 
-void Transform::LookAt(const glm::vec3& position)
+void Transform::LookAt(const glm::vec3& target, bool worldUp)
 {
-    throw std::logic_error("Not implemented");
+    basis = glm::lookAt(GetPosition(),target,worldUp ? glm::vec3(0,1,0) : GetUp() );
 }

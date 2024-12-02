@@ -91,8 +91,8 @@ void Camera::ProcessInput()
     FPSCam = rButtonState == KeyState::KEY_REPEAT;
 
 
-    rMousePressed = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KeyState::KEY_REPEAT;
-    arcBallCam = altPressed && rMousePressed;
+    lMousePressed = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KeyState::KEY_REPEAT;
+    arcBallCam = altPressed && lMousePressed;
     
     ProcessMouseMovement();
 
@@ -143,7 +143,7 @@ void Camera::ProcessInput()
 
 void Camera::ProcessMouseMovement()
 {
-    if (FPSCam || (arcBallCam && rMousePressed)) {
+    if (FPSCam || arcBallCam) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         int x,y;
         app->input->GetMouseMotion(x,y);
@@ -155,11 +155,6 @@ void Camera::ProcessMouseMovement()
     }
     else
         SDL_SetRelativeMouseMode(SDL_FALSE);	
-}
-
-void Camera::updateDirectionVectors()
-{
-
 }
 
 void Camera::updateCameraVectors()
@@ -191,4 +186,9 @@ void Camera::updateCameraVectors()
         lookTarget = position+camFront*targetDistance;
     }
 
+}
+
+glm::mat4 Camera::GetViewProjMatrix() const
+{
+    return projection * gameObject->GetTransform()->GetBasis();
 }

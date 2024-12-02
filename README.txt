@@ -1,6 +1,6 @@
 Actualmente el motor sirve para poder visualizar modelos 3d con texturas.
 
-https://github.com/Ropuce/GameEngine
+https://github.com/CITM-UPC/KitNEngine
 Roger Puchol y Eric Palomares, https://github.com/Ropuce , https://github.com/errico6
 
 Funciona de la siguiente forma: Mover la cámara con las teclas a w s d + clic derecho

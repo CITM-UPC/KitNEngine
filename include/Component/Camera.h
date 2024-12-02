@@ -53,7 +53,7 @@ public:
 
     bool altPressed = false;
 	bool shiftPressed = false;
-	bool rMousePressed = false;
+	bool lMousePressed = false;
     bool FPSCam = false;
 	bool arcBallCam = false;
     float zoom = 1.0f;
@@ -83,10 +83,10 @@ public:
   
 	void ProcessMouseMovement();
 	
-	void updateDirectionVectors();
-	
 	void updateCameraVectors();
-	
+
+
+	glm::mat4 GetViewProjMatrix() const;
 
 };
 #endif

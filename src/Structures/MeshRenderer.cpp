@@ -8,6 +8,8 @@
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "Component/GameObject.h"
+#include "glm/gtc/type_ptr.hpp"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 
@@ -130,6 +132,10 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glUseProgram(shaderProgram->shaderProgram);
+
+    auto model = gameObject->GetTransform()->GetBasis();
+    auto MVP = glm::value_ptr(Camera::activeCamera->projection*Camera::activeCamera->view*model);
+    __glewUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"MVP"), 1, GL_FALSE, MVP);
 
 
     // no activar hasta que se tengan shaders de color funcionales
