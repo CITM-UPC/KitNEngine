@@ -5,7 +5,8 @@
 #include <vector>
 #include <string>
 #include "Component/Camera.h"
-
+#include <format> 
+#include <cstdarg> 
 size_t GetMemoryUsage() {
     PROCESS_MEMORY_COUNTERS_EX pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
@@ -18,27 +19,69 @@ size_t GetMemoryUsage() {
 std::vector<std::string> logMessages;
 
 // Funci?n para agregar mensajes al log
-void AddLogMessage(const std::string& message) {
-    logMessages.push_back(message);
+void AddLogMessage(const char* format, ...) {
+    char buffer[1024]; // Buffer para el mensaje formateado
+    va_list args;      // Argumentos variables
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    // Añadir el mensaje formateado al vector
+    logMessages.push_back(buffer);
 }
 
 void ShowConsoleWindow(bool* p_open) {
     if (!*p_open) return;
-    
+
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Consola", p_open)) {
-        ImGui::TextWrapped("Aqui apareceran los mensajes de la consola...");
-
-        // Mostrar todos los mensajes de log en la consola
-        for (const auto& message : logMessages) {
-            ImGui::TextWrapped("%s", message.c_str());
+        if (ImGui::SmallButton("Limpiar")) {
+            logMessages.clear();
         }
-        
+
+        ImGui::Separator();
+
+        // Área de desplazamiento
+        ImGui::BeginChild("Área de desplazamiento", ImVec2(0, 0), false,
+            ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+        for (const auto& message : logMessages) {
+            // Detectar el tipo de mensaje si se tiene un sistema de prefijos
+            ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // Blanco por defecto
+            if (message.find("[INFO]") == 0) {
+                color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); // Verde
+            }
+            else if (message.find("[WARNING]") == 0) {
+                color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); // Amarillo
+            }
+            else if (message.find("[ERROR]") == 0) {
+                color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // Rojo
+            }
+            else if (message.find("[ASSIMP]") == 0) {
+                color = ImVec4(0.0f, 1.0f, 1.0f, 1.0f); // Cian
+            }
+            else if (message.find("[OK]") == 0) {
+                color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); // Verde (OK)
+            }
+
+            ImGui::TextColored(color, "%s", message.c_str());
+            if (logMessages.size() > 1000) {
+                logMessages.erase(logMessages.begin(), logMessages.begin() + 100);
+            }
+
+        }
+
+        // Desplazamiento automático si está en el fondo
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+
+        ImGui::EndChild();
     }
     ImGui::End();
 }
+
 
 void ShowConfigWindow(bool* p_open) {
     if (!*p_open) return;

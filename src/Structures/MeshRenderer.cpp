@@ -12,6 +12,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
+#include "Structures/UIWindows.h"
 
 #include "Structures/UIWindows.h"
 
@@ -31,26 +32,34 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
     }
 
         printf("Numero de malles: %i\n", scene->mNumMeshes);
-
+        AddLogMessage("Numero de malles: %i\n", scene->mNumMeshes);
+        
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
         { // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
             printf("\nMalla %u:\n", i);
             printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
             printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
+            AddLogMessage("\nMalla %u:\n", i);
+            AddLogMessage(" Numero de vertexs: %u\n", mesh->mNumVertices);
+            AddLogMessage(" Numero de triangles: %u\n", mesh->mNumFaces);
             // Vèrtexs
             for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
                 aiVector3D& vertex = mesh->mVertices[v] ;
                 printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
+                AddLogMessage(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
             }
             // Índexs de triangles (3 per triangle)
             for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
                 aiFace& face = mesh->mFaces[f] ;
                 printf(" Indexs triangle %u: ", f) ;
+                AddLogMessage(" Indexs triangle %u: ", f);
                 for (unsigned int j = 0; j < face.mNumIndices; j++) {
                     printf("%u ", face.mIndices[j]) ;
+                    AddLogMessage("%u ", face.mIndices[j]);
                 }
                 printf("\n") ;
+                AddLogMessage("\n");
             }
         }
         std::shared_ptr<MeshRenderer> pp_mesh = std::make_shared<MeshRenderer>(mesh);
