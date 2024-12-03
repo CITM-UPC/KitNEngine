@@ -67,7 +67,7 @@ void ShowConsoleWindow(bool* p_open) {
             }
 
             ImGui::TextColored(color, "%s", message.c_str());
-            if (logMessages.size() > 1000) {
+            if (logMessages.size() > Console_cap) {
                 logMessages.erase(logMessages.begin(), logMessages.begin() + 100);
             }
 
@@ -205,14 +205,14 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     }
     ImGui::PopID();
 }
-void InitializeGeometryLoading() {
-    AddLogMessage("LOG: Iniciando carga de geometr?a desde ASSIMP...");
-    // C?digo de carga...
-    AddLogMessage("LOG: Carga de geometr?a completada.");
-}
-
-void InitializeLibraries() {
-    AddLogMessage("LOG: Iniciando inicializaci?n de bibliotecas externas...");
-    // C?digo de inicializaci?n...
-    AddLogMessage("LOG: Inicializaci?n de bibliotecas completada.");
-}
+//void InitializeGeometryLoading() {
+//    AddLogMessage("LOG: Iniciando carga de geometr?a desde ASSIMP...");
+//    // C?digo de carga...
+//    AddLogMessage("LOG: Carga de geometr?a completada.");
+//}
+//
+//void InitializeLibraries() {
+//    AddLogMessage("LOG: Iniciando inicializaci?n de bibliotecas externas...");
+//    // C?digo de inicializaci?n...
+//    AddLogMessage("LOG: Inicializaci?n de bibliotecas completada.");
+//}

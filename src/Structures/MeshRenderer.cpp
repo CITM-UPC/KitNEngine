@@ -33,7 +33,7 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
 
         printf("Numero de malles: %i\n", scene->mNumMeshes);
         AddLogMessage("Numero de malles: %i\n", scene->mNumMeshes);
-        
+       
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
         { // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
@@ -53,13 +53,13 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
             for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
                 aiFace& face = mesh->mFaces[f] ;
                 printf(" Indexs triangle %u: ", f) ;
-                AddLogMessage(" Indexs triangle %u: ", f);
+                AddLogMessage("[WARNING] Indexs triangle %u: ", f);
                 for (unsigned int j = 0; j < face.mNumIndices; j++) {
                     printf("%u ", face.mIndices[j]) ;
                     AddLogMessage("%u ", face.mIndices[j]);
                 }
                 printf("\n") ;
-                AddLogMessage("\n");
+                AddLogMessage("Warning \n");
             }
         }
         std::shared_ptr<MeshRenderer> pp_mesh = std::make_shared<MeshRenderer>(mesh);
