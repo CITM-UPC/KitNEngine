@@ -63,22 +63,27 @@ glm::mat3 Transform::GetWorldBasis() const
 
 glm::vec3 Transform::GetWorldPos() const
 {
-    return (GetWorldMatrix()*glm::vec4(position,1.0f));
+    if (gameObject->parent == nullptr)
+        return position;
+    else
+        return gameObject->parent->transform->GetWorldPos()+position;
 }
 
 void Transform::SetPosition(const glm::vec3& position)
 {
-    basis[3] = glm::vec4(position,basis[3][3]);
+    this->position = position;
 }
 
 void Transform::SetRotation(const glm::quat& rotation)
 {
-    basis = glm::toMat4(rotation);
+    basis = glm::toMat3(rotation);
 }
 
 void Transform::SetScale(const glm::vec3& scale)
 {
-    basis = glm::scale(glm::mat4(),scale);
+    basis[0] = glm::normalize(basis[0]) * scale.x;
+    basis[1] = glm::normalize(basis[1]) * scale.y;
+    basis[2] = glm::normalize(basis[2]) * scale.z;
 }
 
 void Transform::LookAt(const glm::vec3& target, bool worldUp)
