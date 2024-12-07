@@ -53,13 +53,15 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
             for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
                 aiFace& face = mesh->mFaces[f] ;
                 printf(" Indexs triangle %u: ", f) ;
-                AddLogMessage("[WARNING] Indexs triangle %u: ", f);
+                AddLogMessage("Indexs triangle %u: ", f);
                 for (unsigned int j = 0; j < face.mNumIndices; j++) {
+                  
                     printf("%u ", face.mIndices[j]) ;
                     AddLogMessage("%u ", face.mIndices[j]);
+                    
                 }
                 printf("\n") ;
-                AddLogMessage("Warning \n");
+                AddLogMessage("\n");
             }
         }
         std::shared_ptr<MeshRenderer> pp_mesh = std::make_shared<MeshRenderer>(mesh);

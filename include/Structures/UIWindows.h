@@ -2,7 +2,9 @@
 #define UI_WINDOWS_H
 
 #include <imgui.h>
-#include <Component/GameObject.h>
+#include <Component/GameObject.h>ç
+
+
 
 // Declaraciï¿½n de funciones
 void ShowConsoleWindow(bool* p_open);

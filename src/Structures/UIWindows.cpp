@@ -40,6 +40,7 @@ void ShowConsoleWindow(bool* p_open) {
         if (ImGui::SmallButton("Limpiar")) {
             logMessages.clear();
         }
+        
 
         ImGui::Separator();
 
@@ -98,8 +99,14 @@ void ShowConfigWindow(bool* p_open) {
 
         if (ImGui::CollapsingHeader("Configuracion de Modulos")) {
             ImGui::Text("Renderizador, Ventana, Entrada, Texturas...");
+            if (ImGui::SmallButton("Limpiar")) {
+                logMessages.clear();
+            }
+            ImGui::SliderFloat("Ancho de ventana", &WINDOW_SIZE.x, 0.0f, 2000.0f);
+            ImGui::SliderFloat("Alto de ventana", &WINDOW_SIZE.y, 0.0f, 1000.0f);
+            ImGui::SliderInt("Limite de ventana", &Console_cap, 100.0f, 2000.0f);
         }
-
+       
         if (ImGui::CollapsingHeader("Informacion del Sistema")) {
             size_t memoriaUso = GetMemoryUsage();
             ImGui::Text("Uso de Memoria: %zu MB", memoriaUso);
