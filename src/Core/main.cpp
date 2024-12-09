@@ -90,12 +90,11 @@ void init_shaders()
 }*/
 
 static void display_func() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	for (auto& mesh : MeshRenderer::meshes)
+	// TODO desfer-se d'aixo
+	for (auto& mesh : MeshRenderer::renderers)
 	{
 		//draw_mesh(*mesh);
-		mesh->Render();
+		//mesh->Render();
 	}
 }
 
@@ -138,6 +137,14 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path);
 
+	for (auto& mesh : MeshRenderer::renderers)
+	{
+		GameObjectPtr g = make_shared<GameObject>(nullptr);
+		auto c = dynamic_pointer_cast<Component>(mesh);
+		g->AddComponent(c);
+		GameObject::gameObjects.push_back(g);
+	}
+
 	// GameObject arrel per a components de l'editor. No es troba en la llista principal de GameObjects
 	GameObjectPtr editorRootObject = make_shared<GameObject>(nullptr);
 
@@ -154,16 +161,15 @@ int main(int argc, char** argv) {
 	app->Init();
 	app->Start();
 	bool ret = true;
-		InitializeGeometryLoading();
-		InitializeLibraries();
-		for (int p = 0; p < 5; p++) {
-			GameObjectPtr parent = std::make_shared<GameObject>(nullptr);
-			GameObject::gameObjects.push_back(parent);
-			for (int c = 0; c < 3; c++) {
-				GameObjectPtr child = std::make_shared<GameObject>(parent);
-				parent->AddChild(child);
-			}
+	InitializeGeometryLoading();
+	InitializeLibraries();
+	for (int p = 0; p < 5; p++) {GameObjectPtr parent = std::make_shared<GameObject>(nullptr);
+		GameObject::gameObjects.push_back(parent);
+		for (int c = 0; c < 3; c++) {
+			GameObjectPtr child = std::make_shared<GameObject>(parent);
+			parent->AddChild(child);
 		}
+	}
 
 	
 	

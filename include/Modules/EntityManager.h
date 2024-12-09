@@ -18,8 +18,10 @@ public:
     bool Start() override;
     bool PreUpdate() override;
     bool Update() override;
-    bool PostUpdate() override;
+    bool LateUpdate() override;
     bool CleanUp() override;
+
+    bool Render();
 
     void OnDropFile(OnDropEventType& fileName);
 

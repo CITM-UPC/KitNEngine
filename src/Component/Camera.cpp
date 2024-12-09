@@ -48,7 +48,9 @@ bool Camera::Update()
     
     //view = glm::lookAt(position,position+camFront,camUp);
     view = glm::lookAt(position,position+camFront,camUp);
-    t->SetMatrix(view);
+    t->SetRotation(view);
+    t->SetPosition(position);
+    
     projection = glm::perspective(zoom,(float)WINDOW_SIZE.x/(float)WINDOW_SIZE.y,0.1f,100.0f);
 
     if (activeCamera.get() == this && !Shader::shaders.empty())
@@ -109,15 +111,16 @@ void Camera::ProcessInput()
 
     if (FPSCam)
     {
+        //TODO Moviment independent de framerate
         // Moviment camara fps
         if (app->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
-            position += camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+            position += camFront * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
-            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
-            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
         if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
-            position += camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+            position += camRight * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
       
     }
     else
@@ -147,8 +150,8 @@ void Camera::ProcessMouseMovement()
         SDL_SetRelativeMouseMode(SDL_TRUE);
         int x,y;
         app->input->GetMouseMotion(x,y);
-        yaw += x * sensitivity * Time::GetDeltaTime();
-        pitch -= y * sensitivity * Time::GetDeltaTime(); 
+        yaw += x * sensitivity*0.01f; // * Time::GetDeltaTime();
+        pitch -= y * sensitivity*0.01f; // * Time::GetDeltaTime(); 
         if (pitch > 89.0f) pitch = 89.0f;
         if (pitch < -89.0f) pitch = -89.0f;
         //updateCameraVectors();

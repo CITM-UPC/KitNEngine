@@ -9,6 +9,37 @@
 
 #include "Component/GameObject.h"
 
+bool Component::Start()
+{
+    return _active;
+}
+
+bool Component::PreUpdate()
+{
+    _active = _enabled;
+    return _active;
+}
+
+bool Component::Update()
+{
+    return _active;
+}
+
+bool Component::PostUpdate()
+{
+    return _active;
+}
+
+bool Component::InspectorDisplay()
+{
+    return true;
+}
+
+bool Component::CleanUp()
+{
+    return true;
+}
+
 ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newParent)
 {
     if (component == nullptr)
@@ -45,6 +76,11 @@ ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newPa
     return component;
 }
 
+bool Component::IsGameObject() const
+{
+    return false;
+}
+
 bool Component::Enable()
 {
     if (!_enabled)
@@ -61,4 +97,9 @@ bool Component::Disable()
         _enabled = false;
     }
     return _enabled;
+}
+
+bool Component::IsActive() const
+{
+    return _active;
 }

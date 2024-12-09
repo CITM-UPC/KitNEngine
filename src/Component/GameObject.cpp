@@ -12,8 +12,12 @@
 
 #include <utility>
 
+#include "glm/gtc/type_ptr.hpp"
+
 
 std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
+
+GameObjectPtr GameObject::selectedGameObject = nullptr;
 
 GameObjectPtr GameObject::CreateGameObject(GameObjectPtr& parent)
 {
@@ -39,14 +43,12 @@ bool GameObject::Awake()
 {    
     for (GameObjectPtr& go : children)
     {
-        if (go->_active && !go->Awake())
-            return false;
+        if (go->_active) go->Awake();
     }
 
     for (ComponentPtr& go : components)
     {
-        if (go->_active && !go->Awake())
-            return false;
+        if (go->_active) go->Awake();
     }
 
     return true;
@@ -54,18 +56,17 @@ bool GameObject::Awake()
 
 bool GameObject::Start()
 {
-    if (!Component::Start()) return false;
+    // Si l'objecte esta desactivat surt abans
+    if (!Component::Start()) return true;
     
     for (GameObjectPtr& go : children)
     {
-        if (go->_active && !go->Start())
-            return false;
+        if (go->_active) go->Start();
     }
 
     for (ComponentPtr& go : components)
     {
-        if (go->_active && !go->Start())
-            return false;
+        if (go->_active) go->Start();
     }
 
     return true;
@@ -130,8 +131,21 @@ bool GameObject::PostUpdate()
 
 bool GameObject::InspectorDisplay()
 {
-    //Component::InspectorDisplay();
+    float pos[3];
+    glm::vec3 position = transform->GetPosition();
+    pos[0] = position.x;
+    pos[1] = position.y;
+    pos[2] = position.z;
+    
+    Component::InspectorDisplay();
     ImGui::Text("GameObject");
+
+    ImGui::BeginGroup();
+    ImGui::Text(_name.c_str());
+    if (ImGui::SliderFloat3("Position: ", pos,-INFINITY,INFINITY,"%.6f"))
+    {
+        transform->SetPosition(glm::vec3(pos[0], pos[1], pos[2]));
+    }
     
     for (ComponentPtr& component : components)
     {

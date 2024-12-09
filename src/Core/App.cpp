@@ -4,6 +4,9 @@
 
 #include "Core/App.h"
 
+#include <GL/glew.h>
+#include <GL/gl.h>
+
 #include "Modules/Input.h"
 #include "Modules/EntityManager.h"
 
@@ -66,9 +69,13 @@ bool App::Update()
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
     {
-        if (!module->operator->()->PostUpdate())
+        if (!module->operator->()->LateUpdate())
             return false;
     }
+
+    // Render
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    entities->Render();
     
     return true;
 }

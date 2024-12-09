@@ -19,7 +19,7 @@ class MeshRenderer : public Component
 {
 public:
     static const GLuint dataValsInVBO;
-    static std::vector<MeshRendererPtr> meshes;
+    static std::vector<MeshRendererPtr> renderers;
 
     static std::vector<MeshRendererPtr> ImportMeshes(const char* filename);
     

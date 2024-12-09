@@ -3,7 +3,7 @@
 //
 #include "Structures/MeshRenderer.h"
 
-#include <stdexcept>
+#include <iostream>
 
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
@@ -13,9 +13,11 @@
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 
+#include "Structures/UIWindows.h"
+
 const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
 
-std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::meshes = std::vector<std::shared_ptr<MeshRenderer>>();
+std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::renderers = std::vector<std::shared_ptr<MeshRenderer>>();
 
 std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
 {
@@ -53,7 +55,7 @@ std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
         }
         MeshRendererPtr pp_mesh = std::make_shared<MeshRenderer>(mesh);
         if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
-        ret.push_back(MeshRenderer::meshes.emplace_back(pp_mesh));
+        ret.push_back(MeshRenderer::renderers.emplace_back(pp_mesh));
 		
     }
 	
@@ -106,7 +108,7 @@ MeshRenderer::~MeshRenderer()
 
 bool MeshRenderer::Awake()
 {
-    throw std::logic_error("Not implemented");
+    return true;
 }
 
 bool MeshRenderer::Start()
@@ -133,9 +135,21 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glUseProgram(shaderProgram->shaderProgram);
 
-    auto model = gameObject->GetTransform()->GetBasis();
-    auto MVP = glm::value_ptr(Camera::activeCamera->projection*Camera::activeCamera->view*model);
-    __glewUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"MVP"), 1, GL_FALSE, MVP);
+    glm::mat4 model;
+    const float* MVP;
+    
+    if (gameObject != nullptr)
+    {
+        model = gameObject->GetTransform()->GetBasis();
+        MVP = glm::value_ptr(Camera::activeCamera->projection*Camera::activeCamera->view*model);
+    }
+    else
+    {
+        //std::cout << "Renderer not assigned to a GameObject" << std::endl;
+        model = glm::mat4(1.0f);
+        MVP = glm::value_ptr(model);
+    }
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"MVP"), 1, GL_FALSE, MVP);
 
 
     // no activar hasta que se tengan shaders de color funcionales

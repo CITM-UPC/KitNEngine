@@ -16,6 +16,7 @@ class GameObject final: public Component
 public: // Static members/functions
 
     static std::vector<GameObjectPtr> gameObjects;
+    static GameObjectPtr selectedGameObject;
 
     GameObjectPtr CreateGameObject(GameObjectPtr& parent);
     
@@ -60,6 +61,8 @@ public:
 public:
 
     GameObjectPtr parent;
+
+    std::string _name = "GameObject";
 
 private:
 

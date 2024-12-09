@@ -9,9 +9,6 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Camera.h"
-#include "Camera.h"
-#include "Camera.h"
-#include "Camera.h"
 
 class GameObject;
 

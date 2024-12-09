@@ -21,9 +21,7 @@ EntityManager::EntityManager() : Module("EntityManager")
     Input::OnDropFile.addCB([this](OnDropEventType& path){this->OnDropFile(path);});
 }
 
-EntityManager::~EntityManager()
-{
-}
+EntityManager::~EntityManager() = default;
 
 bool EntityManager::Init()
 {
@@ -33,7 +31,9 @@ bool EntityManager::Init()
     if (!Module::Init()) return false;
 
     for (GameObjectPtr& gameObject : GameObject::gameObjects)
-        if (!gameObject->Awake()) return false;
+    {
+        gameObject->Awake();
+    }
 
     _awoken = true;
 
@@ -46,7 +46,7 @@ bool EntityManager::Start()
 
     for (GameObjectPtr& gameObject : GameObject::gameObjects)
     {
-        if (!gameObject->Start()) return false;
+        gameObject->Start();
     }
 
     _started = true;
@@ -56,11 +56,11 @@ bool EntityManager::Start()
 
 bool EntityManager::PreUpdate()
 {
-    if(!Module::PreUpdate()) return false;
+    if(!Module::PreUpdate()) return true;
 
     for (GameObjectPtr& gameObject : GameObject::gameObjects)
     {
-        if (!gameObject->PreUpdate()) return false;
+        gameObject->PreUpdate();
     }
 
     return true;
@@ -68,20 +68,19 @@ bool EntityManager::PreUpdate()
 
 bool EntityManager::Update()
 {
-    if (!Module::Update()) return false;
+    if (!Module::Update()) return true;
     
     for (GameObjectPtr& gameObject : GameObject::gameObjects)
     {
-        if (!gameObject->Update())
-            return false;
+        gameObject->Update();
     }
 
     return true;
 }
 
-bool EntityManager::PostUpdate()
+bool EntityManager::LateUpdate()
 {
-    if (!Module::PostUpdate()) return false;
+    if (!Module::LateUpdate()) return true;
 
     for (GameObjectPtr& gameObject : GameObject::gameObjects)
     {
@@ -105,12 +104,22 @@ bool EntityManager::CleanUp()
     return ret && Module::CleanUp();
 }
 
+bool EntityManager::Render()
+{
+    for ( MeshRendererPtr& renderer : MeshRenderer::renderers)
+    {
+        renderer->Render();
+    }
+    return true;
+}
+
 void EntityManager::OnDropFile(OnDropEventType& fileName)
 {
+    // TODO Deprecar quan tinguem recursos interns de l'editor
     auto extension = std::filesystem::path(fileName).extension().string();
     if (extension == ".fbx")
     {
-        MeshRenderer::meshes.clear();
+        MeshRenderer::renderers.clear();
         auto meshes = MeshRenderer::ImportMeshes(fileName.c_str());
 
         // TODO Guardar la mesh al GameObject a través d'un component
@@ -129,7 +138,7 @@ void EntityManager::OnDropFile(OnDropEventType& fileName)
         Texture::textures.clear();
         const auto id = Texture::ImportTexture(fileName.c_str());
 
-        for (auto& mesh : MeshRenderer::meshes)
+        for (auto& mesh : MeshRenderer::renderers)
         {
             mesh->texture_id = id;
         }
