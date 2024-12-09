@@ -40,11 +40,14 @@ bool Camera::PreUpdate()
 
 bool Camera::Update()
 {
-    ProcessInput();
-
-    // TODO canviar a matriu inicial + transformacions lineals/afins
     // TODO Canviar a utilitzar Transform del GameObject al que esta assignada
     TransformPtr t = gameObject->GetTransform();
+    position = t->GetPosition();
+    camFront = t->GetForward();
+    camRight = t->GetRight();
+    camUp = t->GetUp();
+
+    ProcessInput();
     
     //view = glm::lookAt(position,position+camFront,camUp);
     view = glm::lookAt(position,position+camFront,camUp);
