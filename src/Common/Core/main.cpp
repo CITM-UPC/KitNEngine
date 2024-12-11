@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <chrono>
+#include <memory>
 #include <thread>
 #include <iostream>
 #include <glm/glm.hpp>
@@ -15,7 +16,8 @@
 #include "Component/GameObject.h"
 #include "Component/Camera.h"
 #include "Config/Config.h"
-#include "Core/App.h"
+#include "Editor/Core/Editor.h"
+#include "Game/Core/Game.h"
 #include "Utilities/Time.h"
 #include "Structures/UIWindows.h"
 
@@ -115,7 +117,8 @@ void CleanUp()
 {
 }
 
-AppPtr app = AppPtr(new App);
+GamePtr game = std::make_unique<Game>();
+EditorPtr editor = std::make_unique<Editor>();
 
 int main(int argc, char** argv) {
 	init_SDL();
@@ -158,16 +161,18 @@ int main(int argc, char** argv) {
 
 	//Temp code end
 
-	app->Init();
-	app->Start();
+	game->Init();
+	game->Start();
 	bool ret = true;
 	InitializeGeometryLoading();
 	InitializeLibraries();
-	for (int p = 0; p < 5; p++) {GameObjectPtr parent = std::make_shared<GameObject>(nullptr);
-		GameObject::gameObjects.push_back(parent);
+	for (int p = 0; p < 5; p++)
+	{
+		GameObjectPtr parent = GameObject::CreateGameObject(nullptr);
+		parent->_name = "Parent "+std::to_string(p);
 		for (int c = 0; c < 3; c++) {
-			GameObjectPtr child = std::make_shared<GameObject>(parent);
-			parent->AddChild(child);
+			GameObjectPtr child = GameObject::CreateGameObject(parent);
+			child->_name = "Child "+std::to_string(c);
 		}
 	}
 
@@ -176,7 +181,7 @@ int main(int argc, char** argv) {
 	while (ret) {
 		const auto t0 = hrclock::now();
 
-		ret = app->Update();
+		ret = game->Update();
 		
 		editorRootObject->Update();
 		display_func();
@@ -187,7 +192,7 @@ int main(int argc, char** argv) {
 		if(last_dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - last_dt);
 	}
 
-	app->CleanUp();
+	game->CleanUp();
 	
 	CleanUp();
 	

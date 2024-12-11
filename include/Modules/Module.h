@@ -22,26 +22,28 @@ public:
 
     virtual bool Init() { return true; }
     virtual bool Start() { return true; }
-    virtual bool PreUpdate() { return true; }
-    virtual bool Update() { return true; }
-    virtual bool LateUpdate() { return true; }
-    virtual bool EditorUI() { return true; }
-    virtual bool CleanUp() { return true; }
+    virtual bool PreUpdate() { _active = _enabled; return _active; }
+    virtual bool Update() { return _active; }
+    virtual bool LateUpdate() { return _active; }
+    virtual bool EditorUI() { return _active; }
+    virtual bool CleanUp() = 0;
 
     bool Enable()
     {
-        if (!_active)
+        if (!_enabled)
         {
-            _active = true;
+            _enabled = true;
         }
+        return _enabled;
     }
 
     bool Disable()
     {
-        if (_active)
+        if (_enabled)
         {
-            _active = false;
+            _enabled = false;
         }
+        return _enabled;
     }
 
     [[nodiscard]] const char* GetName() const { return _name.c_str(); }
@@ -51,7 +53,11 @@ protected:
 
     std::string _name;
 
-    bool _active;
+    // Active next frame (change to enable/disable next frame)
+    bool _enabled = true;
+    // Active this frame (don't directly change this)
+    bool _active = true;
+    
     bool _needsReinit;
     bool _awoken = false;
     bool _started = false;

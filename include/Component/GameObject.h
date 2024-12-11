@@ -18,11 +18,12 @@ public: // Static members/functions
     static std::vector<GameObjectPtr> gameObjects;
     static GameObjectPtr selectedGameObject;
 
-    GameObjectPtr CreateGameObject(GameObjectPtr& parent);
+    static GameObjectPtr CreateGameObject(const GameObjectPtr& parent);
+    static GameObjectPtr GetAsSmartPtr(GameObject* ptr);
     
 public:
     
-    GameObject(GameObjectPtr go);
+    GameObject(const GameObjectPtr& parentObject, const std::string& name = "GameObject");
     ~GameObject();
 
     bool Awake() override;
@@ -35,7 +36,7 @@ public:
 
     bool IsGameObject() const override { return true; }
 
-    GameObject& SetParent(GameObject* parent);
+    GameObject& SetParent(GameObjectPtr parent);
     
     [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }
     [[nodiscard]] std::vector<GameObjectPtr>& GetChildren() { return children; }
@@ -61,8 +62,7 @@ public:
 public:
 
     GameObjectPtr parent;
-
-    std::string _name = "GameObject";
+    
 
 private:
 

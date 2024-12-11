@@ -3,7 +3,7 @@
 #include <ostream>
 
 #include "Component/GameObject.h"
-#include "Core/App.h"
+#include "Game/Core/Game.h"
 #include "Structures/Shader.h"
 
 #include "Modules/Input.h"
@@ -15,7 +15,7 @@ Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0
 {
 }
 
-Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : Component(), lookTarget(lookAt), position(pos)
+Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : Component("Camera"), lookTarget(lookAt), position(pos)
 {
     
 }
@@ -43,14 +43,14 @@ bool Camera::Update()
     // TODO Canviar a utilitzar Transform del GameObject al que esta assignada
     TransformPtr t = gameObject->GetTransform();
     position = t->GetPosition();
-    camFront = t->GetForward();
+    camFront = -t->GetForward();
     camRight = t->GetRight();
     camUp = t->GetUp();
 
     ProcessInput();
     
     //view = glm::lookAt(position,position+camFront,camUp);
-    view = glm::lookAt(position,position+camFront,camUp);
+    view = glm::lookAt(position,position+camFront,worldUp);
     t->SetRotation(view);
     t->SetPosition(position);
     
@@ -87,21 +87,21 @@ void Camera::ProcessInput()
     // TODO tecles configurables (ja implementat a modul Input)
     
     // Manejar eventos de teclado para registrar si Alt está presionado
-    altPressed = app->input->GetKey(SDL_SCANCODE_LALT) == KeyState::KEY_REPEAT;
+    altPressed = game->input->GetKey(SDL_SCANCODE_LALT) == KeyState::KEY_REPEAT;
 
-    shiftPressed = app->input->GetKey(SDL_SCANCODE_LSHIFT) == KeyState::KEY_REPEAT;
+    shiftPressed = game->input->GetKey(SDL_SCANCODE_LSHIFT) == KeyState::KEY_REPEAT;
     
     // Manejar eventos del ratón para registrar si el clic derecho está presionado
-    KeyState rButtonState = app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT);
+    KeyState rButtonState = game->input->GetMouseButtonDown(SDL_BUTTON_RIGHT);
     FPSCam = rButtonState == KeyState::KEY_REPEAT;
 
 
-    lMousePressed = app->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KeyState::KEY_REPEAT;
+    lMousePressed = game->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KeyState::KEY_REPEAT;
     arcBallCam = altPressed && lMousePressed;
     
     ProcessMouseMovement();
 
-    if (app->input->GetKey(SDL_SCANCODE_F) == KeyState::KEY_DOWN)
+    if (game->input->GetKey(SDL_SCANCODE_F) == KeyState::KEY_DOWN)
     {
         lookTarget = glm::vec3(0.0f,0.0f,0.0f);
         targetDistance = glm::distance(position,lookTarget);
@@ -109,21 +109,21 @@ void Camera::ProcessInput()
     }
 
     int wheelX, wheelY;
-    app->input->GetMouseWheel(wheelX, wheelY);
+    game->input->GetMouseWheel(wheelX, wheelY);
     
 
     if (FPSCam)
     {
-        //TODO Moviment independent de framerate
+        //TODO Moviment independent de framerate (lerp)
         // Moviment camara fps
-        if (app->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
-            position += camFront * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
-        if (app->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
-            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
-        if (app->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
-            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
-        if (app->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
-            position += camRight * moveStep * (shiftPressed ? speedMulti : 1)*0.01f; // * Time::GetDeltaTime();
+        if (game->input->GetKey(SDL_SCANCODE_W) == KeyState::KEY_REPEAT)
+            position += camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+        if (game->input->GetKey(SDL_SCANCODE_S) == KeyState::KEY_REPEAT)
+            position -= camFront * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+        if (game->input->GetKey(SDL_SCANCODE_A) == KeyState::KEY_REPEAT)
+            position -= camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
+        if (game->input->GetKey(SDL_SCANCODE_D) == KeyState::KEY_REPEAT)
+            position += camRight * moveStep * (shiftPressed ? speedMulti : 1) * Time::GetDeltaTime();
       
     }
     else
@@ -152,7 +152,7 @@ void Camera::ProcessMouseMovement()
     if (FPSCam || arcBallCam) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         int x,y;
-        app->input->GetMouseMotion(x,y);
+        game->input->GetMouseMotion(x,y);
         yaw += x * sensitivity*0.01f; // * Time::GetDeltaTime();
         pitch -= y * sensitivity*0.01f; // * Time::GetDeltaTime(); 
         if (pitch > 89.0f) pitch = 89.0f;

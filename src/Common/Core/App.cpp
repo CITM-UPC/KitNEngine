@@ -2,32 +2,18 @@
 // Created by Roger on 9/11/2024.
 //
 
-#include "Core/App.h"
+#include "Common/Core/App.h"
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-
-#include "Modules/Input.h"
-#include "Modules/EntityManager.h"
-
+#include <stdexcept>
 
 App::App()
 {    
-    // Lib initialization
+
 }
 
 App::~App()
 {
     
-}
-
-bool App::Init()
-{
-    // Module creation
-    AddModule(input = std::make_shared<Input>());
-    AddModule(entities = std::make_shared<EntityManager>());
-    
-    return true;
 }
 
 bool App::Start()
@@ -50,9 +36,6 @@ bool App::Start()
 
 bool App::Update()
 {
-    if(input->GetWindowEvent(WE_QUIT) == true)
-        return false;
-    
     // Main loop
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
@@ -64,7 +47,7 @@ bool App::Update()
     for (auto module = modules.begin(); module != modules.end(); ++module)
     {
         if (!module->operator->()->Update())
-         return false;
+            return false;
     }
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
@@ -72,11 +55,6 @@ bool App::Update()
         if (!module->operator->()->LateUpdate())
             return false;
     }
-
-    // Render
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    entities->Render();
-    
     return true;
 }
 
@@ -95,4 +73,13 @@ bool App::AddModule(const ModulePtr& module)
 {
     modules.push_back(module);
     return true;
+}
+
+ModulePtr App::GetModule(const std::string& name) const
+{
+    for (auto module : modules)
+    {
+        if (module->GetName() == name) return module;
+    }
+    return nullptr;
 }

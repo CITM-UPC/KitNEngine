@@ -1,6 +1,7 @@
 #include "Structures/UIWindows.h"
 #include <windows.h>
 #include <psapi.h>
+#include <sstream>
 #include <vector>
 #include <string>
 #include "Component/Camera.h"
@@ -125,30 +126,47 @@ void ShowHerarkiWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Jerarquia", p_open)) {
-
-        // Variable para almacenar el estado de la selecci?n
-        
+        //ImGui::BeginChild("Scene");        
 
         for (GameObjectPtr& g :  GameObject::gameObjects) {
             DisplayGameObjectsInHierarchy(g);
         }
             
-            
+        //ImGui::EndChild();
     }
     ImGui::End();
 }
 
 
 void DisplayGameObjectsInHierarchy(GameObjectPtr& go){
-    if (ImGui::TreeNode("GameObject"))
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    auto nodeName = go->GetName();
+    ImGui::PushID(nodeName.c_str());
+    
+    auto list = go->GetChildren();
+    if (list.empty())
     {
-
+        flags |= ImGuiTreeNodeFlags_Leaf;
+    }
+    if (ImGui::TreeNodeEx(nodeName.c_str(),flags))
+    {
+        if (GameObject::selectedGameObject == go)
+        {
+            
+        }
+        else if (ImGui::IsItemClicked())
+        {
+            AddLogMessage(go->GetName()+" was clicked on Hierarchy");
+            GameObject::selectedGameObject = go;
+        }
+        
         for (GameObjectPtr& g : go->GetChildren())
         {
             DisplayGameObjectsInHierarchy(g);
         }
         ImGui::TreePop();
     }
+    ImGui::PopID();
 }
 void InitializeGeometryLoading() {
     AddLogMessage("LOG: Iniciando carga de geometr?a desde ASSIMP...");

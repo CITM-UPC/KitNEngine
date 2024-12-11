@@ -4,45 +4,37 @@
 
 #ifndef APP_H
 #define APP_H
+#include "Modules/Module.h"
 #include <memory>
 #include <vector>
 
-#include "Modules/Module.h"
-
-class Input;
-class EntityManager;
 
 class App;
 using AppPtr = std::unique_ptr<App>;
 
+//Base class for program
 class App {
 public: // Methods
 
     App();
 
-    ~App();
+    virtual ~App();
 
-    bool Init();
+    virtual bool Init() = 0;
 
-    bool Start();
+    virtual bool Start();
 
-    bool Update();
+    virtual bool Update();
 
-    bool CleanUp();
+    virtual bool CleanUp();
 
     bool AddModule(const ModulePtr& module);
 
+    [[nodiscard]] ModulePtr GetModule(const std::string& name) const;
 
-public: // Member variables
-
-    std::shared_ptr<Input> input;
-    std::shared_ptr<EntityManager> entities;
-
-private:
+protected:
     std::vector<ModulePtr> modules;
     
 };
-
-extern AppPtr app;
 
 #endif //APP_H

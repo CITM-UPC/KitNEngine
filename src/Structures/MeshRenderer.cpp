@@ -63,7 +63,7 @@ std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
     return ret;
 }
 
-MeshRenderer::MeshRenderer(const aiMesh* mesh)// : kRendererBase()
+MeshRenderer::MeshRenderer(const aiMesh* mesh) : Component("MeshRenderer")
 {
     mainData.reserve(mesh->mNumVertices*3);
     for (unsigned int i = 0; i < mesh->mNumVertices;i++)

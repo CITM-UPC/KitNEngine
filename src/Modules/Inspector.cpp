@@ -58,5 +58,5 @@ bool Inspector::EditorUI()
 
 bool Inspector::CleanUp()
 {
-    return Module::CleanUp();
+    return true;
 }

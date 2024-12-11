@@ -9,6 +9,10 @@
 
 #include "Component/GameObject.h"
 
+Component::Component(const std::string& name) : _name(name)
+{
+}
+
 bool Component::Start()
 {
     return _active;
@@ -102,4 +106,9 @@ bool Component::Disable()
 bool Component::IsActive() const
 {
     return _active;
+}
+
+std::string Component::GetName() const
+{
+    return _name;
 }

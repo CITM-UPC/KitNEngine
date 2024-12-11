@@ -101,7 +101,7 @@ bool EntityManager::CleanUp()
 
     GameObject::gameObjects.clear();
     
-    return ret && Module::CleanUp();
+    return ret;
 }
 
 bool EntityManager::Render()

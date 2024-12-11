@@ -19,19 +19,43 @@ std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>(
 
 GameObjectPtr GameObject::selectedGameObject = nullptr;
 
-GameObjectPtr GameObject::CreateGameObject(GameObjectPtr& parent)
+GameObjectPtr GameObject::CreateGameObject(const GameObjectPtr& parent)
 {
-    GameObjectPtr ret;
+    GameObjectPtr ret = make_shared<GameObject>(parent);
     if (parent == nullptr)
-        ret = gameObjects.emplace_back(ret);
+        gameObjects.push_back(ret);
     else
         parent->AddChild(ret);
 
     return ret;
 }
 
-GameObject::GameObject(GameObjectPtr go) : parent(std::move(go))
+GameObjectPtr GameObject::GetAsSmartPtr(GameObject* ptr)
 {
+    if (ptr == nullptr) return nullptr;
+    
+    if (ptr->parent != nullptr)
+    {
+        auto list = ptr->parent->GetChildren();
+        for (auto it = list.begin(); it != list.end(); it++)
+        {
+            if (it->get() == ptr) return *it;
+        }
+    }
+    else
+    {
+        for (auto it = gameObjects.begin(); it != gameObjects.end(); it++)
+        {
+            if (it->get() == ptr) return *it;
+        }
+    }
+    // Si el codi arriba aqui, has fet alguna cosa MOLT malament (possiblement intentant agafar el smart pointer de la camera d'editor
+    throw std::runtime_error("GameObject::GetAsSmartPtr: gameobject not in main hierarchy and has no parent");
+}
+
+GameObject::GameObject(const GameObjectPtr& parentObject, const std::string& name) : Component(name)
+{
+    SetParent(parentObject);
 }
 
 GameObject::~GameObject()
@@ -146,10 +170,11 @@ bool GameObject::InspectorDisplay()
     {
         transform->SetPosition(glm::vec3(pos[0], pos[1], pos[2]));
     }
+    ImGui::EndGroup();
     
     for (ComponentPtr& component : components)
     {
-        if (!component->InspectorDisplay()) return false;
+        component->InspectorDisplay();
     }
     
     return true;
@@ -165,9 +190,9 @@ bool GameObject::CleanUp()
     return ret;
 }
 
-GameObject& GameObject::SetParent(GameObject* parent)
+GameObject& GameObject::SetParent(GameObjectPtr parent)
 {
-    this->parent = std::make_shared<GameObject>(*parent);
+    this->parent = std::move(parent);
     
     return *this;
 }
@@ -189,11 +214,11 @@ GameObject& GameObject::AddChild(GameObject* g)
 {
     if (g != this && g->parent.get() != this)
     {
-        GameObjectPtr ptr = std::make_shared<GameObject>(*g);
+        GameObjectPtr ptr = GetAsSmartPtr(g);
         children.push_back(ptr);
     }
     
-    return *this;
+    return *g;
 }
 
 void GameObject::RemoveChild(const GameObject* child)

@@ -5,6 +5,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <memory>
+#include <string>
 
 class GameObject;
 using GameObjectPtr = std::shared_ptr<GameObject>;
@@ -16,7 +17,7 @@ class Component
 {
 protected:
     // Do not call this directly, use a GameObject's AddComponent method instead
-    explicit Component() = default;
+    explicit Component(const std::string& name = "Unnamed");
     
 
 public:
@@ -38,9 +39,14 @@ public:
 
     [[nodiscard]] bool IsActive() const;
 
+    [[nodiscard]] std::string GetName() const;
+
 public:
     // El GameObject al qual està assignat aquest component
     GameObject* gameObject = nullptr;
+
+    std::string _name;
+
 
 protected:
     // Active next frame (change to enable/disable next frame)
