@@ -126,41 +126,35 @@ void ShowHerarkiWindow(bool* p_open) {
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Jerarquia", p_open)) {
-        //ImGui::BeginChild("Scene");        
-
-        for (GameObjectPtr& g :  GameObject::gameObjects) {
+        ImGui::PushID("Jerarquia");
+        for (std::shared_ptr<GameObject>& g :  GameObject::gameObjects) {
             DisplayGameObjectsInHierarchy(g);
         }
-            
-        //ImGui::EndChild();
+        ImGui::PopID();
     }
     ImGui::End();
 }
 
 
-void DisplayGameObjectsInHierarchy(GameObjectPtr& go){
+void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
     auto nodeName = go->GetName();
-    ImGui::PushID(nodeName.c_str());
+    ImGui::PushID(go.get());
     
     auto list = go->GetChildren();
-    if (list.empty())
-    {
-        flags |= ImGuiTreeNodeFlags_Leaf;
-    }
+    if (list.empty())                           flags |= ImGuiTreeNodeFlags_Leaf;
+    if (GameObject::selectedGameObject == go)   flags |= ImGuiTreeNodeFlags_Selected;
+    
     if (ImGui::TreeNodeEx(nodeName.c_str(),flags))
     {
-        if (GameObject::selectedGameObject == go)
+        
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
         {
-            
-        }
-        else if (ImGui::IsItemClicked())
-        {
-            AddLogMessage(go->GetName()+" was clicked on Hierarchy");
+            AddLogMessage(go->GetName()+" seleccionado desde jerarquia");
             GameObject::selectedGameObject = go;
         }
         
-        for (GameObjectPtr& g : go->GetChildren())
+        for (std::shared_ptr<GameObject>& g : go->GetChildren())
         {
             DisplayGameObjectsInHierarchy(g);
         }

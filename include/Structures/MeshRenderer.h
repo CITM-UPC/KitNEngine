@@ -12,16 +12,14 @@
 #include "assimp/mesh.h"
 
 class Shader;
-class MeshRenderer;
-using MeshRendererPtr = std::shared_ptr<MeshRenderer>;
 
 class MeshRenderer : public Component
 {
 public:
     static const GLuint dataValsInVBO;
-    static std::vector<MeshRendererPtr> renderers;
+    static std::vector<std::shared_ptr<MeshRenderer>> renderers;
 
-    static std::vector<MeshRendererPtr> ImportMeshes(const char* filename);
+    static std::vector<std::shared_ptr<MeshRenderer>> ImportMeshes(const char* filename);
     
     explicit MeshRenderer(const aiMesh* mesh);
     ~MeshRenderer();

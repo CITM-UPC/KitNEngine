@@ -5,7 +5,9 @@
 #include "Component/GameObject.h"
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <iostream>
+#include <memory>
 #include <memory>
 #include <ostream>
 #include <stdexcept>
@@ -15,13 +17,15 @@
 #include "glm/gtc/type_ptr.hpp"
 
 
-std::vector<GameObjectPtr> GameObject::gameObjects = std::vector<GameObjectPtr>();
+std::vector<std::shared_ptr<GameObject>> GameObject::gameObjects = std::vector<std::shared_ptr<GameObject>>();
 
-GameObjectPtr GameObject::selectedGameObject = nullptr;
+std::shared_ptr<GameObject> GameObject::selectedGameObject = nullptr;
 
-GameObjectPtr GameObject::CreateGameObject(const GameObjectPtr& parent)
+std::shared_ptr<GameObject> GameObject::CreateGameObject(std::shared_ptr<GameObject> parent, std::string name)
 {
-    GameObjectPtr ret = make_shared<GameObject>(parent);
+    auto ret = std::make_shared<GameObject>();
+    
+    ret->gameObject = ret; // Guarda referencia de smart pointer per acces rapid des d'altres scripts
     if (parent == nullptr)
         gameObjects.push_back(ret);
     else
@@ -30,7 +34,9 @@ GameObjectPtr GameObject::CreateGameObject(const GameObjectPtr& parent)
     return ret;
 }
 
-GameObjectPtr GameObject::GetAsSmartPtr(GameObject* ptr)
+// OBSOLET, utilitza GetGameObject sobre el punter de GameObject
+// Cerca un smart pointer corresponent al punter passat per parametre
+std::shared_ptr<GameObject> GameObject::GetAsSmartPtr(GameObject* ptr)
 {
     if (ptr == nullptr) return nullptr;
     
@@ -53,9 +59,8 @@ GameObjectPtr GameObject::GetAsSmartPtr(GameObject* ptr)
     throw std::runtime_error("GameObject::GetAsSmartPtr: gameobject not in main hierarchy and has no parent");
 }
 
-GameObject::GameObject(const GameObjectPtr& parentObject, const std::string& name) : Component(name)
+GameObject::GameObject(const std::string& name) : Component(name)
 {
-    SetParent(parentObject);
 }
 
 GameObject::~GameObject()
@@ -65,12 +70,12 @@ GameObject::~GameObject()
 
 bool GameObject::Awake()
 {    
-    for (GameObjectPtr& go : children)
+    for (std::shared_ptr<GameObject>& go : children)
     {
         if (go->_active) go->Awake();
     }
 
-    for (ComponentPtr& go : components)
+    for (std::shared_ptr<Component>& go : components)
     {
         if (go->_active) go->Awake();
     }
@@ -83,12 +88,12 @@ bool GameObject::Start()
     // Si l'objecte esta desactivat surt abans
     if (!Component::Start()) return true;
     
-    for (GameObjectPtr& go : children)
+    for (std::shared_ptr<GameObject>& go : children)
     {
         if (go->_active) go->Start();
     }
 
-    for (ComponentPtr& go : components)
+    for (std::shared_ptr<Component>& go : components)
     {
         if (go->_active) go->Start();
     }
@@ -100,13 +105,13 @@ bool GameObject::PreUpdate()
 {
     if (!Component::PreUpdate()) return false;
     
-    for (GameObjectPtr& go : children)
+    for (std::shared_ptr<GameObject>& go : children)
     {
         if (go->_active && !go->PreUpdate())
             return false;
     }
 
-    for (ComponentPtr& go : components)
+    for (std::shared_ptr<Component>& go : components)
     {
         if (go->_active && !go->PreUpdate())
             return false;
@@ -119,13 +124,13 @@ bool GameObject::Update()
 {
     if (!Component::Update()) return false;
     
-    for (GameObjectPtr& go : children)
+    for (std::shared_ptr<GameObject>& go : children)
     {
         if (go->_active && !go->Update())
             return false;
     }
 
-    for (ComponentPtr& go : components)
+    for (std::shared_ptr<Component>& go : components)
     {
         if (go->_active && !go->Update())
             return false;
@@ -138,13 +143,13 @@ bool GameObject::PostUpdate()
 {
     if (!Component::PostUpdate()) return false;
 
-    for (GameObjectPtr& go : children)
+    for (std::shared_ptr<GameObject>& go : children)
     {
         if (go->_active && !go->PostUpdate())
             return false;
     }
 
-    for (ComponentPtr& go : components)
+    for (std::shared_ptr<Component>& go : components)
     {
         if (go->_active && !go->PostUpdate())
             return false;
@@ -165,14 +170,15 @@ bool GameObject::InspectorDisplay()
     ImGui::Text("GameObject");
 
     ImGui::BeginGroup();
-    ImGui::Text(_name.c_str());
-    if (ImGui::SliderFloat3("Position: ", pos,-INFINITY,INFINITY,"%.6f"))
+    ImGui::InputText("Nom:", &_name);
+    //TODO trobar com posar 3 valors editables a la mateixa fila
+    /*if (ImGui::SliderFloat3("Position: ", pos,(-INFINITY),(INFINITY),"%.6f"))
     {
         transform->SetPosition(glm::vec3(pos[0], pos[1], pos[2]));
-    }
+    }*/
     ImGui::EndGroup();
     
-    for (ComponentPtr& component : components)
+    for (std::shared_ptr<Component>& component : components)
     {
         component->InspectorDisplay();
     }
@@ -190,42 +196,37 @@ bool GameObject::CleanUp()
     return ret;
 }
 
-GameObject& GameObject::SetParent(GameObjectPtr parent)
+GameObject& GameObject::SetParent(std::shared_ptr<GameObject> parent)
 {
-    this->parent = std::move(parent);
+    std::shared_ptr<GameObject> ptr = GetGameObject();
+    if (parent != nullptr)
+        parent->RemoveChild(ptr);
+    parent->AddChild(ptr);
+    //this->parent = std::move(parent);
     
     return *this;
 }
 
-void GameObject::RemoveComponent(Component* component)
+void GameObject::RemoveComponent(std::shared_ptr<Component>& component)
 {
-    // TODO prova aixo
-    std::cerr << "GameObject::RemoveComponent called - Implementation untested: Expect errors" << std::endl;
-    auto pred = [component](const ComponentPtr& c){return c.get() == component;};
+    auto pred = [component](const std::shared_ptr<Component>& c){return c == component;};
     std::erase_if(components, pred);
 }
 
-GameObject& GameObject::AddChild(GameObjectPtr& g)
+GameObject& GameObject::AddChild(std::shared_ptr<GameObject>& g)
 {
-    return AddChild(g.get());
-}
-
-GameObject& GameObject::AddChild(GameObject* g)
-{
-    if (g != this && g->parent.get() != this)
+    if (g.get() != this && g->parent.get() != this)
     {
-        GameObjectPtr ptr = GetAsSmartPtr(g);
-        children.push_back(ptr);
+        children.push_back(g);
+        g->parent = GetGameObject();
     }
     
     return *g;
 }
 
-void GameObject::RemoveChild(const GameObject* child)
+void GameObject::RemoveChild(const std::shared_ptr<GameObject>& child)
 {
-    // TODO prova aixo
-    std::cerr << "GameObject::RemoveChild called - Implementation untested: Expect errors" << std::endl;
-    auto pred = [child](const GameObjectPtr& go){return go.get() == child;};
+    auto pred = [child](const std::shared_ptr<GameObject>& go){return go == child;};
     std::erase_if(children, pred);
 }
 
@@ -235,7 +236,7 @@ T& GameObject::GetComponentOfType() const
     static_assert(std::is_base_of_v<Component, T>, "T ha de derivar de Component");
     static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha de ser un GameObject. Utilitza GetChild per obtenir un GameObject");
 
-    for (const ComponentPtr& component : components) {
+    for (const std::shared_ptr<Component>& component : components) {
         // Attempt to cast to the desired type and return it if successful
         auto& comp = dynamic_cast<Component&>(*component);
         if (T& castedComponent = dynamic_cast<T>(comp)) {
@@ -246,15 +247,19 @@ T& GameObject::GetComponentOfType() const
     return nullptr;
 }
 
-ComponentPtr GameObject::AddComponent(ComponentPtr& c)
+std::shared_ptr<Component> GameObject::AddComponent(std::shared_ptr<Component> c)
 {
     if (dynamic_pointer_cast<GameObject>(c) != nullptr)
         throw std::logic_error("Component must not be a GameObject");
     
+    auto thisptr = gameObject.lock();
+    auto componentParent = c->gameObject.lock();
+    if (componentParent != nullptr && componentParent != thisptr)
+    {
+        componentParent->RemoveComponent(c);
+    }
     
-    if (c->gameObject != this)
-        Component::SetGameObject(c, this);
-
+    c->gameObject = thisptr;
     components.push_back(c);
 
     if (_awoken && c->_enabled && !c->_awoken)

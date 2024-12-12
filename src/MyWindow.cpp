@@ -6,6 +6,9 @@
 #include <iostream>
 #include <Component/Formas Primitivas.h>
 #include <Structures/UIWindows.h>
+
+#include "Editor/Core/Editor.h"
+#include "Modules/Inspector.h"
 using namespace std;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
@@ -43,15 +46,19 @@ MyWindow::~MyWindow() {
     SDL_DestroyWindow(static_cast<SDL_Window*>(_window));
 }
 
+void MyWindow::StartFrame() const
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+}
+
 void MyWindow::swapBuffers() const {
     static bool showConsole = false;
     static bool showConfig = false;
     static bool showInspector = false;
     static bool showherarqui = false;
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Archivo")) {
@@ -88,9 +95,12 @@ void MyWindow::swapBuffers() const {
         ImGui::EndMainMenuBar();
     }
 
+    editor->inspector->SetState(showInspector);
+    
+
     ShowConsoleWindow(&showConsole);
     ShowConfigWindow(&showConfig);
-    ShowInspectorWindow(&showInspector);
+    //ShowInspectorWindow(&showInspector);
     ShowHerarkiWindow(&showherarqui);
     
     ShowAboutPopup();

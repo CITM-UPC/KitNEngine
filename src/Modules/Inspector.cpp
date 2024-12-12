@@ -6,7 +6,7 @@
 #include "Structures/UIWindows.h"
 #include <imgui.h>
 
-Inspector::Inspector() : Module("Inspector")
+Inspector::Inspector() : Module("Inspector", false)
 {
     
 }
@@ -17,43 +17,49 @@ Inspector::~Inspector()
 
 bool Inspector::Init()
 {
-    return Module::Init();
+    Module::Init();
+    return true;
 }
 
 bool Inspector::Start()
 {
-    return Module::Start();
+    Module::Start();
+    return true;
 }
 
 bool Inspector::PreUpdate()
 {
-    return Module::PreUpdate();
+    _active = _enabled;
+    Module::PreUpdate();
+    return true;
 }
 
 bool Inspector::Update()
 {
-    return Module::Update();
+    Module::Update();
+    return true;
 }
 
 bool Inspector::LateUpdate()
 {
-    return Module::LateUpdate();
+    Module::LateUpdate();
+    return true;
 }
 
 bool Inspector::EditorUI()
 {
+    if (!Module::EditorUI()) return true;
+    
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
-    if (ImGui::Begin("Inspector", &_active)) {
-        if (GameObject::selectedGameObject != nullptr)
-        GameObject::selectedGameObject->InspectorDisplay();
-        
-
-
+    if (ImGui::Begin("Inspector", &_enabled)) {
+        if (GameObject::selectedGameObject != nullptr
+            && !GameObject::selectedGameObject->InspectorDisplay())
+            return false;
     }
     ImGui::End();
-    return Module::EditorUI();
+    return true;
 }
 
 bool Inspector::CleanUp()

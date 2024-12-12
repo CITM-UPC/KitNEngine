@@ -40,19 +40,19 @@ bool App::Update()
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
     {
-        if (!module->operator->()->PreUpdate()) // DUBTE: No em deixa accedir directament a la funció de l'objecte
+        if (!(module->operator->()->PreUpdate())) // DUBTE: No em deixa accedir directament a la funció de l'objecte
             return false;
     }
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
     {
-        if (!module->operator->()->Update())
+        if (!(module->operator->()->Update()))
             return false;
     }
     
     for (auto module = modules.begin(); module != modules.end(); ++module)
     {
-        if (!module->operator->()->LateUpdate())
+        if (!(module->operator->()->LateUpdate()))
             return false;
     }
     return true;

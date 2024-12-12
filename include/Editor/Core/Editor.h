@@ -5,7 +5,7 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 #include "Common/Core/App.h"
-
+#include "Component/GameObject.h"
 
 class Inspector;
 
@@ -27,6 +27,9 @@ public: // Methods
 public: // Member variables
 
     std::shared_ptr<Inspector> inspector;
+
+    std::shared_ptr<GameObject> editorObject;
+    std::shared_ptr<Camera> editorCamera;
     
 };
 

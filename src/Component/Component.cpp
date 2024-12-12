@@ -44,7 +44,9 @@ bool Component::CleanUp()
     return true;
 }
 
-ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newParent)
+// NOTE Aixo probablement necessiti un refactor
+std::shared_ptr<Component> Component::SetGameObject(std::shared_ptr<GameObject>& newParent,
+                                                    std::shared_ptr<Component>& component)
 {
     if (component == nullptr)
     {
@@ -59,18 +61,20 @@ ComponentPtr Component::SetGameObject(ComponentPtr& component, GameObject* newPa
 
     if (component->IsGameObject())
     {
-        GameObjectPtr go = std::dynamic_pointer_cast<GameObject>(component);
-        go->parent->RemoveChild(go.get());
+        std::shared_ptr<GameObject> go = std::dynamic_pointer_cast<GameObject>(component);
+        if (go->parent != nullptr)
+            go->parent->RemoveChild(go);
         newParent->AddChild(go);
     }
     else
     {
-        // TODO trobar una forma adequada de transferir components entre gameobjects
+        // TODO trobar una forma mes adequada de transferir components entre gameobjects
 
         // Només pot estar assignat a un GameObject
-        if (component->gameObject != nullptr)
+        std::shared_ptr<GameObject> g = component->gameObject.lock();
+        if (g != nullptr)
         {
-            component->gameObject->RemoveComponent(component.get());
+            g->RemoveComponent(component);
         }
 
         component->gameObject = newParent;
@@ -111,4 +115,19 @@ bool Component::IsActive() const
 std::string Component::GetName() const
 {
     return _name;
+}
+
+std::shared_ptr<GameObject> Component::GetGameObject(bool exceptOnNull) const
+{
+    std::shared_ptr<GameObject> g = gameObject.lock();
+    if (g == nullptr && exceptOnNull)
+    {
+        throw std::runtime_error("Component::GetGameObject(): Component not attached to a GameObject");
+    }
+    return g;
+}
+
+std::shared_ptr<Component> Component::GetSmartPtr() const
+{
+    return _selfPtr.lock();
 }

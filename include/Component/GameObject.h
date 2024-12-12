@@ -11,19 +11,19 @@
 #include <vector>
 
 // Evita instanciar GameObjects directament, utilitza CreateGameObject() en el seu lloc
-class GameObject final: public Component
+class GameObject final: public Component, public std::enable_shared_from_this<GameObject>
 {
 public: // Static members/functions
 
-    static std::vector<GameObjectPtr> gameObjects;
-    static GameObjectPtr selectedGameObject;
+    static std::vector<std::shared_ptr<GameObject>> gameObjects;
+    static std::shared_ptr<GameObject> selectedGameObject;
 
-    static GameObjectPtr CreateGameObject(const GameObjectPtr& parent);
-    static GameObjectPtr GetAsSmartPtr(GameObject* ptr);
+    static std::shared_ptr<GameObject> CreateGameObject(std::shared_ptr<GameObject> parent, std::string name = "GameObject");
+    static std::shared_ptr<GameObject> GetAsSmartPtr(GameObject* ptr);
     
 public:
     
-    GameObject(const GameObjectPtr& parentObject, const std::string& name = "GameObject");
+    explicit GameObject(const std::string& name = "GameObject");
     ~GameObject();
 
     bool Awake() override;
@@ -36,11 +36,11 @@ public:
 
     bool IsGameObject() const override { return true; }
 
-    GameObject& SetParent(GameObjectPtr parent);
+    GameObject& SetParent(std::shared_ptr<GameObject> parent);
     
-    [[nodiscard]] GameObjectPtr& GetChild(glm::uint index) { return children.at(index); }
-    [[nodiscard]] std::vector<GameObjectPtr>& GetChildren() { return children; }
-    [[nodiscard]] const TransformPtr GetTransform() { return transform; }
+    [[nodiscard]] std::shared_ptr<GameObject>& GetChild(glm::uint index) { return children.at(index); }
+    [[nodiscard]] std::vector<std::shared_ptr<GameObject>>& GetChildren() { return children; }
+    [[nodiscard]] TransformPtr GetTransform() { return transform; }
 
     template <typename T>
     [[nodiscard]] T& GetComponentOfType() const;
@@ -51,27 +51,24 @@ public:
     
     
     // Afegeix el component a la llista d'aquest GameObject
-    ComponentPtr AddComponent(ComponentPtr& c);
-    void RemoveComponent(Component* component);
+    std::shared_ptr<Component> AddComponent(std::shared_ptr<Component> c);
+    void RemoveComponent(std::shared_ptr<Component>& component);
 
-    GameObject& AddChild(GameObjectPtr& g);
-    GameObject& AddChild(GameObject* g);
-    void RemoveChild(const GameObject* child);
+    GameObject& AddChild(std::shared_ptr<GameObject>& g);
+    void RemoveChild(const std::shared_ptr<GameObject>& child);
 
 
 public:
 
-    GameObjectPtr parent;
+    std::shared_ptr<GameObject> parent;
     
 
 private:
-
-    GameObject* gameObject = this;
     
     TransformPtr transform = std::make_shared<Transform>(this);
 
-    std::vector<ComponentPtr> components;
-    std::vector<GameObjectPtr> children;
+    std::vector<std::shared_ptr<Component>> components;
+    std::vector<std::shared_ptr<GameObject>> children;
 
     friend Transform;
 };
@@ -83,15 +80,8 @@ std::shared_ptr<T> GameObject::AddComponentOfType(Args&&... args)
 {
     static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha derivar de GameObject");
 
-    std::shared_ptr<T> c = std::make_shared<T>(std::forward<Args>(args)...);
-    ComponentPtr componentCast = std::dynamic_pointer_cast<Component>(c);
-    SetGameObject(componentCast, this);
-    components.push_back(c);
-
-    if (_awoken && c->_enabled && !c->_awoken)
-    {
-        c->Awake();
-    }
+    std::shared_ptr<T> c = Component::CreateComponentOfType<T>(std::forward<Args>(args)...);
+    AddComponent(c);
 
     return c;
 }

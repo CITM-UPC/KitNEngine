@@ -19,6 +19,7 @@ public:
 	MyWindow(const std::string& title, int w, int h);
 	~MyWindow();
 
+	void StartFrame() const;
 	void swapBuffers() const;
 
 };

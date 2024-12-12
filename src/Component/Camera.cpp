@@ -9,6 +9,9 @@
 #include "Modules/Input.h"
 #include "Utilities/Time.h"
 
+#include <Config/Config.h>
+
+
 std::shared_ptr<Camera> Camera::activeCamera;
 
 Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))
@@ -17,12 +20,11 @@ Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0
 
 Camera::Camera(glm::vec3 pos, glm::vec3 lookAt) : Component("Camera"), lookTarget(lookAt), position(pos)
 {
-    
 }
 
 bool Camera::Awake()
 {
-    
+    if (activeCamera == nullptr) activeCamera = std::dynamic_pointer_cast<Camera>(GetSmartPtr());
     targetDistance = glm::distance(position,lookTarget);
     updateCameraVectors();
     return true;
@@ -40,8 +42,7 @@ bool Camera::PreUpdate()
 
 bool Camera::Update()
 {
-    // TODO Canviar a utilitzar Transform del GameObject al que esta assignada
-    TransformPtr t = gameObject->GetTransform();
+    TransformPtr t = GetGameObject()->GetTransform();
     position = t->GetPosition();
     camFront = -t->GetForward();
     camRight = t->GetRight();
@@ -196,5 +197,5 @@ void Camera::updateCameraVectors()
 
 glm::mat4 Camera::GetViewProjMatrix() const
 {
-    return projection * gameObject->GetTransform()->GetBasis();
+    return projection * GetGameObject()->GetTransform()->GetBasis();
 }

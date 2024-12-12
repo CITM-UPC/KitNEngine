@@ -13,7 +13,7 @@ using ModulePtr = std::shared_ptr<Module>;
 class Module {
 public:
     
-    explicit Module(const char* name, bool startEnabled = true, bool needsReinit = false) : _name(name), _active(startEnabled), _needsReinit(needsReinit)
+    explicit Module(const char* name, bool startEnabled = true, bool needsReinit = false) : _name(name), _enabled(startEnabled), _active(startEnabled), _needsReinit(needsReinit)
     {
         
     }
@@ -44,6 +44,12 @@ public:
             _enabled = false;
         }
         return _enabled;
+    }
+
+    // Enable/Disable segons un bool
+    bool SetState(bool state)
+    {
+        return _enabled = state;
     }
 
     [[nodiscard]] const char* GetName() const { return _name.c_str(); }

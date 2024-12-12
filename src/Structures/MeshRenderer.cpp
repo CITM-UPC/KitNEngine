@@ -19,9 +19,9 @@ const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
 
 std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::renderers = std::vector<std::shared_ptr<MeshRenderer>>();
 
-std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
+std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char* filename)
 {
-    std::vector<MeshRendererPtr> ret;
+    std::vector<std::shared_ptr<MeshRenderer>> ret;
     
     const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
 
@@ -53,7 +53,7 @@ std::vector<MeshRendererPtr> MeshRenderer::ImportMeshes(const char* filename)
                 printf("\n") ;
             }
         }
-        MeshRendererPtr pp_mesh = std::make_shared<MeshRenderer>(mesh);
+        std::shared_ptr<MeshRenderer> pp_mesh = std::make_shared<MeshRenderer>(mesh);
         if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
         ret.push_back(MeshRenderer::renderers.emplace_back(pp_mesh));
 		
@@ -137,10 +137,10 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
 
     glm::mat4 model;
     const float* MVP;
-    
-    if (gameObject != nullptr)
+    auto g = gameObject.lock();
+    if (g != nullptr)
     {
-        model = gameObject->GetTransform()->GetBasis();
+        model = g->GetTransform()->GetBasis();
         MVP = glm::value_ptr(Camera::activeCamera->projection*Camera::activeCamera->view*model);
     }
     else

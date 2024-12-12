@@ -26,11 +26,11 @@ EntityManager::~EntityManager() = default;
 bool EntityManager::Init()
 {
     // TODO canviar LOG() per implementació pròpia
-    LOG("Loading Entity Manager", 0);
+    LOG("Loading Entity Manager");
 
     if (!Module::Init()) return false;
 
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         gameObject->Awake();
     }
@@ -44,7 +44,7 @@ bool EntityManager::Start()
 {
     if (!Module::Start()) return false;
 
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         gameObject->Start();
     }
@@ -58,7 +58,7 @@ bool EntityManager::PreUpdate()
 {
     if(!Module::PreUpdate()) return true;
 
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         gameObject->PreUpdate();
     }
@@ -70,7 +70,7 @@ bool EntityManager::Update()
 {
     if (!Module::Update()) return true;
     
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         gameObject->Update();
     }
@@ -82,7 +82,7 @@ bool EntityManager::LateUpdate()
 {
     if (!Module::LateUpdate()) return true;
 
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         if (!gameObject->PostUpdate())
             return false;
@@ -94,7 +94,7 @@ bool EntityManager::LateUpdate()
 bool EntityManager::CleanUp()
 {
     bool ret = true;
-    for (GameObjectPtr& gameObject : GameObject::gameObjects)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         ret &= gameObject->CleanUp();
     }
@@ -106,7 +106,7 @@ bool EntityManager::CleanUp()
 
 bool EntityManager::Render()
 {
-    for ( MeshRendererPtr& renderer : MeshRenderer::renderers)
+    for ( std::shared_ptr<MeshRenderer>& renderer : MeshRenderer::renderers)
     {
         renderer->Render();
     }
@@ -115,20 +115,13 @@ bool EntityManager::Render()
 
 void EntityManager::OnDropFile(OnDropEventType& fileName)
 {
-    // TODO Deprecar quan tinguem recursos interns de l'editor
+    // TODO Deprecar quan tinguem recursos interns de l'editor, o com a minim fer que no elimini tots els objectes existents
     auto extension = std::filesystem::path(fileName).extension().string();
     if (extension == ".fbx")
     {
         MeshRenderer::renderers.clear();
         auto meshes = MeshRenderer::ImportMeshes(fileName.c_str());
 
-        // TODO Guardar la mesh al GameObject a través d'un component
-        // GameObjectPtr gameObject = GameObjectPtr(new GameObject(nullptr));
-        // for (auto& mesh : meshes)
-        // {
-        //     auto g = gameObject->AddChild(GameObjectPtr(new GameObject(nullptr)));
-        //     g->
-        // }
     }
     else if (extension == ".png" || extension == ".PNG"
         || extension == ".JPG" || extension == ".JPEG" || extension == ".jpg" || extension == ".jpeg"

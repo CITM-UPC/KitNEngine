@@ -13,6 +13,6 @@ void ShowAboutPopup();
 void ShowHerarkiWindow(bool* p_open);
 void InitializeGeometryLoading();
 void InitializeLibraries();
-void DisplayGameObjectsInHierarchy(GameObjectPtr& go);
+void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go);
 
 #endif 

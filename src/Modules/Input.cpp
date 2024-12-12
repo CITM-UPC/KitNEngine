@@ -13,7 +13,7 @@ Event<OnDropEventType&> Input::OnDropFile;
 
 Input::Input() : Module("Input")
 {
-	// TODO canviar per std::array
+	// TODO canviar per std::array (?)
 	keyboard = new KeyState[MAX_KEYS];
 	memset(keyboard, KEY_IDLE, sizeof(KeyState) * MAX_KEYS);
 	memset(mouseButtons, KEY_IDLE, sizeof(KeyState) * NUM_MOUSE_BUTTONS);
@@ -41,7 +41,7 @@ bool Input::Awake()
 		ret = false;
 	}
 
-	// TODO Asignacion de teclas personalizadas
+	// TODO Asignacio de tecles personalitzades des de l'editor 
 
 	// filePath = config.attribute("bindingsFile").as_string("controls.xml");
 	//
@@ -416,7 +416,7 @@ void ControlBinding::Update(Input* input)
 		else
 		{
 			axisVal = axisTemp / 32767.0f;
-			// TODO deadzone por config
+			// TODO deadzone per config
 			//if (abs(axisVal) <= DEAD_ZONE) axisVal = 0;
 		}
 		// Clamp function

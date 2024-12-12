@@ -91,15 +91,6 @@ void init_shaders()
 	
 }*/
 
-static void display_func() {
-	// TODO desfer-se d'aixo
-	for (auto& mesh : MeshRenderer::renderers)
-	{
-		//draw_mesh(*mesh);
-		//mesh->Render();
-	}
-}
-
 
 static bool LoadModels(const char* filename)
 {
@@ -142,14 +133,13 @@ int main(int argc, char** argv) {
 
 	for (auto& mesh : MeshRenderer::renderers)
 	{
-		GameObjectPtr g = make_shared<GameObject>(nullptr);
-		auto c = dynamic_pointer_cast<Component>(mesh);
-		g->AddComponent(c);
-		GameObject::gameObjects.push_back(g);
+		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(nullptr);
+		//auto c = dynamic_pointer_cast<Component>(mesh);
+		g->AddComponent(mesh);
 	}
 
 	// GameObject arrel per a components de l'editor. No es troba en la llista principal de GameObjects
-	GameObjectPtr editorRootObject = make_shared<GameObject>(nullptr);
+	/*std::shared_ptr<GameObject> editorRootObject = make_shared<GameObject>("EditorObject");
 
 	// Creacio generica de component
 	Camera::activeCamera = editorRootObject->AddComponentOfType<Camera>(glm::vec3(0.0f, 0.0f, -3.0f),
@@ -157,22 +147,23 @@ int main(int argc, char** argv) {
 	
 	
 	editorRootObject->Awake();
-	editorRootObject->Start();
+	editorRootObject->Start();*/
 
 	//Temp code end
 
 	game->Init();
+	editor->Init();
 	game->Start();
+	editor->Start();
+	
 	bool ret = true;
 	InitializeGeometryLoading();
 	InitializeLibraries();
 	for (int p = 0; p < 5; p++)
 	{
-		GameObjectPtr parent = GameObject::CreateGameObject(nullptr);
-		parent->_name = "Parent "+std::to_string(p);
+		std::shared_ptr<GameObject> parent = GameObject::CreateGameObject(nullptr,"Parent "+std::to_string(p));
 		for (int c = 0; c < 3; c++) {
-			GameObjectPtr child = GameObject::CreateGameObject(parent);
-			child->_name = "Child "+std::to_string(c);
+			std::shared_ptr<GameObject> child = GameObject::CreateGameObject(parent,"Child "+std::to_string(c));
 		}
 	}
 
@@ -180,11 +171,10 @@ int main(int argc, char** argv) {
 	
 	while (ret) {
 		const auto t0 = hrclock::now();
+		window.StartFrame();
 
-		ret = game->Update();
-		
-		editorRootObject->Update();
-		display_func();
+		ret &= game->Update();
+		ret &= editor->Update();
 
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
