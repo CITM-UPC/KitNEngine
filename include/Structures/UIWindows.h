@@ -2,7 +2,7 @@
 #define UI_WINDOWS_H
 
 #include <imgui.h>
-#include <Component/GameObject.h>ç
+#include <Component/GameObject.h>ï¿½
 
 
 
@@ -12,8 +12,6 @@ void ShowConfigWindow(bool* p_open);
 void ShowInspectorWindow(bool* p_open);
 void ShowAboutPopup();
 void ShowHerarkiWindow(bool* p_open);
-//void InitializeGeometryLoading();
-//void InitializeLibraries();
 void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go);
 
 // Nueva funciï¿½n para aï¿½adir mensajes formateados al log

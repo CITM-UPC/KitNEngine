@@ -1,10 +1,9 @@
 #include "Structures/UIWindows.h"
 #include <windows.h>
 #include <psapi.h>
-#include <sstream>
 #include <vector>
 #include <string>
-#include "Component/Camera.h"
+#include "Config/Config.h"
 #include <format> 
 #include <cstdarg> 
 size_t GetMemoryUsage() {
@@ -102,11 +101,13 @@ void ShowConfigWindow(bool* p_open) {
             if (ImGui::SmallButton("Limpiar")) {
                 logMessages.clear();
             }
+            static int console_cap_a = Console_cap;
             ImGui::SliderFloat("Ancho de ventana", &WINDOW_SIZE.x, 0.0f, 2000.0f);
             ImGui::SliderFloat("Alto de ventana", &WINDOW_SIZE.y, 0.0f, 1000.0f);
-            ImGui::SliderInt("Limite de ventana", &Console_cap, 100.0f, 2000.0f);
+            if (!ImGui::SliderInt("Limite de ventana", &console_cap_a, 100.0f, 2000.0f)) {
+                Console_cap = console_cap_a;
+            }   
         }
-       
         if (ImGui::CollapsingHeader("Informacion del Sistema")) {
             size_t memoriaUso = GetMemoryUsage();
             ImGui::Text("Uso de Memoria: %zu MB", memoriaUso);
@@ -162,7 +163,6 @@ void ShowInspectorWindow(bool* p_open) {
     ImGui::End();
 }
 
-
 void ShowAboutPopup() {
     if (ImGui::BeginPopup("AboutPopup")) {
         ImGui::Text("Editor del Motor de Juego\nVersi?n 1.0\nPor Ropuce");
@@ -212,14 +212,3 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     }
     ImGui::PopID();
 }
-//void InitializeGeometryLoading() {
-//    AddLogMessage("LOG: Iniciando carga de geometr?a desde ASSIMP...");
-//    // C?digo de carga...
-//    AddLogMessage("LOG: Carga de geometr?a completada.");
-//}
-//
-//void InitializeLibraries() {
-//    AddLogMessage("LOG: Iniciando inicializaci?n de bibliotecas externas...");
-//    // C?digo de inicializaci?n...
-//    AddLogMessage("LOG: Inicializaci?n de bibliotecas completada.");
-//}
