@@ -200,7 +200,7 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
         
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
         {
-            AddLogMessage(go->GetName()+" seleccionado desde jerarquia");
+            AddLogMessage("%s", (go->GetName()+" seleccionado desde jerarquia").c_str());
             GameObject::selectedGameObject = go;
         }
         

@@ -157,8 +157,6 @@ int main(int argc, char** argv) {
 	editor->Start();
 	
 	bool ret = true;
-	InitializeGeometryLoading();
-	InitializeLibraries();
 	for (int p = 0; p < 5; p++)
 	{
 		std::shared_ptr<GameObject> parent = GameObject::CreateGameObject(nullptr,"Parent "+std::to_string(p));
