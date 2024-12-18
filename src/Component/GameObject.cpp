@@ -6,7 +6,9 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <stdexcept>
 
 #include "glm/gtc/type_ptr.hpp"
@@ -140,17 +142,20 @@ bool GameObject::InspectorDisplay()
     ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
     
     Component::InspectorDisplay();
-    ImGui::Checkbox((_name+"##0").c_str(), &_enabled);
+    ImGui::Checkbox((_name+"##Enable").c_str(), &_enabled);
 
     ImGui::BeginGroup();
-    ImGui::InputText("Nom:", &_name, ImGuiInputTextFlags_None);
+    if (ImGui::InputText("Nom:##name", &_name, ImGuiInputTextFlags_None))
+        std::cout << "changed to " << _name << std::endl;
     transform->InspectorDisplay(inputFlags);
     
     ImGui::EndGroup();
     
     for (std::shared_ptr<Component>& component : components)
     {
+        ImGui::PushID(component.get());
         component->InspectorDisplay();
+        ImGui::PopID();
     }
     
     return true;

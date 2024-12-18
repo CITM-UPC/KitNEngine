@@ -96,7 +96,7 @@ void Transform::LookAt(const glm::vec3& target, bool worldUp)
 void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
 {
     static float testPos[] = {0.1f, 0.1f, 0.1f};
-    if (ImGui::InputFloat3("Position:", testPos, "%.1f", ImGuiInputTextFlags_None))//inputFlags))
+    if (ImGui::InputFloat3("Position:##TransformPos", testPos, "%.1f", ImGuiInputTextFlags_None))//inputFlags))
     {
         std::string str = "Position: "+std::to_string(testPos[0])+std::to_string(testPos[1])+std::to_string(testPos[2]);
         AddLogMessage(str.c_str());
