@@ -188,7 +188,7 @@ void ShowHerarkiWindow(bool* p_open) {
 
 void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-    auto nodeName = go->GetName();
+    auto nodeName = go->GetName()+"##"+std::to_string(reinterpret_cast<std::uintptr_t>(go.get()));
     ImGui::PushID(go.get());
     
     auto list = go->GetChildren();

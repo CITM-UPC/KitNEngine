@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 
 	for (auto& mesh : MeshRenderer::renderers)
 	{
-		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(nullptr);
+		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(nullptr, "GameObject "+mesh->GetName());
 		//auto c = dynamic_pointer_cast<Component>(mesh);
 		g->AddComponent(mesh);
 	}

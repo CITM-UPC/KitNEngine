@@ -14,6 +14,7 @@ class GameObject;
 
 class Transform;
 using TransformPtr = std::shared_ptr<Transform>;
+typedef int ImGuiInputTextFlags;
 
 // Transformacions locals de l'objecte
 // TODO Test de totes les funcions de transform
@@ -42,6 +43,8 @@ public:
     void SetRotation(const glm::quat& rotation);
     void SetScale(const glm::vec3& scale);
     void LookAt(const glm::vec3& target, bool worldUp = false);
+
+    void InspectorDisplay(ImGuiInputTextFlags inputFlags);
 
 public:
     

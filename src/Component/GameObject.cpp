@@ -6,15 +6,11 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
-#include <iostream>
 #include <memory>
-#include <memory>
-#include <ostream>
 #include <stdexcept>
 
-#include <utility>
-
 #include "glm/gtc/type_ptr.hpp"
+#include "Structures/MeshRenderer.h"
 
 
 std::vector<std::shared_ptr<GameObject>> GameObject::gameObjects = std::vector<std::shared_ptr<GameObject>>();
@@ -23,7 +19,7 @@ std::shared_ptr<GameObject> GameObject::selectedGameObject = nullptr;
 
 std::shared_ptr<GameObject> GameObject::CreateGameObject(std::shared_ptr<GameObject> parent, std::string name)
 {
-    auto ret = std::make_shared<GameObject>();
+    auto ret = std::make_shared<GameObject>(name);
     
     ret->gameObject = ret; // Guarda referencia de smart pointer per acces rapid des d'altres scripts
     if (parent == nullptr)
@@ -32,31 +28,6 @@ std::shared_ptr<GameObject> GameObject::CreateGameObject(std::shared_ptr<GameObj
         parent->AddChild(ret);
 
     return ret;
-}
-
-// OBSOLET, utilitza GetGameObject sobre el punter de GameObject
-// Cerca un smart pointer corresponent al punter passat per parametre
-std::shared_ptr<GameObject> GameObject::GetAsSmartPtr(GameObject* ptr)
-{
-    if (ptr == nullptr) return nullptr;
-    
-    if (ptr->parent != nullptr)
-    {
-        auto list = ptr->parent->GetChildren();
-        for (auto it = list.begin(); it != list.end(); it++)
-        {
-            if (it->get() == ptr) return *it;
-        }
-    }
-    else
-    {
-        for (auto it = gameObjects.begin(); it != gameObjects.end(); it++)
-        {
-            if (it->get() == ptr) return *it;
-        }
-    }
-    // Si el codi arriba aqui, has fet alguna cosa MOLT malament (possiblement intentant agafar el smart pointer de la camera d'editor
-    throw std::runtime_error("GameObject::GetAsSmartPtr: gameobject not in main hierarchy and has no parent");
 }
 
 GameObject::GameObject(const std::string& name) : Component(name)
@@ -103,17 +74,17 @@ bool GameObject::Start()
 
 bool GameObject::PreUpdate()
 {
-    if (!Component::PreUpdate()) return false;
+    if (!Component::PreUpdate()) return true;
     
     for (std::shared_ptr<GameObject>& go : children)
     {
-        if (go->_active && !go->PreUpdate())
+        if (!go->PreUpdate())
             return false;
     }
 
-    for (std::shared_ptr<Component>& go : components)
+    for (std::shared_ptr<Component>& c : components)
     {
-        if (go->_active && !go->PreUpdate())
+        if (!c->PreUpdate())
             return false;
     }
 
@@ -122,17 +93,17 @@ bool GameObject::PreUpdate()
 
 bool GameObject::Update()
 {
-    if (!Component::Update()) return false;
+    if (!Component::Update()) return true;
     
     for (std::shared_ptr<GameObject>& go : children)
     {
-        if (go->_active && !go->Update())
+        if (!go->Update())
             return false;
     }
 
     for (std::shared_ptr<Component>& go : components)
     {
-        if (go->_active && !go->Update())
+        if (!go->Update())
             return false;
     }
 
@@ -141,18 +112,17 @@ bool GameObject::Update()
 
 bool GameObject::PostUpdate()
 {
-    if (!Component::PostUpdate()) return false;
+    if (!Component::PostUpdate()) return true;
 
     for (std::shared_ptr<GameObject>& go : children)
     {
-        if (go->_active && !go->PostUpdate())
+        if (!go->PostUpdate())
             return false;
     }
 
     for (std::shared_ptr<Component>& go : components)
     {
-        if (go.get() == this) continue;
-        if (go->_active && !go->PostUpdate())
+        if (!go->PostUpdate())
             return false;
     }
 
@@ -166,17 +136,16 @@ bool GameObject::InspectorDisplay()
     pos[0] = position.x;
     pos[1] = position.y;
     pos[2] = position.z;
+
+    ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
     
     Component::InspectorDisplay();
-    ImGui::Text("GameObject");
+    ImGui::Checkbox((_name+"##0").c_str(), &_enabled);
 
     ImGui::BeginGroup();
-    ImGui::InputText("Nom:", &_name);
-    //TODO trobar com posar 3 valors editables a la mateixa fila
-    /*if (ImGui::SliderFloat3("Position: ", pos,(-INFINITY),(INFINITY),"%.6f"))
-    {
-        transform->SetPosition(glm::vec3(pos[0], pos[1], pos[2]));
-    }*/
+    ImGui::InputText("Nom:", &_name, ImGuiInputTextFlags_None);
+    transform->InspectorDisplay(inputFlags);
+    
     ImGui::EndGroup();
     
     for (std::shared_ptr<Component>& component : components)
@@ -229,6 +198,18 @@ void GameObject::RemoveChild(const std::shared_ptr<GameObject>& child)
 {
     auto pred = [child](const std::shared_ptr<GameObject>& go){return go == child;};
     std::erase_if(children, pred);
+}
+
+void GameObject::Render()
+{
+    if (!_active) return;
+
+    if (auto r = renderer.lock(); r != nullptr) r->Render();
+
+    for (std::shared_ptr<GameObject>& go : children)
+    {
+        go->Render();
+    }
 }
 
 template <class T>
