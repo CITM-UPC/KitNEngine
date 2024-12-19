@@ -37,9 +37,7 @@ void ShowConsoleWindow(bool* p_open) {
     ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Consola", p_open)) {
-        if (ImGui::SmallButton("Limpiar")) {
-            logMessages.clear();
-        }
+       
         
 
         ImGui::Separator();
