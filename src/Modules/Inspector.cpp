@@ -52,13 +52,6 @@ bool Inspector::EditorUI()
     
     ImGui::SetNextWindowPos(ImVec2(20, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-
-    //TODO treure codi temporal de debug
-    ImGui::Begin("Input Debug");
-    ImGui::Text("Is Any Item Active: %s", ImGui::IsAnyItemActive() ? "Yes" : "No");
-    ImGui::Text("Is Any Item Focused: %s", ImGui::IsAnyItemFocused() ? "Yes" : "No");
-    ImGui::Text("Is Any Item Hovered: %s", ImGui::IsAnyItemHovered() ? "Yes" : "No");
-    ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(10, 220), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
