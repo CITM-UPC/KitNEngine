@@ -35,6 +35,9 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 }
 
 MyWindow::~MyWindow() {

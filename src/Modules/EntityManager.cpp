@@ -106,10 +106,15 @@ bool EntityManager::CleanUp()
 
 bool EntityManager::Render()
 {
-    for ( std::shared_ptr<MeshRenderer>& renderer : MeshRenderer::renderers)
+    for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
+    {
+        gameObject->Render();
+    }
+    
+    /*for ( std::shared_ptr<MeshRenderer>& renderer : MeshRenderer::renderers)
     {
         renderer->Render();
-    }
+    }*/
     return true;
 }
 

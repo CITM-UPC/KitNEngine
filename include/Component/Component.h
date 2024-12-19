@@ -19,7 +19,7 @@ public: // static members
 
     template <typename T, typename... Args>
     requires std::derived_from<T, Component>
-    std::shared_ptr<T> CreateComponentOfType(Args&&... args);
+    static std::shared_ptr<T> CreateComponentOfType(Args&&... args);
 
 protected:
     // Do not call this directly, use a GameObject's AddComponent method instead

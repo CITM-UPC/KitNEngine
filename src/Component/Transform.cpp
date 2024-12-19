@@ -3,10 +3,12 @@
 //
 #include "Component/Transform.h"
 
-#include <stdexcept>
-
 #include "Component/GameObject.h"
 #include "glm/gtx/quaternion.hpp"
+
+#include <imgui.h>
+
+#include "Structures/UIWindows.h"
 
 glm::mat4 Transform::GetBasis() const
 {
@@ -89,4 +91,14 @@ void Transform::SetScale(const glm::vec3& scale)
 void Transform::LookAt(const glm::vec3& target, bool worldUp)
 {
     basis = glm::lookAt(GetPosition(),target,worldUp ? glm::vec3(0,1,0) : GetUp() );
+}
+
+void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
+{
+    static float testPos[] = {0.1f, 0.1f, 0.1f};
+    if (ImGui::InputFloat3("Position:", testPos, "%.1f", ImGuiInputTextFlags_None))//inputFlags))
+    {
+        std::string str = "Position: "+std::to_string(testPos[0])+std::to_string(testPos[1])+std::to_string(testPos[2]);
+        AddLogMessage(str.c_str());
+    }
 }

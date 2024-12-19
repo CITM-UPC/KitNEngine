@@ -185,6 +185,7 @@ bool Input::PreUpdate()
 
 	while(SDL_PollEvent(&event) != 0)
 	{
+		ImGui_ImplSDL2_ProcessEvent(&event);
 		switch(event.type)
 		{
 			case SDL_QUIT:
@@ -275,7 +276,6 @@ bool Input::PreUpdate()
 			}
 			
 		}
-		ImGui_ImplSDL2_ProcessEvent(&event);
 	}
 
 	return true;

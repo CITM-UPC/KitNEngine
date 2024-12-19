@@ -15,6 +15,7 @@
 #include "Structures/UIWindows.h"
 
 #include "Structures/UIWindows.h"
+#include "Utilities/Defs.h"
 
 const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
 
@@ -64,7 +65,7 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
                 AddLogMessage("\n");
             }
         }
-        std::shared_ptr<MeshRenderer> pp_mesh = std::make_shared<MeshRenderer>(mesh);
+        std::shared_ptr<MeshRenderer> pp_mesh = Component::CreateComponentOfType<MeshRenderer>(mesh);
         if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
         ret.push_back(MeshRenderer::renderers.emplace_back(pp_mesh));
 		
@@ -115,10 +116,27 @@ MeshRenderer::~MeshRenderer()
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
     glDeleteBuffers(1, &uv_buffer_id);
+
+    if (auto g = gameObject.lock(); g != nullptr)
+    {
+        g->renderer.reset();
+    }
 }
 
 bool MeshRenderer::Awake()
 {
+    auto g = gameObject.lock();
+    if (g != nullptr)
+    {
+        // _selfPtr no hauria d'estar expirat ja que apunta al mateix objecte des del qual es crida
+        if (!SPTR_EQUALS(g->renderer, _selfPtr))
+        {
+            if (g->renderer.lock() != nullptr)
+                throw std::runtime_error("Renderer already exists on this object");
+            g->renderer = std::dynamic_pointer_cast<MeshRenderer>(_selfPtr.lock());
+        }
+    }
+    
     return true;
 }
 
@@ -147,20 +165,14 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
     glUseProgram(shaderProgram->shaderProgram);
 
     glm::mat4 model;
-    const float* MVP;
+    glm::mat4 MVP;
     auto g = gameObject.lock();
     if (g != nullptr)
     {
-        model = g->GetTransform()->GetBasis();
-        MVP = glm::value_ptr(Camera::activeCamera->projection*Camera::activeCamera->view*model);
+        model = glm::mat4(g->GetTransform()->GetBasis());
+        model = glm::translate(model, g->GetTransform()->GetPosition());
     }
-    else
-    {
-        //std::cout << "Renderer not assigned to a GameObject" << std::endl;
-        model = glm::mat4(1.0f);
-        MVP = glm::value_ptr(model);
-    }
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"MVP"), 1, GL_FALSE, MVP);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"model"), 1, GL_FALSE, glm::value_ptr(model));
 
 
     // no activar hasta que se tengan shaders de color funcionales
@@ -185,6 +197,7 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
 
 void MeshRenderer::Render() const
 {
+    if (!_active) return;
     Render(Shader::GetShader(shader_id).get());
 }
 
