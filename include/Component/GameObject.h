@@ -61,11 +61,11 @@ public:
 public:
 
     std::shared_ptr<GameObject> parent;
-    
+    TransformPtr transform = std::make_shared<Transform>(this);
 
 private:
     
-    TransformPtr transform = std::make_shared<Transform>(this);
+    
 
     std::vector<std::shared_ptr<Component>> components;
     std::vector<std::shared_ptr<GameObject>> children;

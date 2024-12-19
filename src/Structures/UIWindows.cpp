@@ -6,6 +6,7 @@
 #include "Config/Config.h"
 #include <format> 
 #include <cstdarg> 
+#include "Utilities/Stencil.h"
 size_t GetMemoryUsage() {
     PROCESS_MEMORY_COUNTERS_EX pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
@@ -193,7 +194,10 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     
     auto list = go->GetChildren();
     if (list.empty())                           flags |= ImGuiTreeNodeFlags_Leaf;
-    if (GameObject::selectedGameObject == go)   flags |= ImGuiTreeNodeFlags_Selected;
+    if (GameObject::selectedGameObject == go) {
+        flags |= ImGuiTreeNodeFlags_Selected;
+       
+    }
     
     if (ImGui::TreeNodeEx(nodeName.c_str(),flags))
     {
