@@ -46,7 +46,7 @@ public:
     [[nodiscard]] TransformPtr GetTransform() { return transform; }
 
     template <typename T>
-    [[nodiscard]] T& GetComponentOfType() const;
+    [[nodiscard]] std::shared_ptr<T> GetComponentOfType() const;
 
     template <typename T, typename... Args>
     requires std::derived_from<T, Component>
@@ -57,7 +57,7 @@ public:
     std::shared_ptr<Component> AddComponent(std::shared_ptr<Component> c);
     void RemoveComponent(std::shared_ptr<Component>& component);
 
-    GameObject& AddChild(std::shared_ptr<GameObject>& g);
+    std::shared_ptr<GameObject> AddChild(std::shared_ptr<GameObject>& g);
     void RemoveChild(const std::shared_ptr<GameObject>& child);
 
 public:
@@ -90,6 +90,24 @@ std::shared_ptr<T> GameObject::AddComponentOfType(Args&&... args)
     AddComponent(c);
 
     return c;
+}
+
+
+template <class T>
+std::shared_ptr<T> GameObject::GetComponentOfType() const
+{
+    static_assert(std::is_base_of_v<Component, T>, "T ha de derivar de Component");
+    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha de ser un GameObject. Utilitza GetChild per obtenir un GameObject");
+
+    for (const std::shared_ptr<Component>& component : components) {
+        // Attempt to cast to the desired type and return it if successful
+        auto comp = std::dynamic_pointer_cast<T>(component);
+        if (comp != nullptr) {
+            return comp;
+        }
+    }
+
+    return nullptr;
 }
 
 #endif //GAMEOBJECT_H

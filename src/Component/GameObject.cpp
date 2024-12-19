@@ -183,7 +183,7 @@ void GameObject::RemoveComponent(std::shared_ptr<Component>& component)
     std::erase_if(components, pred);
 }
 
-GameObject& GameObject::AddChild(std::shared_ptr<GameObject>& g)
+std::shared_ptr<GameObject> GameObject::AddChild(std::shared_ptr<GameObject>& g)
 {
     if (g.get() != this && g->parent.get() != this)
     {
@@ -191,7 +191,7 @@ GameObject& GameObject::AddChild(std::shared_ptr<GameObject>& g)
         g->parent = GetGameObject();
     }
     
-    return *g;
+    return g;
 }
 
 void GameObject::RemoveChild(const std::shared_ptr<GameObject>& child)
@@ -210,23 +210,6 @@ void GameObject::Render()
     {
         go->Render();
     }
-}
-
-template <class T>
-T& GameObject::GetComponentOfType() const
-{
-    static_assert(std::is_base_of_v<Component, T>, "T ha de derivar de Component");
-    static_assert(!std::is_base_of_v<GameObject, T>, "T NO ha de ser un GameObject. Utilitza GetChild per obtenir un GameObject");
-
-    for (const std::shared_ptr<Component>& component : components) {
-        // Attempt to cast to the desired type and return it if successful
-        auto& comp = dynamic_cast<Component&>(*component);
-        if (T& castedComponent = dynamic_cast<T>(comp)) {
-            return castedComponent;
-        }
-    }
-
-    return nullptr;
 }
 
 std::shared_ptr<Component> GameObject::AddComponent(std::shared_ptr<Component> c)
