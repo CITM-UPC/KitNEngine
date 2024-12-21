@@ -194,6 +194,7 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     if (list.empty())                           flags |= ImGuiTreeNodeFlags_Leaf;
     if (GameObject::selectedGameObject == go) {
         flags |= ImGuiTreeNodeFlags_Selected;
+        drawOutlinedObject(go);
        
     }
     
