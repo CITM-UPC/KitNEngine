@@ -8,8 +8,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "Camera.h"
-
 class GameObject;
 
 class Transform;

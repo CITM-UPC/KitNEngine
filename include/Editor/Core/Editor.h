@@ -5,8 +5,9 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 #include "Common/Core/App.h"
-#include "Component/GameObject.h"
 
+class GameObject;
+class Camera;
 class Inspector;
 
 class Editor;

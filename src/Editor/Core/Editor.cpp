@@ -10,6 +10,10 @@
 //Modules
 #include "Modules/Inspector.h"
 
+//Components
+#include "Component/GameObject.h"
+#include "Component/Camera.h"
+
 Editor::Editor()
 {
     

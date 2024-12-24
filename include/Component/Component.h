@@ -5,7 +5,6 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <memory>
-#include <stdexcept>
 #include <string>
 
 class GameObject;

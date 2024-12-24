@@ -2,14 +2,15 @@
 // Created by Roger on 09/10/2024.
 //
 
-#ifndef MODEL3D_H
-#define MODEL3D_H
+#ifndef MESHRENDERER_H
+#define MESHRENDERER_H
 #include "Component/Component.h"
-#include "GL/glew.h"
+
+#include <GL/glew.h>
+#include <assimp/mesh.h>
 #include <memory>
 #include <vector>
 
-#include "assimp/mesh.h"
 
 class Shader;
 
@@ -44,9 +45,8 @@ public:
     GLuint VBO = 0; // Buffer de vertices
     GLuint EBO = 0; // Buffer de indices
     GLuint uv_buffer_id = 0; // Buffer de UVs
-    GLuint shader_id = 0; // ID de shader en la lista de shaders (NO EN GPU)
     
-
+    GLuint shader_id = 0; // ID de shader en la lista de shaders (NO EN GPU)
     GLuint texture_id = 0; // ID de textura a aplicar
 
 private:
@@ -54,4 +54,4 @@ private:
     void SetUpMesh();
 };
 
-#endif //MODEL3D_H
+#endif //MESHRENDERER_H

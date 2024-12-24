@@ -1,15 +1,12 @@
 #include "Component/Camera.h"
 
-#include <ostream>
-
 #include "Component/GameObject.h"
-#include "Game/Core/Game.h"
 #include "Structures/Shader.h"
-
 #include "Modules/Input.h"
+#include "Game/Core/Game.h"
 #include "Utilities/Time.h"
 
-#include <Config/Config.h>
+#include "Config/Config.h"
 
 
 std::shared_ptr<Camera> Camera::activeCamera;

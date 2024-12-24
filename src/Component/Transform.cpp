@@ -2,13 +2,12 @@
 // Created by Roger on 13/11/2024.
 //
 #include "Component/Transform.h"
-
 #include "Component/GameObject.h"
-#include "glm/gtx/quaternion.hpp"
-
-#include <imgui.h>
-
 #include "Structures/UIWindows.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+#include <imgui.h>
 
 glm::mat4 Transform::GetBasis() const
 {
@@ -96,7 +95,9 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
 {
     //Posicio
     float pos[3] = { position.x, position.y, position.z };
-    if (ImGui::InputFloat3("Position:##TransformPos", pos, "%.1f", inputFlags))
+    ImGui::Text("Position:");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformPos", pos, "%.1f", inputFlags))
     {
         position.x = pos[0];
         position.y = pos[1];
@@ -107,7 +108,9 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
     // Rotacio
     glm::vec3 rotVec = glm::degrees(glm::eulerAngles(glm::quat_cast(basis)));
     float rot[3] = { rotVec.x, rotVec.y, rotVec.z };
-    if (ImGui::InputFloat3("Rotation:##TransformRot", rot, "%.1f", inputFlags))
+    ImGui::Text("Rotation:");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformRot", rot, "%.1f", inputFlags))
     {
         rotVec.x = rot[0];
         rotVec.y = rot[1];
@@ -119,7 +122,9 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
     // Escala
     auto scaleVec = GetScale();
     float scale[3] = { scaleVec.x, scaleVec.y, scaleVec.z };
-    if (ImGui::InputFloat3("Scale:##TransformScale", scale, "%.1f", inputFlags))
+    ImGui::Text("Scale:   ");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformScale", scale, "%.1f", inputFlags))
     {
         scaleVec.x = scale[0];
         scaleVec.y = scale[1];

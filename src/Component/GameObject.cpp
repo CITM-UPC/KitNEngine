@@ -6,13 +6,11 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
-#include <iostream>
-#include <memory>
-#include <ostream>
 #include <stdexcept>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "glm/gtc/type_ptr.hpp"
 #include "Structures/MeshRenderer.h"
+#include "Structures/UIWindows.h"
 
 
 std::vector<std::shared_ptr<GameObject>> GameObject::gameObjects = std::vector<std::shared_ptr<GameObject>>();
@@ -142,11 +140,13 @@ bool GameObject::InspectorDisplay()
     ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
     
     Component::InspectorDisplay();
-    ImGui::Checkbox((_name+"##Enable").c_str(), &_enabled);
+    ImGui::Checkbox(("GameObject##Enable"), &_enabled);
 
     ImGui::BeginGroup();
-    if (ImGui::InputText("Nom:##name", &_name, ImGuiInputTextFlags_None))
-        std::cout << "changed to " << _name << std::endl;
+    ImGui::Text("Nom:");
+    ImGui::SameLine();
+    if (ImGui::InputText("##name", &_name, inputFlags))
+        AddLogMessage("changed to %s", _name.c_str());
     transform->InspectorDisplay(inputFlags);
     
     ImGui::EndGroup();
