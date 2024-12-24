@@ -94,24 +94,37 @@ void Transform::LookAt(const glm::vec3& target, bool worldUp)
 
 void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
 {
+    //Posicio
     float pos[3] = { position.x, position.y, position.z };
-    glm::vec3 rotVec = glm::degrees(glm::eulerAngles(glm::quat_cast(basis)));
-    float rot[3] = { rotVec.x, rotVec.y, rotVec.z };
     if (ImGui::InputFloat3("Position:##TransformPos", pos, "%.1f", inputFlags))
     {
         position.x = pos[0];
         position.y = pos[1];
         position.z = pos[2];
-        std::string str = "Position: "+std::to_string(position.x)+std::to_string(position.y)+std::to_string(position.z);
-        AddLogMessage(str.c_str());
+        AddLogMessage("New Position: (x:%f, y:%f, z:%f)", position.x, position.y, position.z);
     }
+
+    // Rotacio
+    glm::vec3 rotVec = glm::degrees(glm::eulerAngles(glm::quat_cast(basis)));
+    float rot[3] = { rotVec.x, rotVec.y, rotVec.z };
     if (ImGui::InputFloat3("Rotation:##TransformRot", rot, "%.1f", inputFlags))
     {
         rotVec.x = rot[0];
         rotVec.y = rot[1];
         rotVec.z = rot[2];
         SetRotation(glm::quat(glm::radians(rotVec)));
-        std::string str = "Rotation: (x:%f, y:%f, z:%f)";
-        AddLogMessage(str.c_str(), rot[0], rot[1], rot[2]);
+        AddLogMessage("New Rotation: (x:%f, y:%f, z:%f)", rot[0], rot[1], rot[2]);
+    }
+
+    // Escala
+    auto scaleVec = GetScale();
+    float scale[3] = { scaleVec.x, scaleVec.y, scaleVec.z };
+    if (ImGui::InputFloat3("Scale:##TransformScale", scale, "%.1f", inputFlags))
+    {
+        scaleVec.x = scale[0];
+        scaleVec.y = scale[1];
+        scaleVec.z = scale[2];
+        SetScale(scaleVec);
+        AddLogMessage("New Scale: (x:%f, y:%f, z:%f)", scale[0], scale[1], scale[2]);
     }
 }
