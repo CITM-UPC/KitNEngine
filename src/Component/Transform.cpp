@@ -27,11 +27,11 @@ glm::quat Transform::GetRotation() const
 
 glm::vec3 Transform::GetScale() const
 {
-    return glm::vec3(
+    return {
         glm::length(basis[0]),
         glm::length(basis[1]),
         glm::length(basis[2])
-        );
+        };
 }
 
 glm::vec3 Transform::GetRight() const
@@ -51,12 +51,11 @@ glm::vec3 Transform::GetForward() const
 
 glm::mat4 Transform::GetWorldMatrix() const
 {
-    
     return glm::translate(glm::mat4(GetWorldBasis()), GetWorldPos());
 }
 
 glm::mat3 Transform::GetWorldBasis() const
-{
+{    
     if (gameObject->parent == nullptr)
         return basis;
     else
@@ -95,10 +94,24 @@ void Transform::LookAt(const glm::vec3& target, bool worldUp)
 
 void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
 {
-    static float testPos[] = {0.1f, 0.1f, 0.1f};
-    if (ImGui::InputFloat3("Position:##TransformPos", testPos, "%.1f", ImGuiInputTextFlags_None))//inputFlags))
+    float pos[3] = { position.x, position.y, position.z };
+    glm::vec3 rotVec = glm::degrees(glm::eulerAngles(glm::quat_cast(basis)));
+    float rot[3] = { rotVec.x, rotVec.y, rotVec.z };
+    if (ImGui::InputFloat3("Position:##TransformPos", pos, "%.1f", inputFlags))
     {
-        std::string str = "Position: "+std::to_string(testPos[0])+std::to_string(testPos[1])+std::to_string(testPos[2]);
+        position.x = pos[0];
+        position.y = pos[1];
+        position.z = pos[2];
+        std::string str = "Position: "+std::to_string(position.x)+std::to_string(position.y)+std::to_string(position.z);
         AddLogMessage(str.c_str());
+    }
+    if (ImGui::InputFloat3("Rotation:##TransformRot", rot, "%.1f", inputFlags))
+    {
+        rotVec.x = rot[0];
+        rotVec.y = rot[1];
+        rotVec.z = rot[2];
+        SetRotation(glm::quat(glm::radians(rotVec)));
+        std::string str = "Rotation: (x:%f, y:%f, z:%f)";
+        AddLogMessage(str.c_str(), rot[0], rot[1], rot[2]);
     }
 }

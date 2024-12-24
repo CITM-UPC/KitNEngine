@@ -169,8 +169,7 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
     auto g = gameObject.lock();
     if (g != nullptr)
     {
-        model = glm::mat4(g->GetTransform()->GetBasis());
-        model = glm::translate(model, g->GetTransform()->GetPosition());
+        model = g->GetTransform()->GetWorldMatrix();
     }
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"model"), 1, GL_FALSE, glm::value_ptr(model));
 
