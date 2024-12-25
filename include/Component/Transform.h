@@ -39,10 +39,10 @@ public:
 
     void SetPosition(const glm::vec3& position);
     void SetRotation(const glm::quat& rotation);
-    void SetScale(const glm::vec3& scale);
+    void SetScale(glm::vec3& scale);
     void LookAt(const glm::vec3& target, bool worldUp = false);
 
-    void InspectorDisplay(ImGuiInputTextFlags inputFlags);
+    void InspectorDisplay(ImGuiInputTextFlags& inputFlags);
 
 public:
     

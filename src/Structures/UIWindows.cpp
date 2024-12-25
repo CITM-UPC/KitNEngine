@@ -194,15 +194,14 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     auto list = go->GetChildren();
     if (list.empty())                           flags |= ImGuiTreeNodeFlags_Leaf;
     if (GameObject::selectedGameObject == go)   flags |= ImGuiTreeNodeFlags_Selected;
-    
-    if (ImGui::TreeNodeEx(nodeName.c_str(),flags))
+    bool opened = ImGui::TreeNodeEx(nodeName.c_str(),flags);
+    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
     {
-        
-        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
-        {
-            AddLogMessage("%s", (go->GetName()+" seleccionado desde jerarquia").c_str());
-            GameObject::selectedGameObject = go;
-        }
+        AddLogMessage("%s", (go->GetName()+" seleccionado desde jerarquia").c_str());
+        GameObject::selectedGameObject = go;
+    }
+    if (opened)
+    {
         
         for (std::shared_ptr<GameObject>& g : go->GetChildren())
         {

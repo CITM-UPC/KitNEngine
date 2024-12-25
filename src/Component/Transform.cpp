@@ -79,8 +79,11 @@ void Transform::SetRotation(const glm::quat& rotation)
     basis = glm::toMat3(rotation);
 }
 
-void Transform::SetScale(const glm::vec3& scale)
+void Transform::SetScale(glm::vec3& scale)
 {
+    if (scale.x == 0) scale.x = 1;
+    if (scale.y == 0) scale.y = 1;
+    if (scale.z == 0) scale.z = 1;
     basis[0] = glm::normalize(basis[0]) * scale.x;
     basis[1] = glm::normalize(basis[1]) * scale.y;
     basis[2] = glm::normalize(basis[2]) * scale.z;
@@ -91,7 +94,7 @@ void Transform::LookAt(const glm::vec3& target, bool worldUp)
     basis = glm::lookAt(GetPosition(),target,worldUp ? glm::vec3(0,1,0) : GetUp() );
 }
 
-void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
+void Transform::InspectorDisplay(ImGuiInputTextFlags& inputFlags)
 {
     //Posicio
     float pos[3] = { position.x, position.y, position.z };
@@ -102,7 +105,7 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
         position.x = pos[0];
         position.y = pos[1];
         position.z = pos[2];
-        AddLogMessage("New Position: (x:%f, y:%f, z:%f)", position.x, position.y, position.z);
+        AddLogMessage("New Position: (x:%.1f, y:%.1f, z:%.1f)", position.x, position.y, position.z);
     }
 
     // Rotacio
@@ -116,7 +119,7 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
         rotVec.y = rot[1];
         rotVec.z = rot[2];
         SetRotation(glm::quat(glm::radians(rotVec)));
-        AddLogMessage("New Rotation: (x:%f, y:%f, z:%f)", rot[0], rot[1], rot[2]);
+        AddLogMessage("New Rotation: (x:%.1f, y:%.1f, z:%.1f)", rot[0], rot[1], rot[2]);
     }
 
     // Escala
@@ -130,6 +133,6 @@ void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
         scaleVec.y = scale[1];
         scaleVec.z = scale[2];
         SetScale(scaleVec);
-        AddLogMessage("New Scale: (x:%f, y:%f, z:%f)", scale[0], scale[1], scale[2]);
+        AddLogMessage("New Scale: (x:%.1f, y:%.1f, z:%.1f)", scaleVec.x, scaleVec.y, scaleVec.z);
     }
 }

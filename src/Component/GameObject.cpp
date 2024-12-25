@@ -5,6 +5,7 @@
 #include "Component/GameObject.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_stdlib.h>
 #include <stdexcept>
 #include <glm/gtc/type_ptr.hpp>
@@ -153,6 +154,7 @@ bool GameObject::InspectorDisplay()
     
     for (std::shared_ptr<Component>& component : components)
     {
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2);
         ImGui::PushID(component.get());
         component->InspectorDisplay();
         ImGui::PopID();
