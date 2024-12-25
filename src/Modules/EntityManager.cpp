@@ -14,7 +14,7 @@
 
 #include "Structures/MeshRenderer.h"
 #include "Structures/Texture.h"
-#include "Utilities/Log.h"
+#include "Structures/UIWindows.h"
 
 EntityManager::EntityManager() : Module("EntityManager")
 {
@@ -26,18 +26,14 @@ EntityManager::~EntityManager() = default;
 bool EntityManager::Init()
 {
     // TODO canviar LOG() per implementació pròpia
-    LOG("Loading Entity Manager");
-
-    if (!Module::Init()) return false;
+    AddLogMessage("Loading Entity Manager");
 
     for (std::shared_ptr<GameObject>& gameObject : GameObject::gameObjects)
     {
         gameObject->Awake();
     }
 
-    _awoken = true;
-
-    return true;
+    return Module::Init();
 }
 
 bool EntityManager::Start()
