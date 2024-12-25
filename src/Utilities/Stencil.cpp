@@ -5,6 +5,8 @@
 #include "Component/Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 
+GLuint outlineShaderID = 1;
+
 void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     if (gameObject == nullptr || Camera::activeCamera == nullptr) {
         return; // Validar GameObject y cámara activa
@@ -30,16 +32,16 @@ void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     glClear(GL_STENCIL_BUFFER_BIT);
 
     // Dibujar el objeto base (escribir en el stencil buffer)
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // Escribir valor 1 en el buffer de stencil
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glEnable(GL_DEPTH_TEST);
+    //glStencilFunc(GL_ALWAYS, 1, 0xFF); // Escribir valor 1 en el buffer de stencil
+    //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    //glEnable(GL_DEPTH_TEST);
 
-    // Usar el shader del MeshRenderer y enviar el MVP
-    glUseProgram(meshRenderer->shader_id);
-    glUniformMatrix4fv(glGetUniformLocation(meshRenderer->shader_id, "MVP"), 1, GL_FALSE, glm::value_ptr(MVP));
+    //// Usar el shader del MeshRenderer y enviar el MVP
+    //glUseProgram(meshRenderer->shader_id);
+    //glUniformMatrix4fv(glGetUniformLocation(meshRenderer->shader_id, "MVP"), 1, GL_FALSE, glm::value_ptr(MVP));
 
-    glBindVertexArray(meshRenderer->VAO);
-    glDrawElements(GL_TRIANGLES, meshRenderer->indices.size(), GL_UNSIGNED_INT, (void*)0);
+    //glBindVertexArray(meshRenderer->VAO);
+    //glDrawElements(GL_TRIANGLES, meshRenderer->indices.size(), GL_UNSIGNED_INT, (void*)0);
 
     // Dibujar el contorno del objeto (usar stencil)
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // Dibujar solo donde el stencil no es 1
@@ -47,12 +49,15 @@ void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     glDisable(GL_DEPTH_TEST); // Deshabilitar prueba de profundidad para evitar solapar el objeto base
 
     // Calcular MVP para el contorno (con escala ligera)
-    glm::mat4 scaledModelMatrix = glm::scale(modelMatrix, glm::vec3(1.05f, 1.05f, 1.05f));
+    glm::mat4 scaledModelMatrix = glm::scale(modelMatrix, glm::vec3(1.5f, 1.5f, 1.5f));
     glm::mat4 scaledMVP = projectionMatrix * viewMatrix * scaledModelMatrix;
-    glUniformMatrix4fv(glGetUniformLocation(meshRenderer->shader_id, "MVP"), 1, GL_FALSE, glm::value_ptr(scaledMVP));
 
-    // Definir color del contorno
-    glUniform3f(glGetUniformLocation(meshRenderer->shader_id, "outlineColor"), 1.0f, 0.0f, 0.0f); // Contorno rojo
+    // Usar el shader para el contorno (todo de un color sólido)
+    glUseProgram(outlineShaderID);
+    glUniformMatrix4fv(glGetUniformLocation(outlineShaderID, "MVP"), 1, GL_FALSE, glm::value_ptr(scaledMVP));
+
+    // Definir color del contorno (rosa)
+    glUniform3f(glGetUniformLocation(outlineShaderID, "outlineColor"), 0.0f, 0.0f, 0.0f); // Contorno rosa
 
     glBindVertexArray(meshRenderer->VAO);
     glDrawElements(GL_TRIANGLES, meshRenderer->indices.size(), GL_UNSIGNED_INT, (void*)0);
