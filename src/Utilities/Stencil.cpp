@@ -3,7 +3,15 @@
 #include "Structures/MeshRenderer.h"
 #include "Component/GameObject.h"
 #include "Component/Camera.h"
+#include "Structures/Shader.h"
 #include <glm/gtc/type_ptr.hpp>
+
+GLuint loadOutlineShader() {
+    Shader outlineShader("path/to/outline_vertex.glsl", "path/to/outline_fragment.glsl");
+    return outlineShader.shaderProgram;
+}
+
+
 
 GLuint outlineShaderID = 1;
 
@@ -11,12 +19,12 @@ void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     if (gameObject == nullptr || Camera::activeCamera == nullptr) {
         return; // Validar GameObject y cámara activa
     }
-
+    
     std::shared_ptr<MeshRenderer> meshRenderer = gameObject->GetComponentOfType<MeshRenderer>();
     if (!meshRenderer) {
         return; // Validar MeshRenderer
     }
-
+    outlineShaderID = loadOutlineShader();
     // Obtener matrices de la cámara activa
     glm::mat4 viewMatrix = Camera::activeCamera->view;
     glm::mat4 projectionMatrix = Camera::activeCamera->projection;
@@ -49,7 +57,7 @@ void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     glDisable(GL_DEPTH_TEST); // Deshabilitar prueba de profundidad para evitar solapar el objeto base
 
     // Calcular MVP para el contorno (con escala ligera)
-    glm::mat4 scaledModelMatrix = glm::scale(modelMatrix, glm::vec3(1.5f, 1.5f, 1.5f));
+    glm::mat4 scaledModelMatrix = glm::scale(modelMatrix, glm::vec3(0.55f, 0.55f, 0.55f));
     glm::mat4 scaledMVP = projectionMatrix * viewMatrix * scaledModelMatrix;
 
     // Usar el shader para el contorno (todo de un color sólido)
@@ -57,7 +65,7 @@ void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject) {
     glUniformMatrix4fv(glGetUniformLocation(outlineShaderID, "MVP"), 1, GL_FALSE, glm::value_ptr(scaledMVP));
 
     // Definir color del contorno (rosa)
-    glUniform3f(glGetUniformLocation(outlineShaderID, "outlineColor"), 0.0f, 0.0f, 0.0f); // Contorno rosa
+    glUniform3f(glGetUniformLocation(outlineShaderID, "outlineColor"), 0.0f, 1.0f, 1.0f); // Contorno rosa
 
     glBindVertexArray(meshRenderer->VAO);
     glDrawElements(GL_TRIANGLES, meshRenderer->indices.size(), GL_UNSIGNED_INT, (void*)0);
