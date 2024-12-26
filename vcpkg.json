@@ -1,25 +1,11 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "dependencies": [
-    "glm",
-    "glew",
-    "sdl2",
-    "sdl2-gfx",
-    "sdl2-image",
-    "sdl2-ttf",
-    "sdl2-mixer",
-    "bullet3",
-    "yaml-cpp",
-    "devil",
-    "assimp",
-    {
-      "name": "imgui",
-      "features": [
-        "sdl2-binding",
-        "opengl3-binding",
-        "docking-experimental"
-      ]
-    }
-  ],
-  "builtin-baseline": "e60236ee051183f1122066bee8c54a0b47c43a60"
+  "$schema" : "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies" : [ "glm", "glew", "sdl2", "sdl2-gfx", "sdl2-image", "sdl2-ttf", "sdl2-mixer", "bullet3", "yaml-cpp", "devil", "assimp", {
+    "name" : "imgui",
+    "features" : [ "sdl2-binding", "opengl3-binding", "docking-experimental" ]
+  }, {
+    "name" : "cereal",
+    "version>=" : "1.3.2#1"
+  } ],
+  "builtin-baseline" : "e60236ee051183f1122066bee8c54a0b47c43a60"
 }

@@ -36,6 +36,9 @@ public:
     virtual bool InspectorDisplay();
     virtual bool CleanUp();
 
+    template <class Archive>
+    bool Save(Archive& ar);
+
     static std::shared_ptr<Component> SetGameObject(std::shared_ptr<GameObject>& newParent,
                                                     std::shared_ptr<Component>& component);    
     [[nodiscard]] virtual bool IsGameObject() const;
