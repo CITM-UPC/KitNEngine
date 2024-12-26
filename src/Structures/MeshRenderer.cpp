@@ -3,6 +3,8 @@
 //
 #include "Structures/MeshRenderer.h"
 
+#include <format>
+#include <sstream>
 #include <stdexcept>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -35,7 +37,7 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
        
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
-        { // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
+        if (false){ // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
             printf("\nMalla %u:\n", i);
             printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
             printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
@@ -75,36 +77,53 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
 
 MeshRenderer::MeshRenderer(const aiMesh* mesh) : Component("Mesh Renderer")
 {
-    mainData.reserve(mesh->mNumVertices*3);
+    std::stringstream ss;
+
+    ss << std::format(" Numero de vertexs: {}\n", mesh->mNumVertices);
+    ss << std::format(" Numero de triangles: {}\n", mesh->mNumFaces);
+    AddLogMessage("%s", ss.str().c_str());
+    
     for (unsigned int i = 0; i < mesh->mNumVertices;i++)
     {
+        ss.str(std::string());
         mainData.push_back(mesh->mVertices[i].x);
         mainData.push_back(mesh->mVertices[i].y);
         mainData.push_back(mesh->mVertices[i].z);
+        ss << std::format("Vertex {}: (x:{}, y:{}, z:{}", i, mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
         
         if (mesh->HasTextureCoords(0))
         {
             mainData.push_back(mesh->mTextureCoords[0][i].x);
             mainData.push_back(mesh->mTextureCoords[0][i].y);
+            ss << std::format(", u:{}, v:{}", mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
         }
         else
         {
             // Dummy values
             mainData.push_back(0);
             mainData.push_back(0);
+            ss << std::format(", UV:No");
         }
-    }
         
+        ss << std::format(")\n");
+        AddLogMessage("%s", ss.str().c_str());
+    }
+    
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
+        ss.str(std::string());
         const aiFace& face = mesh->mFaces[i];
+        ss << std::format("Face {}: ",i) << std::endl;
         for (unsigned int j = 0; j < face.mNumIndices; j++)
         {
             indices.push_back(face.mIndices[j]);
+            ss << std::format("{} ",face.mIndices[j]);
         }
+        ss << std::endl;
+        AddLogMessage("%s", ss.str().c_str());
     }
-
+    
     SetUpMesh();
 }
 
