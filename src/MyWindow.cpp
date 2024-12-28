@@ -57,10 +57,10 @@ void MyWindow::StartFrame() const
 }
 
 void MyWindow::swapBuffers() const {
-    static bool showConsole = false;
-    static bool showConfig = false;
-    static bool showInspector = false;
-    static bool showherarqui = false;
+    static bool showConsole = true;
+    static bool showConfig = true;
+    static bool showInspector = true;
+    static bool showherarqui = true;
 
 
     if (ImGui::BeginMainMenuBar()) {

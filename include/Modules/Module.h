@@ -13,16 +13,25 @@ using ModulePtr = std::shared_ptr<Module>;
 class Module {
 public:
     
-    explicit Module(const char* name, bool startEnabled = true, bool needsReinit = false) : _name(name), _enabled(startEnabled), _active(startEnabled), _needsReinit(needsReinit)
+    explicit Module(const char* name, const bool startEnabled = true, const bool needsReinit = false) : _name(name), _enabled(startEnabled), _active(startEnabled), _needsReinit(needsReinit)
     {
         
     }
 
     virtual ~Module() = default;    
 
-    virtual bool Init() { return true; }
-    virtual bool Start() { return true; }
-    virtual bool PreUpdate() { _active = _enabled; return _active; }
+    virtual bool Init() { return _initialized = true; }
+    virtual bool Start() { return _started = true; }
+    virtual bool PreUpdate()
+    {
+        if (_needsReinit && _active != _enabled && _enabled)
+        {
+            Init();
+            Start();
+        }
+        _active = _enabled;
+        return _active;
+    }
     virtual bool Update() { return _active; }
     virtual bool LateUpdate() { return _active; }
     virtual bool EditorUI() { return _active; }
@@ -47,7 +56,7 @@ public:
     }
 
     // Enable/Disable segons un bool
-    bool SetState(bool state)
+    bool SetState(const bool state)
     {
         return _enabled = state;
     }
@@ -65,7 +74,7 @@ protected:
     bool _active = true;
     
     bool _needsReinit;
-    bool _awoken = false;
+    bool _initialized = false;
     bool _started = false;
     
 };

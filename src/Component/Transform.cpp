@@ -2,13 +2,12 @@
 // Created by Roger on 13/11/2024.
 //
 #include "Component/Transform.h"
-
 #include "Component/GameObject.h"
-#include "glm/gtx/quaternion.hpp"
-
-#include <imgui.h>
-
 #include "Structures/UIWindows.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+#include <imgui.h>
 
 glm::mat4 Transform::GetBasis() const
 {
@@ -27,11 +26,11 @@ glm::quat Transform::GetRotation() const
 
 glm::vec3 Transform::GetScale() const
 {
-    return glm::vec3(
+    return {
         glm::length(basis[0]),
         glm::length(basis[1]),
         glm::length(basis[2])
-        );
+        };
 }
 
 glm::vec3 Transform::GetRight() const
@@ -51,12 +50,11 @@ glm::vec3 Transform::GetForward() const
 
 glm::mat4 Transform::GetWorldMatrix() const
 {
-    
     return glm::translate(glm::mat4(GetWorldBasis()), GetWorldPos());
 }
 
 glm::mat3 Transform::GetWorldBasis() const
-{
+{    
     if (gameObject->parent == nullptr)
         return basis;
     else
@@ -81,8 +79,11 @@ void Transform::SetRotation(const glm::quat& rotation)
     basis = glm::toMat3(rotation);
 }
 
-void Transform::SetScale(const glm::vec3& scale)
+void Transform::SetScale(glm::vec3& scale)
 {
+    if (scale.x == 0) scale.x = 1;
+    if (scale.y == 0) scale.y = 1;
+    if (scale.z == 0) scale.z = 1;
     basis[0] = glm::normalize(basis[0]) * scale.x;
     basis[1] = glm::normalize(basis[1]) * scale.y;
     basis[2] = glm::normalize(basis[2]) * scale.z;
@@ -93,12 +94,45 @@ void Transform::LookAt(const glm::vec3& target, bool worldUp)
     basis = glm::lookAt(GetPosition(),target,worldUp ? glm::vec3(0,1,0) : GetUp() );
 }
 
-void Transform::InspectorDisplay(ImGuiInputTextFlags inputFlags)
+void Transform::InspectorDisplay(ImGuiInputTextFlags& inputFlags)
 {
-    static float testPos[] = {0.1f, 0.1f, 0.1f};
-    if (ImGui::InputFloat3("Position:", testPos, "%.1f", ImGuiInputTextFlags_None))//inputFlags))
+    //Posicio
+    float pos[3] = { position.x, position.y, position.z };
+    ImGui::Text("Position:");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformPos", pos, "%.1f", inputFlags))
     {
-        std::string str = "Position: "+std::to_string(testPos[0])+std::to_string(testPos[1])+std::to_string(testPos[2]);
-        AddLogMessage(str.c_str());
+        position.x = pos[0];
+        position.y = pos[1];
+        position.z = pos[2];
+        AddLogMessage("New Position: (x:%.1f, y:%.1f, z:%.1f)", position.x, position.y, position.z);
+    }
+
+    // Rotacio
+    glm::vec3 rotVec = glm::degrees(glm::eulerAngles(glm::quat_cast(basis)));
+    float rot[3] = { rotVec.x, rotVec.y, rotVec.z };
+    ImGui::Text("Rotation:");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformRot", rot, "%.1f", inputFlags))
+    {
+        rotVec.x = rot[0];
+        rotVec.y = rot[1];
+        rotVec.z = rot[2];
+        SetRotation(glm::quat(glm::radians(rotVec)));
+        AddLogMessage("New Rotation: (x:%.1f, y:%.1f, z:%.1f)", rot[0], rot[1], rot[2]);
+    }
+
+    // Escala
+    auto scaleVec = GetScale();
+    float scale[3] = { scaleVec.x, scaleVec.y, scaleVec.z };
+    ImGui::Text("Scale:   ");
+    ImGui::SameLine();
+    if (ImGui::InputFloat3("##TransformScale", scale, "%.1f", inputFlags))
+    {
+        scaleVec.x = scale[0];
+        scaleVec.y = scale[1];
+        scaleVec.z = scale[2];
+        SetScale(scaleVec);
+        AddLogMessage("New Scale: (x:%.1f, y:%.1f, z:%.1f)", scaleVec.x, scaleVec.y, scaleVec.z);
     }
 }

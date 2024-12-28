@@ -1,9 +1,4 @@
 #include <GL/glew.h>
-#include <chrono>
-#include <thread>
-#include <exception>
-#include <glm/glm.hpp>
-#include <SDL2/SDL_events.h>
 #include <cmath>  
 
 static void draw_cube() {

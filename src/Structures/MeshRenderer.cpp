@@ -3,17 +3,15 @@
 //
 #include "Structures/MeshRenderer.h"
 
-#include <iostream>
+#include <stdexcept>
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "assimp/cimport.h"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
 #include "Component/GameObject.h"
-#include "glm/gtc/type_ptr.hpp"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
-#include "Structures/UIWindows.h"
-
 #include "Structures/UIWindows.h"
 #include "Utilities/Defs.h"
 
@@ -75,7 +73,7 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
     return ret;
 }
 
-MeshRenderer::MeshRenderer(const aiMesh* mesh) : Component("MeshRenderer")
+MeshRenderer::MeshRenderer(const aiMesh* mesh) : Component("Mesh Renderer")
 {
     mainData.reserve(mesh->mNumVertices*3);
     for (unsigned int i = 0; i < mesh->mNumVertices;i++)
@@ -169,8 +167,7 @@ void MeshRenderer::Render(const Shader* shaderProgram) const
     auto g = gameObject.lock();
     if (g != nullptr)
     {
-        model = glm::mat4(g->GetTransform()->GetBasis());
-        model = glm::translate(model, g->GetTransform()->GetPosition());
+        model = g->GetTransform()->GetWorldMatrix();
     }
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram->shaderProgram,"model"), 1, GL_FALSE, glm::value_ptr(model));
 
@@ -203,12 +200,25 @@ void MeshRenderer::Render() const
 
 bool MeshRenderer::PostUpdate()
 {
-    return Component::PostUpdate();
+    if (!Component::PostUpdate()) return true;
+    return true;
 }
 
 bool MeshRenderer::InspectorDisplay()
 {
-    return Component::InspectorDisplay();
+    if (!Component::InspectorDisplay()) return true;
+
+    ImGui::BeginGroup();
+    ImGui::Checkbox(_name.c_str(), &_enabled);
+    ImGui::Text("Mesh:");
+    ImGui::SameLine();
+    char str[] = {"WIP, NO RESOURCE MANAGER IMPLEMENTED"};
+    ImGui::InputText("##Mesh", str, strlen(str),ImGuiInputTextFlags_ReadOnly);
+    ImGui::Text("Texture ID: %d", texture_id);
+    ImGui::Text("Shader ID: %d", shader_id);
+
+    ImGui::EndGroup();
+    return true;
 }
 
 bool MeshRenderer::CleanUp()

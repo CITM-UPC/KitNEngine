@@ -5,12 +5,13 @@
 #include "Component/GameObject.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_stdlib.h>
-#include <memory>
 #include <stdexcept>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "glm/gtc/type_ptr.hpp"
 #include "Structures/MeshRenderer.h"
+#include "Structures/UIWindows.h"
 
 
 std::vector<std::shared_ptr<GameObject>> GameObject::gameObjects = std::vector<std::shared_ptr<GameObject>>();
@@ -140,17 +141,23 @@ bool GameObject::InspectorDisplay()
     ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
     
     Component::InspectorDisplay();
-    ImGui::Checkbox((_name+"##0").c_str(), &_enabled);
+    ImGui::Checkbox(("GameObject##Enable"), &_enabled);
 
     ImGui::BeginGroup();
-    ImGui::InputText("Nom:", &_name, ImGuiInputTextFlags_None);
+    ImGui::Text("Nom:");
+    ImGui::SameLine();
+    if (ImGui::InputText("##name", &_name, inputFlags))
+        AddLogMessage("changed to %s", _name.c_str());
     transform->InspectorDisplay(inputFlags);
     
     ImGui::EndGroup();
     
     for (std::shared_ptr<Component>& component : components)
     {
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2);
+        ImGui::PushID(component.get());
         component->InspectorDisplay();
+        ImGui::PopID();
     }
     
     return true;

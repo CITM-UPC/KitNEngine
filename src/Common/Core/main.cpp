@@ -131,9 +131,10 @@ int main(int argc, char** argv) {
 	
 	LoadModels(path);
 
+	std::shared_ptr<GameObject> modelRoot = GameObject::CreateGameObject(nullptr, "mesh");
 	for (auto& mesh : MeshRenderer::renderers)
 	{
-		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(nullptr, "GameObject "+mesh->GetName());
+		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(modelRoot, "GameObject "+mesh->GetName());
 		//auto c = dynamic_pointer_cast<Component>(mesh);
 		g->AddComponent(mesh);
 	}

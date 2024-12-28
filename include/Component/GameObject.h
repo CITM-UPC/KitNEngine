@@ -4,8 +4,8 @@
 
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
-#include "Component.h"
-#include "Transform.h"
+#include "Component/Component.h"
+#include "Component/Transform.h"
 
 #include <memory>
 #include <vector>
