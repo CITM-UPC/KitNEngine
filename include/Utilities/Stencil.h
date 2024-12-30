@@ -10,4 +10,5 @@
 // Función para dibujar un objeto 3D resaltando sus bordes
 void drawOutlinedObject(const std::shared_ptr<GameObject>& gameObject);
 
+
 #endif // STENCIL_H

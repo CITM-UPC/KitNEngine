@@ -7,6 +7,7 @@
 #include <format> 
 #include <cstdarg> 
 #include "Utilities/Stencil.h"
+#include "Component/AAPP.h"
 size_t GetMemoryUsage() {
     PROCESS_MEMORY_COUNTERS_EX pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
@@ -100,6 +101,7 @@ void ShowConfigWindow(bool* p_open) {
             if (ImGui::SmallButton("Limpiar")) {
                 logMessages.clear();
             }
+            ImGui::Checkbox(("AABB"), &AABB);
             static int console_cap_a = Console_cap;
             ImGui::SliderFloat("Ancho de ventana", &WINDOW_SIZE.x, 0.0f, 2000.0f);
             ImGui::SliderFloat("Alto de ventana", &WINDOW_SIZE.y, 0.0f, 1000.0f);
@@ -192,10 +194,17 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     
     auto list = go->GetChildren();
     if (list.empty())                           flags |= ImGuiTreeNodeFlags_Leaf;
-    if (GameObject::selectedGameObject == go)   flags |= ImGuiTreeNodeFlags_Selected;
+    if (GameObject::selectedGameObject == go) {
+        flags |= ImGuiTreeNodeFlags_Selected;
+        if (AABB == true) {
+            CalculateAABB(go);
+        }
+        
+    }
     bool opened = ImGui::TreeNodeEx(nodeName.c_str(),flags);
     if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
     {
+        
         AddLogMessage("%s", (go->GetName()+" seleccionado desde jerarquia").c_str());
         GameObject::selectedGameObject = go;
     }
