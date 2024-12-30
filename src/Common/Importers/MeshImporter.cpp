@@ -41,31 +41,32 @@ void MeshImporter::Import(const char* filename)
 
 void MeshImporter::ImportMesh(const aiMesh* mesh)
 {
+    KMesh newMesh;
     
     
     AddLogMessage(" Numero de vertexs: %u\n", mesh->mNumVertices);
     AddLogMessage(" Numero de triangles: %u\n", mesh->mNumFaces);
     
-    mainData.reserve(mesh->mNumVertices*3);
+    newMesh.vertices.reserve(mesh->mNumVertices*3);
     for (unsigned int i = 0; i < mesh->mNumVertices;i++)
     {
-        mainData.push_back(mesh->mVertices[i].x);
-        mainData.push_back(mesh->mVertices[i].y);
-        mainData.push_back(mesh->mVertices[i].z);
+        newMesh.vertices.push_back(mesh->mVertices[i].x);
+        newMesh.vertices.push_back(mesh->mVertices[i].y);
+        newMesh.vertices.push_back(mesh->mVertices[i].z);
         AddLogMessage("Vertex %u: (x:%f, y:%f, z:%f", i, mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
         
         if (mesh->HasTextureCoords(0))
         {
-            mainData.push_back(mesh->mTextureCoords[0][i].x);
-            mainData.push_back(mesh->mTextureCoords[0][i].y);
+            newMesh.vertices.push_back(mesh->mTextureCoords[0][i].x);
+            newMesh.vertices.push_back(mesh->mTextureCoords[0][i].y);
             AddLogMessage(", u:%f, v:%f", mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
         }
         else
         {
             // Dummy values
-            mainData.push_back(0);
-            mainData.push_back(0);
+            newMesh.vertices.push_back(0);
+            newMesh.vertices.push_back(0);
             AddLogMessage(", UV:No");
         }
         
@@ -78,7 +79,7 @@ void MeshImporter::ImportMesh(const aiMesh* mesh)
         AddLogMessage("Face %u", i);
         for (unsigned int j = 0; j < face.mNumIndices; j++)
         {
-            indices.push_back(face.mIndices[j]);
+            newMesh.indices.push_back(face.mIndices[j]);
             AddLogMessage(" %u", face.mIndices[j]);
         }
     }

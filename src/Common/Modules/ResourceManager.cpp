@@ -36,8 +36,9 @@ bool ResourceManager::LateUpdate()
 {
     if (!Module::LateUpdate()) return true;
 
-    if (Time::since(lastUpdate) < timeBetweenUpdates) return true;
-    lastUpdate = Time::GetTime<auto>();
+    
+    //if (Time::since(lastUpdate) < timeBetweenUpdates) return true;
+    //lastUpdate = Time::GetTime<std::chrono::steady_clock, std::chrono::seconds>();
 
     // TODO comprovar i eliminar recursos que no estiguin en us
    // auto pred = [](ResourceHandle& r) -> r.
