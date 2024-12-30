@@ -35,8 +35,6 @@ public:
     bool InspectorDisplay() override;
     bool CleanUp() override;
 
-    static void GenerateBuffer(GLenum type, GLuint& bufferID, const void* data, GLsizeiptr dataSize, GLenum usage);
-
     std::vector<GLfloat> mainData;
     std::vector<GLuint> indices;
     std::vector<GLfloat> UVs;

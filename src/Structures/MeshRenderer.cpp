@@ -11,6 +11,7 @@
 #include <assimp/scene.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Common/Resources/KMesh.h"
 #include "Component/GameObject.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
@@ -251,7 +252,7 @@ void MeshRenderer::SetUpMesh()
     glBindVertexArray(VAO);
     
     //Generate mesh vertex buffer
-    GenerateBuffer(GL_ARRAY_BUFFER,VBO,mainData.data(), sizeof(GLfloat) * mainData.size(), GL_STATIC_DRAW);
+    KMesh::GenerateBuffer(GL_ARRAY_BUFFER,VBO,mainData.data(), sizeof(GLfloat) * mainData.size(), GL_STATIC_DRAW);
     // Positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,dataValsInVBO*sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
@@ -261,7 +262,7 @@ void MeshRenderer::SetUpMesh()
     glEnableVertexAttribArray(1);
 
     //Generate mesh vertex_index buffer
-    GenerateBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO,indices.data(), sizeof(GLuint) * indices.size(), GL_STATIC_DRAW);
+    KMesh::GenerateBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO,indices.data(), sizeof(GLuint) * indices.size(), GL_STATIC_DRAW);
     
     // //Generate mesh UV_coordinate buffer
     // if (!UVs.empty())
@@ -272,12 +273,4 @@ void MeshRenderer::SetUpMesh()
     
 
     glBindVertexArray(0);
-}
-
-inline void MeshRenderer::GenerateBuffer(const GLenum type, GLuint& bufferID, const void* data, const GLsizeiptr dataSize, const GLenum usage)
-{
-    glGenBuffers(1, &bufferID);
-    glBindBuffer(type, bufferID);
-    glBufferData(type, dataSize, data, usage);
-    glFinish();
 }

@@ -17,11 +17,17 @@ public:
     class clock_t    = std::chrono::steady_clock,
     class duration_t = std::chrono::milliseconds
     >
-    [[nodiscard]] static auto since(std::chrono::time_point<clock_t, duration_t> const& start);
+    [[nodiscard]] static std::chrono::duration<clock_t,result_t> since(std::chrono::time_point<clock_t, duration_t> const& start)
+    {
+        return std::chrono::duration_cast<result_t>(clock_t::now() - start);
+    }
 
     // Temps en (per defecte) milisegons des de l'inici de l'aplicacio
-    template <typename valT, class timeT= std::chrono::milliseconds>
-    [[nodiscard]] static std::chrono::time_point<valT, timeT> GetTime();
+    template <class clock_t= std::chrono::milliseconds, typename result_t = std::chrono::steady_clock>
+    [[nodiscard]] static std::chrono::time_point<clock_t, result_t> GetTime()
+    {
+        return since<result_t,std::chrono::steady_clock, std::chrono::milliseconds>(startTime);
+    }
 
     [[nodiscard]] static float GetDeltaTime();
     static void UpdateDeltaTime(std::chrono::duration<float> const& delta);
@@ -32,16 +38,5 @@ private:
     static float timeScale;
 };
 
-template <class result_t, class clock_t, class duration_t>
-auto Time::since(std::chrono::time_point<clock_t, duration_t> const& start)
-{
-    return std::chrono::duration_cast<result_t>(clock_t::now() - start);
-}
-
-template <typename valT, class timeT>
-std::chrono::time_point<valT, timeT> Time::GetTime()
-{
-    return since(startTime);
-}
 
 #endif //TIME_H

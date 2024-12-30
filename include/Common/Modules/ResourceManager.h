@@ -39,7 +39,7 @@ public:
     void UnloadAll();
 
 private:
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> lastUpdate;
+    std::chrono::time_point<std::chrono::steady_clock, std::chrono::seconds> lastUpdate;
     std::chrono::duration<float> timeBetweenUpdates = std::chrono::seconds(5); // Temps entre actualitzacions de recursos d'editor
 
     std::map<std::string, std::shared_ptr<KMesh>> meshes;
