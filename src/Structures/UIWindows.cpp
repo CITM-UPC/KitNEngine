@@ -102,6 +102,7 @@ void ShowConfigWindow(bool* p_open) {
                 logMessages.clear();
             }
             ImGui::Checkbox(("AABB"), &AABB);
+            ImGui::Checkbox(("Stencil"), &Stencil);
             static int console_cap_a = Console_cap;
             ImGui::SliderFloat("Ancho de ventana", &WINDOW_SIZE.x, 0.0f, 2000.0f);
             ImGui::SliderFloat("Alto de ventana", &WINDOW_SIZE.y, 0.0f, 1000.0f);
@@ -197,8 +198,14 @@ void DisplayGameObjectsInHierarchy(std::shared_ptr<GameObject>& go){
     if (GameObject::selectedGameObject == go) {
         flags |= ImGuiTreeNodeFlags_Selected;
         if (AABB == true) {
+
             CalculateAABB(go);
         }
+        if (Stencil == true) {
+            drawOutlinedObject(go);
+        }
+        
+        
         
     }
     bool opened = ImGui::TreeNodeEx(nodeName.c_str(),flags);
