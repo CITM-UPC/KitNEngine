@@ -3,9 +3,24 @@
 //
 
 #include "Common/Modules/ResourceManager.h"
-#include "Common/Resources/KMesh.h"
+#include "Common/Resources/Resource.h"
 
 #include "Utilities/Time.h"
+std::weak_ptr<ResourceManager> ResourceManager::rm_instance;
+
+std::shared_ptr<ResourceManager> ResourceManager::getInstance()
+{
+    std::shared_ptr<ResourceManager> ret;
+    if (rm_instance.expired())
+        ret = std::make_shared<ResourceManager>();
+    else
+        ret = rm_instance.lock();
+    return ret;
+}
+
+ResourceManager::ResourceManager() : Module("resourcemanager")
+{
+}
 
 ResourceManager::~ResourceManager()
 {
@@ -40,8 +55,10 @@ bool ResourceManager::LateUpdate()
     //if (Time::since(lastUpdate) < timeBetweenUpdates) return true;
     //lastUpdate = Time::GetTime<std::chrono::steady_clock, std::chrono::seconds>();
 
-    // TODO comprovar i eliminar recursos que no estiguin en us
-   // auto pred = [](ResourceHandle& r) -> r.
+    // Elimina recursos que no estiguin en us
+    auto pred = [](auto& r) -> bool {return !r.second->InUse();};
+
+    std::erase_if(resourceMap, pred);
     
     return true;
 }
@@ -53,55 +70,36 @@ bool ResourceManager::EditorUI()
 
 bool ResourceManager::CleanUp()
 {
+    resourceMap.clear();
     return true;
 }
 
-void ResourceManager::LoadMesh(std::string path)
+std::shared_ptr<Resource> ResourceManager::LoadMesh(std::string path)
 {
-    throw std::logic_error("Not implemented");
+    AddLogMessage("Loading mesh from %s\n", path);
+    throw std::logic_error("Unfinished function ResourceManager::LoadMesh");
 }
 
-void ResourceManager::LoadTexture(std::string path)
+std::shared_ptr<Resource> ResourceManager::LoadTexture(std::string path)
 {
-    throw std::logic_error("Not implemented");
+    AddLogMessage("Loading texture from %s\n", path);
+    throw std::logic_error("Unfinished function ResourceManager::LoadTexture");
 }
 
-void ResourceManager::LoadShader(std::string path)
+std::shared_ptr<Resource> ResourceManager::LoadShader(std::string path)
 {
-    throw std::logic_error("Not implemented");
+    AddLogMessage("Loading shader from %s\n", path);
+    throw std::logic_error("Unfinished function ResourceManager::LoadShader");
 }
 
-std::shared_ptr<KMesh> ResourceManager::GetMesh(std::string& name)
+template <class T> requires std::derived_from<T, Resource>
+void ResourceManager::Unload(std::string& name)
 {
-    throw std::logic_error("Not implemented");
-}
-
-std::shared_ptr<Texture> ResourceManager::GetTexture(std::string& name)
-{
-    throw std::logic_error("Not implemented");
-}
-
-std::shared_ptr<Shader> ResourceManager::GetShader(std::string& name)
-{
-    throw std::logic_error("Not implemented");
-}
-
-void ResourceManager::UnloadMesh(std::string& name)
-{
-    throw std::logic_error("Not implemented");
-}
-
-void ResourceManager::UnloadTexture(std::string& name)
-{
-    throw std::logic_error("Not implemented");
-}
-
-void ResourceManager::UnloadShader(std::string& name)
-{
-    throw std::logic_error("Not implemented");
+    if (resourceMap.find(name) != resourceMap.end())
+        resourceMap.erase(name);
 }
 
 void ResourceManager::UnloadAll()
 {
-    throw std::logic_error("Not implemented");
+    resourceMap.clear();
 }

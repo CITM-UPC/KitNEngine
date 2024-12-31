@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include "Common/Modules/ResourceManager.h"
 #include "Modules/Input.h"
 #include "Modules/EntityManager.h"
 
@@ -26,6 +27,7 @@ bool Game::Init()
     // Module creation
     AddModule(input = std::make_shared<Input>());
     AddModule(entities = std::make_shared<EntityManager>());
+    AddModule(resources = ResourceManager::getInstance()); // Sol pot haver un gestor de recursos
     
     return true;
 }

@@ -9,6 +9,7 @@
 
 class Input;
 class EntityManager;
+class ResourceManager;
 
 class Game;
 using GamePtr = std::unique_ptr<Game>;
@@ -29,6 +30,7 @@ public: // Member variables
 
     std::shared_ptr<Input> input;
     std::shared_ptr<EntityManager> entities;
+    std::shared_ptr<ResourceManager> resources;
     
 };
 

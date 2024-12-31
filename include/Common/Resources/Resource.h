@@ -10,6 +10,8 @@
 
 #include "Libs/stduuid/uuid.h"
 
+class ResourceManager;
+
 enum class ResourceType
 {
     Texture,
@@ -24,7 +26,11 @@ enum class ResourceType
 
 class Resource {
 public:
-    Resource(uuids::uuid uid,ResourceType type = ResourceType::Unknown);
+    explicit Resource(uuids::uuid uid,ResourceType type = ResourceType::Unknown);
+    virtual ~Resource() = default;
+    
+    // Retorna si el recurs esta en us. Per defecte utilitza el comptador del shared_ptr
+    virtual bool InUse();
 
 private:
 
@@ -50,11 +56,14 @@ protected:
     std::filesystem::path r_path = "";
     ResourceType r_type = ResourceType::Unknown;
     uuids::uuid r_uuid;
+
+    friend class ResourceManager;
 };
 
 inline Resource::Resource(uuids::uuid uid, ResourceType type) : r_type(type), r_uuid(uid)
 {
 }
+
 
 
 #endif //RESOURCE_H

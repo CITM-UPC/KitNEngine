@@ -4,13 +4,15 @@
 
 #ifndef SHADER_H
 #define SHADER_H
+#include "Common/Resources/Resource.h"
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
 
-class Shader {
+class Shader : public Resource {
 public:
     static std::vector<std::shared_ptr<Shader>> shaders;
     static std::shared_ptr<Shader> GetShader(GLuint id);

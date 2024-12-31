@@ -17,7 +17,7 @@ std::shared_ptr<Shader> Shader::GetShader(GLuint id)
     return shaders.at(id);
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath) : Resource(uuids::uuid(), ResourceType::Shader)
 {
     if (geometryPath != nullptr)
         loadShader(vertexPath, fragmentPath, geometryPath);
@@ -30,6 +30,7 @@ Shader::~Shader()
     glDeleteProgram(shaderProgram);
 }
 
+// TODO Convertir a builder pattern
 void Shader::loadShader(const char* vertexPath, const char* fragmentPath)
 {
     shaderProgram = glCreateProgram();
@@ -63,6 +64,7 @@ void Shader::loadShader(const char* vertexPath, const char* fragmentPath)
 
 void Shader::loadShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
+    loadShader(vertexPath,fragmentPath);
     std::cerr << "Geometry shaders not yet implemented!" << std::endl;
 }
 

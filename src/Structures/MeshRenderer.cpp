@@ -22,53 +22,53 @@ const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
 
 std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::renderers = std::vector<std::shared_ptr<MeshRenderer>>();
 
-std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char* filename)
+void BuildMeshToNodeMap(const aiNode* node, std::unordered_map<unsigned int, const aiNode*>& meshToNodeMap) {
+    for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
+        meshToNodeMap[node->mMeshes[i]] = node;
+    }
+    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+        BuildMeshToNodeMap(node->mChildren[i], meshToNodeMap);
+    }
+}
+
+std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char* filename, bool createGameObjects)
 {
     std::vector<std::shared_ptr<MeshRenderer>> ret;
     
     const aiScene *scene = aiImportFile(filename,aiProcess_Triangulate);
 
-    if (!scene) {
-        fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
-        return ret;
-    }
+    // Crea un mapa que relaciona cada mesh amb el seu node dins l'escena d'assimp per poder extreure dades addicionals com la posicio
+    std::unordered_map<unsigned int, const aiNode*> meshToNodeMap;
+    BuildMeshToNodeMap(scene->mRootNode, meshToNodeMap);
 
-        printf("Numero de malles: %i\n", scene->mNumMeshes);
-        AddLogMessage("Numero de malles: %i\n", scene->mNumMeshes);
-       
+    printf("Numero de malles: %i\n", scene->mNumMeshes);
+    AddLogMessage("Numero de malles: %i\n", scene->mNumMeshes);
+
+    std::shared_ptr<GameObject> meshRoot;
+    if (createGameObjects)
+    {
+        meshRoot = GameObject::CreateGameObject(nullptr, scene->mName.C_Str());
+    }
+    
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
-        if (false){ // Soc conscient que tal com està muntat es recorren els vèrtexs dues vegades
-            printf("\nMalla %u:\n", i);
-            printf(" Numero de vertexs: %u\n", mesh->mNumVertices) ;
-            printf(" Numero de triangles: %u\n", mesh->mNumFaces) ;
-            AddLogMessage("\nMalla %u:\n", i);
-            AddLogMessage(" Numero de vertexs: %u\n", mesh->mNumVertices);
-            AddLogMessage(" Numero de triangles: %u\n", mesh->mNumFaces);
-            // Vèrtexs
-            for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-                aiVector3D& vertex = mesh->mVertices[v] ;
-                printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z) ;
-                AddLogMessage(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
-            }
-            // Índexs de triangles (3 per triangle)
-            for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-                aiFace& face = mesh->mFaces[f] ;
-                printf(" Indexs triangle %u: ", f) ;
-                AddLogMessage("Indexs triangle %u: ", f);
-                for (unsigned int j = 0; j < face.mNumIndices; j++) {
-                  
-                    printf("%u ", face.mIndices[j]) ;
-                    AddLogMessage("%u ", face.mIndices[j]);
-                    
-                }
-                printf("\n") ;
-                AddLogMessage("\n");
-            }
-        }
+        std::shared_ptr<MeshRenderer> newMeshRenderer;
         std::shared_ptr<MeshRenderer> pp_mesh = Component::CreateComponentOfType<MeshRenderer>(mesh);
         if (!Texture::textures.empty()) pp_mesh->texture_id=Texture::textures[0].textureID;
-        ret.push_back(MeshRenderer::renderers.emplace_back(pp_mesh));
+        ret.push_back(newMeshRenderer = MeshRenderer::renderers.emplace_back(pp_mesh));
+
+        if (createGameObjects)
+        {
+            auto g = GameObject::CreateGameObject(meshRoot, mesh->mName.C_Str());
+            g->AddComponent(newMeshRenderer);
+
+            // Assigna la posicio de la mesh al gameobject creat
+            if (mesh->HasPositions())
+            {
+                auto matrix = meshToNodeMap[i]->mTransformation;
+                g->GetTransform()->SetPosition({matrix.a4, matrix.b4, matrix.c4});
+            }
+        }
 		
     }
 	
