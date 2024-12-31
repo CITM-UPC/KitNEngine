@@ -20,7 +20,7 @@ public:
     static const GLuint dataValsInVBO;
     static std::vector<std::shared_ptr<MeshRenderer>> renderers;
 
-    static std::vector<std::shared_ptr<MeshRenderer>> ImportMeshes(const char* filename);
+    static std::vector<std::shared_ptr<MeshRenderer>> ImportMeshes(const char* filename, bool createGameObjects = false);
     
     explicit MeshRenderer(const aiMesh* mesh);
     ~MeshRenderer();

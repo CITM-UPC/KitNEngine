@@ -118,15 +118,16 @@ void EntityManager::OnDropFile(OnDropEventType& fileName)
 {
     // TODO Deprecar quan tinguem recursos interns de l'editor, o com a minim fer que no elimini tots els objectes existents
     auto extension = std::filesystem::path(fileName).extension().string();
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
     if (extension == ".fbx")
     {
         MeshRenderer::renderers.clear();
         auto meshes = MeshRenderer::ImportMeshes(fileName.c_str());
 
     }
-    else if (extension == ".png" || extension == ".PNG"
-        || extension == ".JPG" || extension == ".JPEG" || extension == ".jpg" || extension == ".jpeg"
-        || extension == ".dds" || extension == ".DDS"
+    else if (extension == ".png"
+        || extension == ".jpg" || extension == ".jpeg"
+        || extension == ".dds"
         )
     {
         Texture::textures.clear();

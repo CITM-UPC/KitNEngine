@@ -19,7 +19,7 @@ namespace MeshFlags
     };
 }
 
-class KMesh : Resource {
+class KMesh : public Resource {
 public:
     // Retorna la quantitat de valors per vertex que s'envia a la GPU
     static int GetVertexSize(int flags);
@@ -29,7 +29,7 @@ public:
     KMesh();
     explicit KMesh(uuids::uuid uuid);
     explicit KMesh(const char* filepath);
-    bool InUse();
+    bool InUse() override;
 
     // Envia la mesh a la GPU
     void SetData(const std::vector<float>& vector, const std::vector<unsigned int>& indices);

@@ -15,7 +15,8 @@ ILuint Texture::ImportTexture(const char* path)
     return textures.emplace_back(path).textureID;
 }
 
-Texture::Texture(const GLint width, const GLint height)
+// TODO Assignar correctament UUID
+Texture::Texture(const GLint width, const GLint height) : Resource(uuids::uuid(), ResourceType::Texture)
 {
     std::vector<GLubyte> data(width*height*COLOR_CHANNELS);
     GLint size = width*height;
@@ -36,7 +37,8 @@ Texture::Texture(const GLint width, const GLint height)
     BufferTextureGL(data.data(), width, height);
 }
 
-Texture::Texture(const std::vector<GLubyte>& data, const GLint width, const GLint height)
+// TODO Assignar correctament UUID
+Texture::Texture(const std::vector<GLubyte>& data, const GLint width, const GLint height) : Resource(uuids::uuid(), ResourceType::Texture)
 {
     this->width = width;
     this->height = height;
@@ -44,7 +46,8 @@ Texture::Texture(const std::vector<GLubyte>& data, const GLint width, const GLin
     BufferTextureGL(data.data(), width, height);
 }
 
-Texture::Texture(const char* path)
+// TODO Assignar correctament UUID
+Texture::Texture(const char* path) : Resource(uuids::uuid(), ResourceType::Texture)
 {
     BufferTextureIL(path);
 }

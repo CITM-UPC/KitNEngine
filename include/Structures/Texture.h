@@ -4,15 +4,17 @@
 
 #ifndef TEXTURE_H
 #define TEXTURE_H
+#include "Common/Resources/Resource.h"
 #include <vector>
 
-#include "SDL_opengl.h"
-#include "IL/il.h"
+#include <SDL_opengl.h>
+#include <IL/il.h>
 
 #define COLOR_CHANNELS 4
 
-struct Texture {
-
+class Texture : public Resource {
+public:
+    
     static std::vector<Texture> textures;
 
     static ILuint ImportTexture(const char* path);
