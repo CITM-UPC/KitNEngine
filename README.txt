@@ -11,3 +11,10 @@ Se puede usar la Ui superior para salir y acceder al GitHub, opción para "crear
 y ventanas para la jerarquía, inspector, configuración, y consola
 Se pueden arrastrar ficheros .fbx para modelos
 También son compatibles los ficheros .png, .jpg y .dds para texturas
+
+
+Cosas nuevas en la entrega 2:
+La consola ya funciona, y se puede limpiar y limitar la cantidad de texto maximo
+Ya hay una configuracion con multiples opcinoes para apagar o activar y modificar valores
+Se crean los  AABB
+El stncil esta a medias, pero se puede ver que en parte funciona
