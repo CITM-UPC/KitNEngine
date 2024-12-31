@@ -94,7 +94,7 @@ void init_shaders()
 
 static bool LoadModels(const char* filename)
 {
-	MeshRenderer::ImportMeshes(filename);
+	MeshRenderer::ImportMeshes(filename, true);
 	return true;
 }
 
@@ -127,17 +127,17 @@ int main(int argc, char** argv) {
 
 	//Load models
 	//InitDefaultModel();
-	const char* path= "Assets/Models/BakerHouse.fbx";
+	const char* path= "Assets/Models/Street environment_V01.FBX";
 	
 	LoadModels(path);
 
-	std::shared_ptr<GameObject> modelRoot = GameObject::CreateGameObject(nullptr, "mesh");
+	/*std::shared_ptr<GameObject> modelRoot = GameObject::CreateGameObject(nullptr, "mesh");
 	for (auto& mesh : MeshRenderer::renderers)
 	{
 		std::shared_ptr<GameObject> g = GameObject::CreateGameObject(modelRoot, "GameObject "+mesh->GetName());
 		//auto c = dynamic_pointer_cast<Component>(mesh);
 		g->AddComponent(mesh);
-	}
+	}*/
 
 	// GameObject arrel per a components de l'editor. No es troba en la llista principal de GameObjects
 	/*std::shared_ptr<GameObject> editorRootObject = make_shared<GameObject>("EditorObject");
