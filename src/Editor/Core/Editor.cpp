@@ -8,11 +8,11 @@
 #include <memory>
 
 //Modules
-#include "Modules/Inspector.h"
+#include "Editor/Modules/Inspector.h"
 
 //Components
-#include "Component/GameObject.h"
-#include "Component/Camera.h"
+#include "Game/Component/GameObject.h"
+#include "Game/Component/Camera.h"
 
 Editor::Editor()
 {

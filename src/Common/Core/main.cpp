@@ -6,20 +6,20 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 
-#include "MyWindow.h"
+#include "Game/Modules/MyWindow.h"
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/ilut.h"
-#include "Structures/MeshRenderer.h"
-#include "Structures/Shader.h"
-#include "Structures/Texture.h"
-#include "Component/GameObject.h"
-#include "Component/Camera.h"
-#include "Config/Config.h"
+#include "Game/Component/MeshRenderer.h"
+#include "Game/Resources/Shader.h"
+#include "Game/Resources/Texture.h"
+#include "Game/Component/GameObject.h"
+#include "Game/Component/Camera.h"
+#include "Game/Config/Config.h"
 #include "Editor/Core/Editor.h"
 #include "Game/Core/Game.h"
-#include "Utilities/Time.h"
-#include "Structures/UIWindows.h"
+#include "Game/Utilities/Time.h"
+#include "Editor/Misc/UIWindows.h"
 
 using namespace std;
 

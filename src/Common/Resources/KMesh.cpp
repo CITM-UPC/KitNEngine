@@ -2,7 +2,7 @@
 // Created by Roger on 25/12/2024.
 //
 
-#include "Common/Resources/KMesh.h"
+#include "Game/Resources/KMesh.h"
 
 
 inline void KMesh::GenerateBuffer(const GLenum type, GLuint& bufferID, const void* data, const GLsizeiptr dataSize, const GLenum usage)

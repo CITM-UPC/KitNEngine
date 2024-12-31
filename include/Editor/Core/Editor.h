@@ -4,7 +4,7 @@
 
 #ifndef EDITOR_H
 #define EDITOR_H
-#include "Common/Core/App.h"
+#include "Game/Core/App.h"
 
 class GameObject;
 class Camera;

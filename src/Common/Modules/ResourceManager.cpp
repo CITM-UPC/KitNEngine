@@ -2,10 +2,10 @@
 // Created by Roger on 25/12/2024.
 //
 
-#include "Common/Modules/ResourceManager.h"
-#include "Common/Resources/Resource.h"
+#include "Game/Modules/ResourceManager.h"
+#include "Game/Resources/Resource.h"
 
-#include "Utilities/Time.h"
+#include "Game/Utilities/Time.h"
 std::weak_ptr<ResourceManager> ResourceManager::rm_instance;
 
 std::shared_ptr<ResourceManager> ResourceManager::getInstance()

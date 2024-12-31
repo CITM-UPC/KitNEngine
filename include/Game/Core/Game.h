@@ -4,7 +4,7 @@
 
 #ifndef GAME_H
 #define GAME_H
-#include "Common/Core/App.h"
+#include "App.h"
 #include <memory>
 
 class Input;

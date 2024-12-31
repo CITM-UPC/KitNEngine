@@ -1,8 +1,8 @@
 //
 // Created by Roger on 31/12/2024.
 //
-#include "Common/Resources/Resource.h"
-#include "Common/Modules/ResourceManager.h"
+#include "Game/Resources/Resource.h"
+#include "Game/Modules/ResourceManager.h"
 
 bool Resource::InUse()
 {

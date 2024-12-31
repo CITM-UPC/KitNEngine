@@ -7,9 +7,9 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#include "Common/Modules/ResourceManager.h"
-#include "Modules/Input.h"
-#include "Modules/EntityManager.h"
+#include "Game/Modules/ResourceManager.h"
+#include "Game/Modules/Input.h"
+#include "Game/Modules/EntityManager.h"
 
 
 Game::Game()

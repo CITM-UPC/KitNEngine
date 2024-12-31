@@ -2,13 +2,12 @@
 // Created by Roger on 25/12/2024.
 //
 
-#include "Common/Importers/MeshImporter.h"
+#include "Game/Importers/MeshImporter.h"
 
-#include <stdexcept>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include "Structures/UIWindows.h"
+#include "Editor/Misc/UIWindows.h"
 
 void MeshImporter::Import(const char* filename)
 {

@@ -30,7 +30,7 @@ find_package(glew CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(Bullet CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} ${SOURCES}   "src/Utilities/Stencil.cpp" "include/Utilities/Stencil.h" "include/Component/AAPP.h" "src/Component/AAPP.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC include ${IL_INCLUDE_DIR})
 
