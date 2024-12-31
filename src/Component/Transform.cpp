@@ -21,7 +21,7 @@ glm::vec3 Transform::GetPosition() const
 
 glm::quat Transform::GetRotation() const
 {
-    return glm::quat_cast(basis);
+    return glm::normalize(glm::quat_cast(basis));
 }
 
 glm::vec3 Transform::GetScale() const

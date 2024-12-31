@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 
 	// Load textures
 	//textures.push_back(make_unique<Texture>(256,256));
-	LoadTextures("Assets/Textures/Baker_house.png");
+	LoadTextures("Assets/Textures/Street environment/Building_V02_C.png");
 
 	//Load models
 	//InitDefaultModel();

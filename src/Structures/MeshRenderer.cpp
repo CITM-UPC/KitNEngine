@@ -9,13 +9,16 @@
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Common/Resources/KMesh.h"
 #include "Component/GameObject.h"
 #include "Structures/Shader.h"
 #include "Structures/Texture.h"
 #include "Structures/UIWindows.h"
+#include "Utilities/CustomAssimpUtils.h"
 #include "Utilities/Defs.h"
 
 const GLuint MeshRenderer::dataValsInVBO = 5; // position(3), UV(2)
@@ -47,7 +50,9 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
     std::shared_ptr<GameObject> meshRoot;
     if (createGameObjects)
     {
-        meshRoot = GameObject::CreateGameObject(nullptr, scene->mName.C_Str());
+        const std::filesystem::path path(filename);
+        const std::string name = path.filename().string();
+        meshRoot = GameObject::CreateGameObject(nullptr, name);
     }
     
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
@@ -65,8 +70,10 @@ std::vector<std::shared_ptr<MeshRenderer>> MeshRenderer::ImportMeshes(const char
             // Assigna la posicio de la mesh al gameobject creat
             if (mesh->HasPositions())
             {
-                auto matrix = meshToNodeMap[i]->mTransformation;
-                g->GetTransform()->SetPosition({matrix.a4, matrix.b4, matrix.c4});
+                glm::mat4 matrix = toGlmMat4(meshToNodeMap[i]->mTransformation);
+                auto t = g->GetTransform();
+                t->SetPosition({matrix[3][0], matrix[3][1], matrix[3][2]});
+                t->SetRotation(glm::quat_cast(matrix));
             }
         }
 		
