@@ -14,7 +14,13 @@ También son compatibles los ficheros .png, .jpg y .dds para texturas
 
 
 Cosas nuevas en la entrega 2:
-La consola ya funciona, y se puede limpiar y limitar la cantidad de texto maximo
-Ya hay una configuracion con multiples opcinoes para apagar o activar y modificar valores
-Se crean los  AABB
-El stncil esta a medias, pero se puede ver que en parte funciona
+- La consola ya funciona, y se puede limpiar y limitar la cantidad de texto máximo
+- Ya hay una configuración con multiples opciones para apagar o activar y modificar valores
+- Se muestran los AABB del objeto seleccionado
+- El stencil esta a medias, pero se puede ver que en parte funciona
+- Importación y gestión de recursos parcialmente implementados
+- Inspector funcional, permite ver y modificar el transform del gameobject y sus componentes
+- Como modelo inicial se carga el modelo proporcionado en la pagina de la entrega
+- En su mayoría el código del juego está separado del editor, excepto por el código que muestra el contenido del inspector
+- Jerarquía de objetos, transforms para cada GameObject y gestión de componentes implementados
+- MeshRenderer como componente de GameObject y usando el transform de este
